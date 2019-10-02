@@ -16,8 +16,13 @@ class DATACONTROLLERSHARED_EXPORT DataController : public IDataController
 
 public:
     explicit DataController(QSharedPointer<IReciverDevice> dev,
+                            QSharedPointer<IDemodulator> dem);
+
+    explicit DataController(QSharedPointer<IReciverDevice> dev,
                             QSharedPointer<IDemodulator> dem,
-                            TYPE_WORKER typeWorker = TYPE_WORKER::DATA_STREAM);
+                            const QString & ip,
+                            uint16_t port);
+
     ~DataController() override;
 
     void run() override;

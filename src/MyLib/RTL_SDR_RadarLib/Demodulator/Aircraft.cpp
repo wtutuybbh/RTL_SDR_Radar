@@ -8,7 +8,7 @@
 
 Aircraft::Aircraft(uint32_t icao) : _icao(icao)
 {
-    _flight[0] = '\0';
+     memset((char*)_flight, 0, SIZE_TEXT);
     _altitude = 0;
     _speed = 0;
     _course = 0;
@@ -64,7 +64,7 @@ QByteArray Aircraft::serialize()
     StructAircraft a;
     a.icao = _icao;
 
-    memset((char*)a.flight,0,sizeof (a.flight));
+    memset((char*)a.flight, 0, sizeof (a.flight));
     memcpy((char*)a.flight, (char*)_flight, sizeof(a.flight));
 
     a.altitude = uint32_t(_altitude * VALUE_LSB);
@@ -75,7 +75,7 @@ QByteArray Aircraft::serialize()
     a.seen = _seen;
     a.messages = _messages;
 
-    memcpy(array.data(),(char*)&a,sizeof (StructAircraft));
+    memcpy(array.data(), (char*)&a, sizeof (StructAircraft));
 
     return  array;
 }
@@ -84,5 +84,10 @@ bool Aircraft::unserialize(QByteArray array)
 {
     Q_UNUSED(array);
     return false;
+}
+
+uint32_t Aircraft::serializedFrameSize()
+{
+    return sizeof(StructAircraft);
 }
 

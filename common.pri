@@ -3,8 +3,7 @@ PROJECT_ROOT_PATH = $${PWD}
 
 # Далее определяем то, под какой ОС происходит сборка
 # и устанавливаем соответствующим образом значение суффикса OS_SUFFIX.
-win32: OS_SUFFIX = win32
-linux-g++: OS_SUFFIX = linux
+OS_SUFFIX = linux
 
 # в зависимости от режима сборки (debug или release)
 # определяется значение BUILD_FLAG, которое будет указывать

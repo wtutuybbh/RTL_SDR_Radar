@@ -25,10 +25,10 @@ class Core : public QObject
     QTimer _timer;
     MainWindow* _mainWindow = nullptr;
 
-    QSharedPointer<IPoolObject> _poolObjects = nullptr;
+    QSharedPointer<IPoolObject> _poolObjects;
     IDataController* _dataController = nullptr;
-    QSharedPointer<IReciverDevice> _device = nullptr;
-    QSharedPointer<IDemodulator> _demodulator = nullptr;
+    QSharedPointer<IReciverDevice> _device;
+    QSharedPointer<IDemodulator> _demodulator;
 
 public:
     explicit Core(QObject *parent = nullptr);

@@ -94,8 +94,8 @@ class DEMODULATORSHARED_EXPORT Demodulator : public IDemodulator
     QVector<uint32_t> icao_cache;
 
     QHash<uint32_t,QSharedPointer<Aircraft>> _hashAircrafts;
-    QSharedPointer<IPoolObject> _pool = nullptr;
-    QSharedPointer<ILogger> _log = nullptr;
+    QSharedPointer<IPoolObject> _pool;
+    QSharedPointer<ILogger> _log;
 
     /* Statistics */
     uint64_t stat_valid_preamble = 0;

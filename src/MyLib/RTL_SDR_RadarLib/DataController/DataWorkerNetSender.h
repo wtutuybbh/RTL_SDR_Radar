@@ -11,9 +11,15 @@ class DataWorkerNetSender : public DataWorker
     const int64_t SEND_INTERVAL = 500;
     const uint16_t CONNECT_TIMEOUT = 100;
 
+    QString _ip = DEFAULT_IP;
+    uint16_t _port = DEFAULT_PORT;
+    int64_t _sendInterval = SEND_INTERVAL;
+
 public:
     DataWorkerNetSender(QSharedPointer<IReciverDevice> dev,
                   QSharedPointer<IDemodulator> dem,
+                  const QString& ip,
+                  uint16_t port,
                   size_t dataSize = MODES_DATA_LEN + MODES_FULL_LEN_OFFS);
     ~DataWorkerNetSender() override;
 

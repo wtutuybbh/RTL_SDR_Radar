@@ -7,6 +7,7 @@
 #include <QWaitCondition>
 #include <chrono>
 #include <atomic>
+#include <memory>
 
 #include "IWorker.h"
 #include "dsp/IDSP.h"

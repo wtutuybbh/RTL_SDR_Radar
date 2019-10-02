@@ -19,7 +19,7 @@ struct StructAircraft
     int32_t lat;
     int32_t lon;
     int64_t seen;        /* Time at which the last packet was received. */
-    uint64_t messages;      /* Number of Mode S messages received. */
+    uint32_t messages;      /* Number of Mode S messages received. */
 };
 #pragma pack(pop)
 
