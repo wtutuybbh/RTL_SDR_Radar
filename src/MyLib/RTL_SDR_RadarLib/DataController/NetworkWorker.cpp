@@ -1,6 +1,9 @@
 #include <QString>
 #include <QHostAddress>
 #include <QThread>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 
 #include "NetworkWorker.h"
 
@@ -30,8 +33,20 @@ bool NetworkWorker::connect(const QString &ip, uint16_t port, uint16_t timeout)
     if(_socket == nullptr)
         _socket = std::unique_ptr<QTcpSocket>(new QTcpSocket());
 
+    int fd = _socket->socketDescriptor();
+    _socket->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
+
+    int maxIdle = 5; /* seconds */
+    setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &maxIdle, sizeof(maxIdle));
+
+    int count = 3;  // send up to 3 keepalive packets out, then disconnect if no response
+    setsockopt(fd, SOL_TCP, TCP_KEEPCNT, &count, sizeof(count));
+
+    int interval = 2;   // send a keepalive packet out every 2 seconds (after the 5 second idle period)
+    setsockopt(fd, SOL_TCP, TCP_KEEPINTVL, &interval, sizeof(interval));
+
     if(isConnected())
-        disconnect();  
+        disconnect();
 
     if(!_socket)
     {
@@ -45,18 +60,27 @@ bool NetworkWorker::connect(const QString &ip, uint16_t port, uint16_t timeout)
         return false;
     }
 
-    QString logString = QString("[TCP] try connect to: IP = %1, port = %2 ..../").arg(ip).arg(port);
-
-    addDebugMsg(logString);
+    if(!_addLogInfo)
+    {
+        QString logString = QString("[TCP] try connect to: IP = %1, port = %2 ..../").arg(ip).arg(port);
+        addDebugMsg(logString);
+    }
 
     if( _socket->state() != QAbstractSocket::ConnectedState &&
-        _socket->state() != QAbstractSocket::ConnectingState)
+            _socket->state() != QAbstractSocket::ConnectingState)
     {
         _socket->connectToHost(ip, port);
         if(!_socket->waitForConnected(timeout))
         {
-            logString = QString( "[TCP] get error string from connection: %1 ").arg(_socket->errorString());
-            addDebugMsg(logString);
+            if(!_addLogInfo)
+            {
+                QString logString = QString( "[TCP] get error string from connection: %1 ")
+                        .arg(_socket->errorString());
+
+                addDebugMsg(logString);
+                _addLogInfo = true;
+            }
+
             return false;
         }
     }
@@ -65,13 +89,14 @@ bool NetworkWorker::connect(const QString &ip, uint16_t port, uint16_t timeout)
 
 bool NetworkWorker::isConnected()
 {
-    return (_socket != nullptr) && (_socket->state() == QAbstractSocket::ConnectedState);
+    return (_socket != nullptr) && (_socket->state() == QAbstractSocket::ConnectedState);;
 }
 
 void NetworkWorker::disconnect()
 {
     if(_socket)
     {
+        _addLogInfo = false;
         _socket->disconnectFromHost();
         addDebugMsg("[TCP] disconnect");
     }
@@ -102,7 +127,7 @@ int64_t NetworkWorker::writeDatagramm(QString& ip,
         return  -1;
 
     if( (_socket->peerAddress().toString() != ip) &&
-        (_socket->peerPort() != port ))
+            (_socket->peerPort() != port ))
     {
         disconnect();
         connect(ip,port);

@@ -15,6 +15,9 @@ class NetworkWorker : public INetworkWorker
     std::unique_ptr<QTcpSocket> _socket = nullptr;
 
     void addDebugMsg(const QString& str);
+
+    bool _addLogInfo = false;
+
 public:
     NetworkWorker(const QString& ip,
                   uint16_t port);

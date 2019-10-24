@@ -980,10 +980,11 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
         addDebugMsg(QString("Update info aircraft with ICAO : %1\nCount aircraft = %2")
                         .arg(addr,16,16)
                         .arg(_hashAircrafts.count()));
+        a->incNumberMsg();
     }
 
     a->setSeenTime(QDateTime::currentMSecsSinceEpoch());
-    a->incNumberMsg();
+
 
     if (mm->msgtype == 0 || mm->msgtype == 4 || mm->msgtype == 20)
         a->setAltitude( mm->altitude / CONVERT_FT_TO_METERS);

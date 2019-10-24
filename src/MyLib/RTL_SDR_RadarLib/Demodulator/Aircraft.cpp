@@ -21,7 +21,7 @@ Aircraft::Aircraft(uint32_t icao) : _icao(icao)
     _lat = -200.0;
     _lon = -400.0;
     _seen = QDateTime::currentMSecsSinceEpoch();
-    _messages = 0;
+    _messages = 1;
 }
 
 void Aircraft::setFlightInfo(char *val)
