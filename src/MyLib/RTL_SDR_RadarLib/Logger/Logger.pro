@@ -17,7 +17,7 @@ SOURCES += \
 HEADERS +=\
         logger_global.h \
         Logger.h \
-        ../../../include/ILogger.h
+        ../../../include/interface/ILogger.h
 
 unix {
     target.path = /usr/lib

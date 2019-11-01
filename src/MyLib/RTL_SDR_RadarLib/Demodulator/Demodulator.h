@@ -35,10 +35,10 @@
 #include <QRunnable>
 
 #include "demodulator_global.h"
-#include "IDemodulator.h"
-#include "ILogger.h"
+#include "interface/IDemodulator.h"
+#include "interface/ILogger.h"
 
-#include "../../../../import/sdr_dev/include/constant.h"
+#include "sdr_dev/include/constant.h"
 
 /* The struct we use to store information about a decoded message. */
 struct modesMessage

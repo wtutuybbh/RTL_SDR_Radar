@@ -25,8 +25,8 @@ HEADERS += carrier_global.h \
     Carrier.h\
     NullCarrier.h \
     ServiceLocator.h \
-    ../../../include/ICarrierClass.h \
-    ../../../include/INavigationSystem.h \
+    ../../../include/interface/ICarrierClass.h \
+    ../../../include/interface/INavigationSystem.h \
     NavigationSystem.h \
     NullNavigationSystem.h
 

@@ -48,7 +48,7 @@ SOURCES += \
     core/Core.cpp
 
 HEADERS += \
-    ../../include/INetworkWorker.h \
+    ../../include/interface/INetworkWorker.h \
     ../../include/widget/led/led.h \
     ui/Mainwindow.h \
     core/Core.h

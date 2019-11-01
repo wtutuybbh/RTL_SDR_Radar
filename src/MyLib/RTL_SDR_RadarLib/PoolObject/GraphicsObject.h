@@ -7,7 +7,7 @@
 #include <QString>
 #include <QFile>
 
-#include "IObject.h"
+#include "interface/IObject.h"
 
 class GraphicsObject : public QGraphicsObject
 {

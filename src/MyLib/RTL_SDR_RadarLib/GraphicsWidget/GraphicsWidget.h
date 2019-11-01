@@ -13,10 +13,10 @@
 #include <QTimer>
 #include <math.h>
 
-#include "IPoolObject.h"
-#include "IObject.h"
+#include "interface/IPoolObject.h"
+#include "interface/IObject.h"
 #include "../Subject/Subject.h"
-#include "IMapController.h"
+#include "implements/MapController.h"
 #include "coord/Position.h"
 #include "../Carrier/ServiceLocator.h"
 
@@ -31,19 +31,19 @@ public:
                             QWidget *parent = 0);
     ~GraphicsWidget() override;
 
-    void setMapContoller(QSharedPointer<IMapController> ptr);
-
+    void setMapContoller(QSharedPointer<IMapController> ptr)
+    {
+        _ptrMapController = ptr;
+    }
     void subscribe(QSharedPointer<IPoolObject> poolObject);
     void unsubscribe() override;
     void update(Subject* sub) override;
 
-
 private:
     QSharedPointer<IPoolObject> _ptrPoolObject;
     QSharedPointer<IMapController> _ptrMapController;
+    QSharedPointer<ICarrierClass> _ptrCarrier;
 
-
-    QTimer timer;
     QTimer _timer;
     //графическая сцена
     QGraphicsScene * _scene;
@@ -83,7 +83,7 @@ private:
     const double _textBorder = 28;
     double _distToBorderMap;
 
-    const QColor _clrGreen    =  QColor(0,128,0);
+    const QColor _clrGreen    =  QColor(0xAA,0xCF,0xD1);//QColor(0,128,0);
     const QColor _clrRed        = QColor(250,0,0);
     const QColor _clrBlue       = QColor(0,204,255);
     const QColor _clrYellow     = QColor(255,255,0);
@@ -150,7 +150,9 @@ private slots:
     //    //ночь-день
     //    void setNight(bool value);
     //    //обновление сцены при загрузке карты
-    //    void updateScene();
+
+    void updateScene();
+
 signals:
     void signalDataToTable(QStringList list);
     void signalUpdateData();

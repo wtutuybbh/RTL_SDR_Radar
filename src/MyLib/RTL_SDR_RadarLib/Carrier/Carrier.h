@@ -2,7 +2,7 @@
 #define CARRIER_H
 
 #include "carrier_global.h"
-#include "ICarrierClass.h"
+#include "interface/ICarrierClass.h"
 #include "NavigationSystem.h"
 #include "NullCarrier.h"
 #include "NullNavigationSystem.h"

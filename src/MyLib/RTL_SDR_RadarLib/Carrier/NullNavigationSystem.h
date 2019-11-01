@@ -1,7 +1,7 @@
 #ifndef NULLNAVIGATIONSYSYTEM_H
 #define NULLNAVIGATIONSYSYTEM_H
 
-#include "INavigationSystem.h"
+#include "interface/INavigationSystem.h"
 
 class NullNavigationSystem final : public INavigationSystem
 {
@@ -14,7 +14,7 @@ public:
 
     //set/get координат
     void setGeoCoord(const Position &)  {}
-    Position getGeoCoord() { return Position(30.4652,60.8422); }
+    Position getGeoCoord() { return Position(39.736583, 47.293666); }
 
     //set/get скорости
     void setSpeed(double) {}

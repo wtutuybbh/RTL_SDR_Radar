@@ -5,7 +5,7 @@
 
 struct SPolarCoord
 {
-    SPolarCoord(double p,double r):phi(p),range(r){}
+    SPolarCoord(double p, double r):phi(p),range(r){}
     double phi;      //пеленг
     double range;    //дальность
 };

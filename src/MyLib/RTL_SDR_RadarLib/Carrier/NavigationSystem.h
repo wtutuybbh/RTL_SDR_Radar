@@ -3,7 +3,7 @@
 
 #include <QDateTime>
 
-#include "INavigationSystem.h"
+#include "interface/INavigationSystem.h"
 
 class NavigationSystem : public INavigationSystem
 {

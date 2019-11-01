@@ -5,9 +5,9 @@
 #include <memory>
 
 #include "datacontroller_global.h"
-#include "IDataController.h"
-#include "IPoolObject.h"
-#include "IWorker.h"
+#include "interface/IDataController.h"
+#include "interface/IPoolObject.h"
+#include "interface/IWorker.h"
 
 class DATACONTROLLERSHARED_EXPORT DataController : public IDataController
 {

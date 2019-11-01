@@ -9,9 +9,9 @@
 #include <atomic>
 #include <memory>
 
-#include "IWorker.h"
+#include "interface/IWorker.h"
 #include "dsp/IDSP.h"
-#include "../../../../import/sdr_dev/include/constant.h"
+#include "sdr_dev/include/constant.h"
 
 class DataWorker : public IWorker
 {

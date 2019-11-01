@@ -34,7 +34,7 @@ SOURCES += \
 HEADERS += \
         RTL_SDR_Reciver.h \
         rtl_sdr_reciver_global.h \ 
-    ../../../include/IReciverDevice.h \
+    ../../../include/interface/IReciverDevice.h \
     ../../../../import/sdr_dev/include/constant.h \
     ../../../../import/sdr_dev/include/reg_field.h \
     ../../../../import/sdr_dev/include/rtl-sdr_export.h \

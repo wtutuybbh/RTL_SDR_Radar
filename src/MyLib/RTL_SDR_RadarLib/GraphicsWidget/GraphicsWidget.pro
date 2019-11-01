@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += widgets opengl core gui
+QT       += widgets opengl core gui network
 
 TARGET = GraphicsWidget
 TEMPLATE = lib
@@ -12,12 +12,20 @@ TEMPLATE = lib
 DEFINES += GRAPHICSWIDGET_LIBRARY
 
 SOURCES += GraphicsWidget.cpp \
-    ../../../include/coord/ScreenConversions.cpp
+    ../../../include/coord/ScreenConversions.cpp \
+    implements/MapController.cpp \
+    ../../../../import/osm/MapGraphicsNetwork.cpp \
+    ../../../../import/osm/MapTileSource.cpp \
+    ../../../../import/osm/OSMTileSource.cpp
 
 HEADERS += GraphicsWidget.h\
         graphicswidget_global.h \
-     ../../../include/IMapController.h \
-    ../../../include/coord/ScreenConversions.h
+     ../../../include/interface/IMapController.h \
+    ../../../include/coord/ScreenConversions.h \
+    implements/MapController.h \
+    ../../../../import/osm/MapGraphicsNetwork.h \
+    ../../../../import/osm/MapTileSource.h \
+    ../../../../import/osm/OSMTileSource.h
 
 unix {
     target.path = /usr/lib
@@ -29,5 +37,5 @@ include( ../../../../lib.pri )
 
 
 LIBS += -lSubject \
-#        -lMapLib \
+        -lMapLib
 #        -lCarrier

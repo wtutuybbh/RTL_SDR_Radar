@@ -11,7 +11,8 @@ enum class FilterType
 {
     No = 0,
     Night,
-    Circle
+    Circle,
+    CircleAndNight
 };
 
 class IMapController : public QObject
@@ -21,17 +22,18 @@ public:
     virtual ~IMapController(){}
 
     virtual QImage getImageMap( int w,
-                                  int h,
-                                  Position &center,
-                                  double scale,
-                                  FilterType type = FilterType::No) = 0;
+                                int h,
+                                const Position &center,
+                                int zoom,
+                                FilterType type = FilterType::No) = 0;
 
     virtual QImage getImageMap( int w,
-                                  int h,
-                                  FilterType type = FilterType::No) = 0;
+                                int h,
+                                int zoom,
+                                FilterType type = FilterType::No) = 0;
 
     //центральная точка в географических координатах
-    virtual Position getCenterGeoPoint() = 0;
+    virtual Position getCenterGeoPoint() const = 0;
     virtual void setCenterGeoPoint(const Position &geoCenter) = 0;
 
     //экранные координаты в полярные c учетом масштаба
@@ -50,6 +52,9 @@ public:
 
     //проверка попадает ли точка в область видимости
     virtual bool isVisibleInCurrentScale(double dist) = 0;
+
+signals:
+
 };
 #endif // IMAPCONTROLLER
 

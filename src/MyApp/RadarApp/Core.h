@@ -12,7 +12,6 @@
 #include "../MyLib/RTL_SDR_RadarLib/Logger/Logger.h"
 #include "../MyLib/RTL_SDR_RadarLib/Carrier/Carrier.h"
 #include "../MyLib/RTL_SDR_RadarLib/Carrier/ServiceLocator.h"
-//#include "../MyLib/RTL_SDR_RadarLib/MapLib/MapLib.h"
 #include "../MyLib/RTL_SDR_RadarLib/DataController/DataController.h"
 #include "../MyLib/RTL_SDR_RadarLib/RTL_SDR_Reciver/RTL_SDR_Reciver.h"
 #include "../MyLib/RTL_SDR_RadarLib/Demodulator/Demodulator.h"
@@ -29,7 +28,6 @@ class Core : public QObject
     IDataController* _dataController = nullptr;
     QSharedPointer<IReciverDevice> _device;
     QSharedPointer<IDemodulator> _demodulator;
-
 public:
     explicit Core(QObject *parent = nullptr);
     ~Core();

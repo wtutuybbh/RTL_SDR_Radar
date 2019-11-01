@@ -5,7 +5,7 @@
 #include <QStack>
 
 #include "logger_global.h"
-#include "ILogger.h"
+#include "interface/ILogger.h"
 
 class LOGGERSHARED_EXPORT Logger: public ILogger
 {

@@ -11,7 +11,6 @@ GraphicsWidget::GraphicsWidget(double w,
     _pxmMap(static_cast<int>(_widthWidget),static_cast<int>(_widthWidget))
 {
     subscribe(poolObject);
-//    qDebug()<<"create GraphicsWidget" << QThread::currentThreadId();
 
     initWidget(QRect(0,
                      0,
@@ -23,11 +22,12 @@ GraphicsWidget::GraphicsWidget(double w,
     //обновление сектора
     connect(&_timer,SIGNAL(timeout()),this,SLOT(timeout()));
 
-    QObject::connect(this,
-                     SIGNAL(signalUpdateData()),
-                     this,
-                     SLOT(slotUpdateData()));
+    _ptrMapController = QSharedPointer<IMapController>(new MapController());
 
+    connect(_ptrMapController.data(),
+            SIGNAL(updateTileGride()),this,SLOT(updateScene()));
+
+    _timer.start(25);
 }
 
 GraphicsWidget::~GraphicsWidget()
@@ -44,12 +44,6 @@ GraphicsWidget::~GraphicsWidget()
     qDebug()<<"~GraphicsWidget() -> clear and delete scene";
 
     unsubscribe();
-}
-
-
-void GraphicsWidget::setMapContoller(QSharedPointer<IMapController> ptr)
-{
-    _ptrMapController = ptr;
 }
 
 void GraphicsWidget::subscribe(QSharedPointer<IPoolObject> poolObject)
@@ -322,14 +316,56 @@ void GraphicsWidget::drawBackground(QPainter *painter, const QRectF &rect)
 {
     Q_UNUSED(rect);
 
-    //!!!!!!!!сюда вставить отрисовку карты
-    //!
-
     painter->setRenderHint(QPainter::Antialiasing);
+
+    if(!_ptrMapController.isNull())
+    {
+        QImage img = _ptrMapController->getImageMap(_widthWidget,
+                                                    _heightWidget,
+                                                     ServiceLocator::getCarrier()->getGeoCoord(),
+                                                    4,
+                                                    FilterType::Night);
+
+        if (!img.isNull())
+        {
+
+            //режим круга
+            int size = _widthWidget;
+
+            QImage shapeImg(QSize(size, size), QImage::Format_ARGB32_Premultiplied);
+            shapeImg.fill(QColor(0, 0, 0, 0).rgba());
+            QPainter sp(&shapeImg);
+            sp.setRenderHint(QPainter::Antialiasing);
+            sp.fillRect(0, 0, size, size, Qt::transparent);
+            sp.setPen(QPen(Qt::black));
+            sp.setBrush(QBrush(Qt::black));
+            sp.drawEllipse(QPoint(_widthWidget / 2, _widthWidget / 2),
+                           _distToBorderMap,
+                           _distToBorderMap);
+            sp.end();
+
+            QImage roundSquaredImage(size, size, QImage::Format_ARGB32_Premultiplied);
+            roundSquaredImage.fill(QColor(0, 0, 0, 0).rgba());
+
+            QPainter p(&roundSquaredImage);
+            p.fillRect(0, 0, size, size, Qt::transparent);
+            p.drawImage(0, 0, shapeImg);
+            p.setPen(QPen(Qt::black));
+            p.setBrush(QBrush(Qt::black));
+            p.setCompositionMode(QPainter::CompositionMode_SourceIn);
+            p.drawImage(0, 0, img);
+            p.end();
+            //if(getDisplayMode() == MapMode::POLAR_MODE)
+            img = roundSquaredImage;
+        }
+
+        painter->drawImage(0, 0, img);
+    }
     painter->setPen(QPen(QBrush(_clrGreen),1));
 
     //внешние точки, большие через 5 градусов
     double rad = _scene->sceneRect().width()/2 - _textBorder + 5;
+
     //рисуем большие точки и надписи
     drawDotCicleWithLabel(painter, rad);
 
@@ -357,8 +393,8 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
     drawCarrier(painter);
 
     //TODO: исправить расчет положения надписей
-//    drawInfo(painter);
-//    printCoord(painter);
+    //    drawInfo(painter);
+    //    printCoord(painter);
 
     //qDebug()<< QThread::currentThreadId() <<"draw";
 
@@ -370,7 +406,7 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
 
         if(!_ptrMapController.isNull())
         {
-            dot = _ptrMapController->geoToScreenCoordinates(_ptrCarrier->getGeoCoord());
+          //  dot = _ptrMapController->geoToScreenCoordinates(_ptrCarrier->getGeoCoord());
         }
 
         //для отрисовки градиента, как на старых радарах
@@ -384,7 +420,7 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
         //по производительности одинаково, но так меньше кода
         gradient.setCenter(drawingRect.center());
         gradient.setAngle(-_cource);
-        gradient.setColorAt(0, QColor(0, 180, 0,100));
+        gradient.setColorAt(0, QColor(170,207,209,100));
         gradient.setColorAt(0.2, QColor(0,0,0,0));
 
         painter->setPen(QPen(Qt::black));
@@ -392,8 +428,7 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
         painter->setBrush(QBrush(gradient));
 
         painter->drawEllipse(drawingRect);
-
-        painter->setPen(QColor(0,220,0));
+        painter->setPen(QColor(170,207,209));
 
         painter->drawLine(drawingRect.center(),QPointF(ScreenConversions::polarToScreen(_screenCenter,
                                                                                         _cource + _sectorSize * 2,
@@ -434,7 +469,7 @@ void GraphicsWidget::drawCarrier(QPainter *p)
 
     if(!_ptrMapController.isNull())
     {
-        dot = _ptrMapController->geoToScreenCoordinates(_ptrCarrier->getGeoCoord());
+       // dot = _ptrMapController->geoToScreenCoordinates(_ptrCarrier->getGeoCoord());
     }
     p->save();
     p->setPen(QPen(QBrush(QColor(0,250,0)),5));
@@ -614,7 +649,13 @@ void GraphicsWidget::slotUpdateData()
     }
     _ptrPoolObject->unlockPool();
 
-    //qDebug()<<"GraphicsWidget::update()->slotUpdateData();" <<_scene->items().count();
+    qDebug()<<"GraphicsWidget::update()->slotUpdateData();" <<_scene->items().count();
+    _scene->update();
+}
+
+void GraphicsWidget::updateScene()
+{
+    resetCachedContent();
     _scene->update();
 }
 

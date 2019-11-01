@@ -39,7 +39,6 @@ void Core::init()
     _dataController->run();
 
     _mainWindow  = new MainWindow();
-    _mainWindow->showRadarWidget(false);
     _mainWindow->show();
 
     QObject::connect(&_timer,SIGNAL(timeout()),this,SLOT(slotTimeout()));

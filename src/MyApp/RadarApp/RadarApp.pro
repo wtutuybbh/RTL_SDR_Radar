@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets opengl
+QT       += core gui widgets opengl network
 
 TARGET = RadarApp
 TEMPLATE = app
@@ -51,9 +51,9 @@ DISTFILES += \
 LIBS += -lLogger \
         -lPoolObject \
         -lSubject \
+        -lMapLib \
         -lGraphicsWidget \
         -lCarrier \
-        -lMapLib \
         -lDataController \
         -lRTL_SDR_Reciver \
         -lDemodulator

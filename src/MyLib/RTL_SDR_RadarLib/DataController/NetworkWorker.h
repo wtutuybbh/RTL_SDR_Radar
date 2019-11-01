@@ -3,8 +3,8 @@
 
 #include <QTcpSocket>
 #include <memory>
-#include "INetworkWorker.h"
-#include "ILogger.h"
+#include "interface/INetworkWorker.h"
+#include "interface/ILogger.h"
 
 class NetworkWorker : public INetworkWorker
 {
