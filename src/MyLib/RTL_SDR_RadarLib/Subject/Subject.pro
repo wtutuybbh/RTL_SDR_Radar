@@ -15,7 +15,7 @@ SOURCES += Subject.cpp
 
 HEADERS += Subject.h\
         subject_global.h \
-    ../../../include/IObserver.h
+    ../../../include/interface/IObserver.h
 
 unix {
     target.path = /usr/lib

@@ -23,8 +23,21 @@ Core::Core(QObject *parent) : QObject(parent)
                  <<QApplication::applicationDirPath()+"/import/style.qss";
 
     _logger = QSharedPointer<ILogger>(new Logger(sizeLog));
+
+    ServiceLocator::provide(QSharedPointer<ICarrierClass>( new NullCarrier()) );
+
+    _device = QSharedPointer<IReciverDevice>(new RTL_SDR_Reciver());
+    _device->setLogger(_logger);
+
+    _demodulator = QSharedPointer<IDemodulator>(new Demodulator(QSharedPointer<IPoolObject>()));
+    _demodulator->setLogger(_logger);
+
     _mainWindow.setLogger(_logger);
     _mainWindow.show();
+
+    QObject::connect(&_timer,SIGNAL(timeout()),this,SLOT(slotTimeout()));
+    _timer.start(TIMEOUT);
+
 }
 
 Core::~Core()
@@ -38,29 +51,22 @@ Core::~Core()
     _device->closeDevice();
     _device.clear();
     _logger.clear();
-
-//    _network->disconnect();
-//    _network.clear();
 }
 
-void Core::init()
+void Core::init(const QString &ip, uint16_t port)
 {
-
-    ServiceLocator::provide(QSharedPointer<ICarrierClass>( new NullCarrier()) );
-
-    _device = QSharedPointer<IReciverDevice>(new RTL_SDR_Reciver());
-    _device->setLogger(_logger);
-
-    _demodulator = QSharedPointer<IDemodulator>(new Demodulator(nullptr));
-    _demodulator->setLogger(_logger);
 
     _dataController = QSharedPointer<IDataController>(new DataController(_device,
                                                                          _demodulator,
-                                                                         TYPE_WORKER::DATA_TO_NETWORK));
+                                                                         ip,
+                                                                         port));
+}
 
 
-    QObject::connect(&_timer,SIGNAL(timeout()),this,SLOT(slotTimeout()));
-    _timer.start(1000);
+void Core::init()
+{
+    _dataController = QSharedPointer<IDataController>(new DataController(_device,
+                                                                         _demodulator));
 }
 
 void Core::slotTimeout()

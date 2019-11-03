@@ -25,11 +25,11 @@
 #include <sys/ioctl.h>
 #include <sys/select.h>
 
-#include "../../../../import/sdr_dev/include/rtl-sdr.h"
-#include "../../../../import/sdr_dev/include/constant.h"
+#include "sdr_dev/include/rtl-sdr.h"
+#include "sdr_dev/include/constant.h"
 
-#include "../../../include/IReciverDevice.h"
-#include "../../../include/ILogger.h"
+#include "interface/IReciverDevice.h"
+#include "interface/ILogger.h"
 
 class RTL_SDR_RECIVERSHARED_EXPORT RTL_SDR_Reciver : public IReciverDevice
 {

@@ -8,12 +8,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     //создание виджета для вывода обстановки и всей графики
-    double size = 945;
+    double size = 900;
     _graphicsWidget = new GraphicsWidget(size,
                                          QSharedPointer<IPoolObject>(),
                                          this);
     ui->vrlRadar->addWidget(_graphicsWidget);
-    ui->teTerminal->setTextColor(QColor(0,180,0));
+    ui->teTerminal->setTextColor(QColor(0xAA,0xCF,0xD1));
     ui->teTerminal->insertPlainText("test....");
 }
 

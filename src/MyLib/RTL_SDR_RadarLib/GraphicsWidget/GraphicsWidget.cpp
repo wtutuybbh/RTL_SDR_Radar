@@ -4,29 +4,25 @@
 GraphicsWidget::GraphicsWidget(double w,
                                QSharedPointer<IPoolObject> poolObject,
                                QWidget *parent):
-    QGraphicsView(parent),
-    _widthWidget(w),
-    _heightWidget(w),
-    _screenCenter( w / 2.0, w / 2.0),
-    _pxmMap(static_cast<int>(_widthWidget),static_cast<int>(_widthWidget))
+    QGraphicsView(parent)
 {
     subscribe(poolObject);
 
     initWidget(QRect(0,
                      0,
-                     static_cast<int>(_widthWidget),
-                     static_cast<int>(_heightWidget)),
+                     static_cast<int>(w),
+                     static_cast<int>(w)),
                true);
     initCirsor();
 
+    _ptrMapController = QSharedPointer<IMapController>(new MapController());
+
+    connect(_ptrMapController.data(), SIGNAL(updateTileGride()),
+            this, SLOT(updateScene()));
+
     //обновление сектора
     connect(&_timer,SIGNAL(timeout()),this,SLOT(timeout()));
-    _timer.start(10);
-    QObject::connect(this,
-                     SIGNAL(signalUpdateData()),
-                     this,
-                     SLOT(slotUpdateData()));
-
+    _timer.start(25);
 }
 
 GraphicsWidget::~GraphicsWidget()
@@ -43,12 +39,6 @@ GraphicsWidget::~GraphicsWidget()
     qDebug()<<"~GraphicsWidget() -> clear and delete scene";
 
     unsubscribe();
-}
-
-
-void GraphicsWidget::setMapContoller(QSharedPointer<IMapController> ptr)
-{
-    _ptrMapController = ptr;
 }
 
 void GraphicsWidget::subscribe(QSharedPointer<IPoolObject> poolObject)
@@ -88,26 +78,19 @@ void GraphicsWidget::initWidget(const QRect &rect, bool enableOpenGL)
 
     this->setGeometry(rect);
 
-    //равнение на ... середину
-    setAlignment(Qt::AlignCenter);
-
-    //кэшируем фон
-    setCacheMode(CacheBackground);
-
     if(enableOpenGL)
         setViewport(new QGLWidget);
 
-    //как будет обновляться наша сцена
+    setAlignment(Qt::AlignCenter);
+    setCacheMode(CacheBackground);
+
     //BoundingRectViewportUpdate - обновлять в области указаной пользователем
     setViewportUpdateMode(BoundingRectViewportUpdate);
-
-    //сглаживание
     setRenderHint(QPainter::Antialiasing);
 
     //как позиционировать сцену во время трансформации
     setTransformationAnchor(AnchorViewCenter);
 
-    //добавляем сцену
     _scene = new QGraphicsScene(this);
 
     //отслеживания события движения мыши-с кликом или без
@@ -116,12 +99,10 @@ void GraphicsWidget::initWidget(const QRect &rect, bool enableOpenGL)
     //не индексируем itemы, так будет быстрей работать
     _scene->setItemIndexMethod(QGraphicsScene::NoIndex);
 
-    //область рисование
     _scene->setSceneRect(0,0,this->width(),this->width());
 
     //установка сцены
     this->setScene(_scene);
-
 
     //убрать скролл
     this->setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
@@ -133,17 +114,16 @@ void GraphicsWidget::initWidget(const QRect &rect, bool enableOpenGL)
 
 void GraphicsWidget::initCirsor()
 {
-    //нарисуем свой модный курсор зелёного цвета
+    //курсор для наведения
     _pxmCursor = QPixmap(_cursorSize);
     _pxmCursor.fill(Qt::transparent);
     _pxmCursor.load(QString(":/icon/app/pxmCursor.png"));
 
-    //нарисуем свой модный курсор красного цвета
+    //курсо для выделения
     _pxmSelect = QPixmap(_cursorSize);
     _pxmSelect.fill(Qt::transparent);
     _pxmSelect.load(QString(":/icon/app/pxmSelect.png"));
 
-    //нарисуем курсор
     changeCursorType(false);
     _fixCursor = false;
 }
@@ -151,7 +131,6 @@ void GraphicsWidget::initCirsor()
 void GraphicsWidget::changeCursorType(bool enableSystem)
 {
     if(enableSystem)
-        //установим обычный курсор
         this->setCursor(Qt::ArrowCursor);
     else
         this->setCursor(QCursor(_pxmCursor));
@@ -174,10 +153,7 @@ void GraphicsWidget::update(Subject *sub)
 
 void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
 {
-    if(_ptrMapController.isNull())
-        return;
-
-    if(object.isNull())
+    if(_ptrMapController.isNull() || object.isNull())
         return;
 
     QGraphicsItem* graphItem = dynamic_cast<QGraphicsItem*>(object.data());
@@ -210,7 +186,7 @@ void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
 
     if(object->getDistance_KM() < (_ptrMapController->getDistanceRadarScale_KM()))
     {
-        dot = _ptrMapController->geoToScreenCoordinates(object->getGeoCoord());
+        //dot = _ptrMapController->geoToScreenCoordinates(object->getGeoCoord());
 
         graphItem->setPos(dot);
         graphItem->setOpacity(1);
@@ -241,8 +217,7 @@ void GraphicsWidget::recalculateCoordObjects()
         for (auto &iter:_ptrPoolObject->values())
             updateObjectOnScene(iter);
 
-    QGraphicsView::resetCachedContent();
-    _scene->update();
+    updateScene();
 }
 
 QStringList GraphicsWidget::getDataForTable(IObject* object)
@@ -267,31 +242,28 @@ QStringList GraphicsWidget::getDataForTable(IObject* object)
 void GraphicsWidget::mouseMoveEvent(QMouseEvent *event)
 {
     _cursorCoord = mapToScene(event->pos());
+    if(_fixCursor)
+        return;
 
-    //если рамка не зафиксирована и пользователь теребонькает курсором над объектами
-    if(!_fixCursor)
+    QGraphicsItem * litem = nullptr;
+    QTransform trans;
+    //получаем значение элемента над которым находится перекрестие курсора
+    litem = _scene->itemAt(mapToScene(event->pos()),trans);
+
+    //установка флага текущего
+    IObject* graphObject = dynamic_cast<IObject*> (litem);
+    if(graphObject)
     {
-        QGraphicsItem * litem = nullptr;
-        QTransform trans;
-        //получаем значение элемента над которым находится перекрестие курсора
-        litem = _scene->itemAt(mapToScene(event->pos()),trans);
+        scene()->clearSelection();
+        litem->setSelected(true);
 
-        //установка флага текущего
-        IObject* graphObject = dynamic_cast<IObject*> (litem);
-        if(graphObject)
-        {
-            scene()->clearSelection();
-            litem->setSelected(true);
-
-            QStringList list = getDataForTable(dynamic_cast<IObject*>(litem));
-            emit signalDataToTable(list);
-        }
+        QStringList list = getDataForTable(dynamic_cast<IObject*>(litem));
+        emit signalDataToTable(list);
     }
 }
 
 void GraphicsWidget::mousePressEvent(QMouseEvent *event)
 {
-    //нажали ЛКМ
     if(event->button() != Qt::LeftButton)
         return;
 
@@ -302,32 +274,105 @@ void GraphicsWidget::mousePressEvent(QMouseEvent *event)
         QGraphicsItem * litem = nullptr;
         QTransform trans;
         //получаем значение элемента над которым находится перекрестие курсора
-        litem = _scene->itemAt(mapToScene(event->pos().x(),event->pos().y()),trans);
+        litem = _scene->itemAt(mapToScene(event->pos().x(),
+                                          event->pos().y()),
+                               trans);
         if(litem)
         {
             litem->setSelected(true);
             _fixCursorCoord = litem->pos();
         }
         else
-            //для определения положения курсора
             _fixCursorCoord = mapToScene(event->pos());
     }
     changeCursorType(_fixCursor);
-    _scene->update();//обновим всё
+    _scene->update();
+}
+
+void GraphicsWidget::mouseReleaseEvent(QMouseEvent * event)
+{
+    Q_UNUSED(event);
+    //    if (event->button() == Qt::LeftButton)
+    //        _oldPos = event->pos();
+}
+
+void GraphicsWidget::wheelEvent(QWheelEvent * event)
+{
+    if (event->delta() < 0)
+        RadarScalePlus();
+    if (event->delta() > 0)
+        RadarScaleMinus();
+}
+
+QPointF GraphicsWidget::getSceneCenterPont()
+{
+    return QPoint(_scene->sceneRect().width()/2.0,
+                  _scene->sceneRect().height()/2.0);
+}
+
+void GraphicsWidget::drawMap(QPainter* painter,bool isDraw)
+{
+    if(_ptrMapController.isNull() || (!isDraw))
+        return;
+
+    QImage img = _ptrMapController->getImageMap(_scene->sceneRect().width(),
+                                                _scene->sceneRect().height(),
+                                                ServiceLocator::getCarrier()->getGeoCoord(),
+                                                _mapZoom,
+                                                FilterType::Night);
+
+    if (!img.isNull())
+    {
+        QImage shapeImg(_scene->sceneRect().size().toSize(),
+                        QImage::Format_ARGB32_Premultiplied);
+
+        shapeImg.fill(QColor(0, 0, 0, 0).rgba());
+        QPainter sp(&shapeImg);
+        sp.setRenderHint(QPainter::Antialiasing);
+        sp.fillRect(_scene->sceneRect(), Qt::transparent);
+        sp.setPen(QPen(Qt::black));
+        sp.setBrush(QBrush(Qt::black));
+        sp.drawEllipse(_scene->sceneRect().center(),
+                       _distToBorderMap,
+                       _distToBorderMap);
+        sp.end();
+
+        QImage roundSquaredImage(_scene->sceneRect().size().toSize(),
+                                 QImage::Format_ARGB32_Premultiplied);
+        roundSquaredImage.fill(QColor(0, 0, 0, 0).rgba());
+
+        QPainter p(&roundSquaredImage);
+        p.fillRect(_scene->sceneRect(), Qt::transparent);
+        p.drawImage(0, 0, shapeImg);
+        p.setPen(QPen(Qt::black));
+        p.setBrush(QBrush(Qt::black));
+        p.setCompositionMode(QPainter::CompositionMode_SourceIn);
+        p.drawImage(0, 0, img);
+        p.end();
+
+        img = roundSquaredImage;
+    }
+
+    painter->drawImage(0, 0, img);
 }
 
 void GraphicsWidget::drawBackground(QPainter *painter, const QRectF &rect)
 {
     Q_UNUSED(rect);
 
-    //!!!!!!!!сюда вставить отрисовку карты
-    //!
-
     painter->setRenderHint(QPainter::Antialiasing);
+
+    drawMap(painter);
+
     painter->setPen(QPen(QBrush(_clrGreen),1));
 
+    //    painter->drawRect(0,
+    //                      0,
+    //                      _scene->sceneRect().width(),
+    //                      _scene->sceneRect().height());
     //внешние точки, большие через 5 градусов
     double rad = _scene->sceneRect().width()/2 - _textBorder + 5;
+
     //рисуем большие точки и надписи
     drawDotCicleWithLabel(painter, rad);
 
@@ -337,7 +382,6 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
 {
     Q_UNUSED(rect);
     painter->setRenderHint(QPainter::Antialiasing);
-    //если у нас зафиксирован курсор
 
     if(_fixCursor)
     {
@@ -355,53 +399,42 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
     drawCarrier(painter);
 
     //TODO: исправить расчет положения надписей
-//    drawInfo(painter);
-//    printCoord(painter);
+    printCoord(painter);
 
-    //qDebug()<< QThread::currentThreadId() <<"draw";
+    if(!_updateInSector)
+        return;
 
-    if(_updateInSector)
-    {
+    QPointF dot = getSceneCenterPont();
 
-        // это сделано для перемещения карты.
-        QPointF dot = _screenCenter;
+    QRect drawingRect(dot.x() - _distToBorderMap,
+                      dot.y() - _distToBorderMap,
+                      _distToBorderMap * 2,
+                      _distToBorderMap * 2);
 
-        if(!_ptrMapController.isNull())
-        {
-            dot = _ptrMapController->geoToScreenCoordinates(_ptrCarrier->getGeoCoord());
-        }
+    //этот вариант проще
+    //второй вариант - это один раз нарисовать градиент и вращать его
+    //по производительности одинаково, но так меньше кода
+    gradient.setCenter(drawingRect.center());
+    gradient.setAngle(-_cource);
+    gradient.setColorAt(0, QColor(170,207,209,100));
+    gradient.setColorAt(0.2, QColor(0,0,0,0));
 
-        //для отрисовки градиента, как на старых радарах
-        QRect drawingRect(dot.x() - _distToBorderMap,
-                          dot.y() - _distToBorderMap,
-                          _distToBorderMap * 2,
-                          _distToBorderMap * 2);
+    painter->setPen(QPen(Qt::black));
+    painter->setBrush(QBrush(Qt::black));
+    painter->setBrush(QBrush(gradient));
 
-        //этот вариант проще
-        //второй вариант - это один раз нарисовать градиент и вращать его
-        //по производительности одинаково, но так меньше кода
-        gradient.setCenter(drawingRect.center());
-        gradient.setAngle(-_cource);
-        gradient.setColorAt(0, QColor(0, 180, 0,100));
-        gradient.setColorAt(0.2, QColor(0,0,0,0));
+    painter->drawEllipse(drawingRect);
+    painter->setPen(QColor(170,207,209));
 
-        painter->setPen(QPen(Qt::black));
-        painter->setBrush(QBrush(Qt::black));
-        painter->setBrush(QBrush(gradient));
+    painter->drawLine(drawingRect.center(),
+                      QPointF(ScreenConversions::polarToScreen(getSceneCenterPont(),
+                                                               _cource + _sectorSize * 2,
+                                                               _distToBorderMap)));
 
-        painter->drawEllipse(drawingRect);
-
-        painter->setPen(QColor(0,220,0));
-
-        painter->drawLine(drawingRect.center(),QPointF(ScreenConversions::polarToScreen(_screenCenter,
-                                                                                        _cource + _sectorSize * 2,
-                                                                                        _distToBorderMap)));
-    }
 }
 
 void GraphicsWidget::resizeEvent(QResizeEvent *event)
 {
-
     int h = event->size().height();
     int w = event->size().width();
 
@@ -415,10 +448,7 @@ void GraphicsWidget::resizeEvent(QResizeEvent *event)
     const uint64_t dimension = static_cast<uint64_t>(sqrt(w * h));
     _scene->setSceneRect(0, 0, dimension, dimension);
 
-    _widthWidget = _heightWidget = dimension;
     _distToBorderMap = _scene->sceneRect().width()/2.0 - _textBorder ;
-    _screenCenter.setX(_scene->sceneRect().width()/2.0);
-    _screenCenter.setY(_scene->sceneRect().width()/2.0);
 
     recalculateCoordObjects();
 }
@@ -427,12 +457,16 @@ void GraphicsWidget::resizeEvent(QResizeEvent *event)
 void GraphicsWidget::drawCarrier(QPainter *p)
 {
     QSharedPointer<ICarrierClass> _ptrCarrier = ServiceLocator::getCarrier();
-    // это сделано для перемещения карты.
-    QPointF dot = _screenCenter;
+
+    QPointF dot = getSceneCenterPont();
 
     if(!_ptrMapController.isNull())
     {
-        dot = _ptrMapController->geoToScreenCoordinates(_ptrCarrier->getGeoCoord());
+        dot = _ptrMapController->geoToScreenCoordinates(_scene->sceneRect().width(),
+                                                        _scene->sceneRect().height(),
+                                                        _ptrCarrier->getGeoCoord(),
+                                                        _ptrCarrier->getGeoCoord(),
+                                                        _mapZoom);
     }
     p->save();
     p->setPen(QPen(QBrush(QColor(0,250,0)),5));
@@ -457,7 +491,7 @@ void GraphicsWidget::drawHiddenObject(QPainter *p)
         SPolarCoord crd(iter,_distToBorderMap);
 
         QPointF dot = ScreenConversions::polarToScreen(
-                    _screenCenter,
+                    getSceneCenterPont(),
                     iter - 1,
                     _distToBorderMap);
 
@@ -477,57 +511,11 @@ void GraphicsWidget::drawHiddenObject(QPainter *p)
     }
 }
 
-void GraphicsWidget::drawInfo(QPainter *p)
-{
-    p->save();
-    QFont font = p->font();
-    font.setStyleStrategy(QFont::PreferAntialias);
-    font.setStyleHint(QFont::Monospace,QFont::PreferAntialias);
-    font.setPointSize(static_cast<int>(font.pointSize() * 1.1));
-    font.setBold(true);
-    p->setFont(font);
-
-    QPen pen(p->pen());
-    p->setPen(QPen(QBrush(_clrWhite),1));
-
-    //Время
-    double X = _scene->sceneRect().topRight().x();
-    double Y = _scene->sceneRect().topRight().y();
-
-    QString caption = QString::fromLocal8Bit("    СИСТЕМНОЕ ВРЕМЯ    ");
-    drawText(p, X, Y ,caption,true);
-
-    caption = QString::fromLocal8Bit("%1")
-            .arg(QDateTime::currentDateTimeUtc().toString("dd.MM.yyyy hh:mm:ss UTC"));
-
-    drawText(p, X , Y + QFontMetrics(font.family()).ascent() + 5 ,caption);
-
-    //курс,скорость
-    X = _scene->sceneRect().topLeft().x();
-    Y = _scene->sceneRect().topLeft().y();
-
-    caption = QString::fromLocal8Bit("    НАВИГАЦИЯ    ");
-    drawText(p, X , Y , caption,true);
-
-    QString longitude, latitude;
-
-    Position pos;
-
-    QSharedPointer<ICarrierClass> _ptrCarrier = ServiceLocator::getCarrier();
-    if(_ptrCarrier)
-        pos = _ptrCarrier->getGeoCoord();
-
-    Conversions::geoCoordToString(pos,longitude,latitude);
-    longitude.prepend(trUtf8("Д = "));
-    latitude.prepend(trUtf8("Ш = "));
-    drawText(p, X + 10 , Y + QFontMetrics(font.family()).ascent() + 5 , latitude,false);
-    drawText(p, X + 10 , Y + 2*QFontMetrics(font.family()).ascent() + 5 , longitude,false);
-
-    p->setPen(pen);
-    p->restore();
-}
-
-void GraphicsWidget::drawText(QPainter *p, double X, double Y, const QString &str, bool drawBorder)
+void GraphicsWidget::drawText(QPainter *p,
+                              double X,
+                              double Y,
+                              const QString &str,
+                              bool drawBorder)
 {
     QFont font = p->font();
     int captionWidth = QFontMetrics(font.family()).width(str);
@@ -549,8 +537,7 @@ void GraphicsWidget::drawText(QPainter *p, double X, double Y, const QString &st
 }
 
 void GraphicsWidget::printCoord(QPainter *p)
-{
-
+{ 
     QFont font = p->font();
     font.setStyleStrategy(QFont::PreferAntialias);
     font.setStyleHint(QFont::Monospace,QFont::PreferAntialias);
@@ -564,8 +551,13 @@ void GraphicsWidget::printCoord(QPainter *p)
     double X = _scene->sceneRect().bottomLeft().x();
     double Y = _scene->sceneRect().bottomLeft().y();
 
-    QString caption(QString("X = %1 , Y = %2 ").arg(_cursorCoord.x()).arg(_cursorCoord.y()));
-    drawText(p, X, Y - 4 * QFontMetrics(font.family()).ascent() + 5,caption);
+    QString caption(QString("X = %1 , Y = %2 ").arg(_cursorCoord.x())
+                    .arg(_cursorCoord.y()));
+
+    drawText(p,
+             X,
+             Y - 4 * QFontMetrics(font.family()).ascent() + 5,
+             caption);
 
 
     //эти данные должен давать модуль картографии
@@ -589,10 +581,6 @@ void GraphicsWidget::printCoord(QPainter *p)
     //                .arg(QString::number((dist),'g',5)));
 }
 
-
-
-
-
 void GraphicsWidget::timeout()
 {
     _cource += 2;
@@ -612,7 +600,13 @@ void GraphicsWidget::slotUpdateData()
     }
     _ptrPoolObject->unlockPool();
 
-    //qDebug()<<"GraphicsWidget::update()->slotUpdateData();" <<_scene->items().count();
+    qDebug()<<"GraphicsWidget::update()->slotUpdateData();" <<_scene->items().count();
+    _scene->update();
+}
+
+void GraphicsWidget::updateScene()
+{
+    QGraphicsView::resetCachedContent();
     _scene->update();
 }
 
@@ -628,7 +622,7 @@ void GraphicsWidget::drawDotCicleWithLabel(QPainter *p, const qreal rad)
         if((i % 5) == 0)
             p->setPen(QPen(QBrush(_clrGreen), 5));
         //вычисляем координату точки и рисуем её
-        QPointF dot = ScreenConversions::polarToScreen(_screenCenter, i, rad);
+        QPointF dot = ScreenConversions::polarToScreen(getSceneCenterPont(), i, rad);
 
         p->drawPoint(dot);
 
@@ -656,4 +650,24 @@ void GraphicsWidget::drawDotCicleWithLabel(QPainter *p, const qreal rad)
         }
     }
     p->restore();
+}
+
+void GraphicsWidget::RadarScalePlus()
+{
+    //сетку масштабов переделать,сейчас под OSM
+    if (_mapZoom <= 0)
+        return;
+    _mapZoom -= 1;
+
+    recalculateCoordObjects();
+}
+
+
+void GraphicsWidget::RadarScaleMinus()
+{
+    if (_mapZoom >= 15)
+        return;
+    _mapZoom += 1;
+
+    recalculateCoordObjects();
 }

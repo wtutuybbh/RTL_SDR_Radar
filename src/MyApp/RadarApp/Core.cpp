@@ -52,13 +52,14 @@ void Core::init()
     _device = QSharedPointer<IReciverDevice>(new RTL_SDR_Reciver());
     _device->openDevice();
 
-    _demodulator = QSharedPointer<IDemodulator>(new Demodulator(nullptr));
+    _demodulator = QSharedPointer<IDemodulator>(new Demodulator(QSharedPointer<IPoolObject>()));
 
     _dataController = new DataController(_device,_demodulator);
     _dataController->run();
 
     _mainWindow  = new MainWindow();
     _mainWindow->show();
+    _mainWindow->adjustSize();
 
     QObject::connect(&_timer,SIGNAL(timeout()),this,SLOT(slotTimeout()));
     _timer.start(1000);

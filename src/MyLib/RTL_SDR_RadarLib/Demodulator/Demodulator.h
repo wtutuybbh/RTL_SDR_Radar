@@ -35,10 +35,10 @@
 #include <QRunnable>
 
 #include "demodulator_global.h"
-#include "IDemodulator.h"
-#include "ILogger.h"
+#include "interface/IDemodulator.h"
+#include "interface/ILogger.h"
 
-#include "../../../../import/sdr_dev/include/constant.h"
+#include "sdr_dev/include/constant.h"
 
 /* The struct we use to store information about a decoded message. */
 struct modesMessage
@@ -95,8 +95,8 @@ class DEMODULATORSHARED_EXPORT Demodulator : public IDemodulator
     QVector<uint32_t> icao_cache;
 
     QHash<uint32_t,QSharedPointer<Aircraft>> _hashAircrafts;
-    QSharedPointer<IPoolObject> _pool = nullptr;
-    QSharedPointer<ILogger> _log = nullptr;
+    QSharedPointer<IPoolObject> _pool;
+    QSharedPointer<ILogger> _log;
 
     /* Statistics */
     uint64_t stat_valid_preamble = 0;

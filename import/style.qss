@@ -12,15 +12,16 @@ QDialog
     background-color: black;
     border-width: 2px;
     border-style: solid;
-    border-color: grey;
+    border-color: #aacfd1;
 }
 
 QFrame
 {
+
     background-color: black;
     border-width: 1px;
     border-style: solid;
-    border-color: grey;
+    border-color:  #aacfd1;
 }
 
 QGraphicsView
@@ -28,7 +29,7 @@ QGraphicsView
     background-color: black;
     border-width: 0px;
     border-style: solid;
-    border-color: grey;
+    border-color: #aacfd1;
 }
 
 QGroupBox
@@ -36,7 +37,7 @@ QGroupBox
     background-color: black;
     border-width: 1px;
     border-style: solid;
-    border-color: grey;
+    border-color: #aacfd1;
     color: white;
     border-radius: 5px;
     margin-top: 10px;
@@ -55,7 +56,7 @@ QComboBox
     background-color: black;
     border-width: 1px;
     border-style: solid;
-    border-color: grey;
+    border-color: #aacfd1;
     color: white;
     selection-color: lightgray;
     selection-background-color: lightgray;
@@ -81,14 +82,14 @@ QTabWidget::tab-bar
 
 QTabWidget::pane
 {
-    border: 1px solid grey;
+    border: 1px solid #aacfd1;
 }
 
 QTabBar::tab
 {
      background: grey;
-     border: 1px solid grey;
-     border-bottom-color: grey;
+     border: 1px solid #aacfd1;
+     border-bottom-color: #aacfd1;
      border-top-left-radius: 4px;
      border-top-right-radius: 4px;
      padding: 2px;
@@ -106,7 +107,7 @@ QLabel
     background-color: black;
     border-width: 1px;
     border-style: solid;
-    border-color: rgb(0,180,0);
+    border-color: #aacfd1;
     color: rgb(255,255,255);
 }
 
@@ -115,15 +116,15 @@ QCheckBox
 {
     border-width: 1px;
     border-style: solid;
-    border-color: rgb(0,180,0);
-    color: rgb(0,180,0);
+    border-color:#aacfd1;
+    color: #aacfd1;
 }
 
 QCheckBox:!enabled
 {
     border-width: 1px;
     border-style: solid;
-    border-color: rgb(0,180,0);
+    border-color: #aacfd1;
     color: white
 }
 
@@ -133,8 +134,8 @@ QRadioButton
 {
     border-width: 1px;
     border-style: solid;
-    border-color: rgb(0,180,0);
-    color: rgb(0,180,0);
+    border-color: #aacfd1;
+    color: #aacfd1;
 }
 
 QRadioButton::indicator::checked { color: black; }
@@ -146,7 +147,7 @@ QPushButton
     background-color: black;
     border-width: 2px;
     border-style: outset;
-    border-color: rgb(0,180,0);
+    border-color: #aacfd1;
     color: white;
     border-radius: 2px;
     outline: 0px;
@@ -181,7 +182,7 @@ QTableWidget
     color: white;
     border-style: solid;
     border-color: grey;
-    gridline-color: green;
+    gridline-color: #aacfd1;
     selection-background-color:  rgba(60, 60,60, 255);
     outline: 0px;
 }
@@ -194,7 +195,7 @@ QTableView
     color: white;
     border-style: solid;
     border-color: grey;
-    gridline-color: green;
+    gridline-color: #aacfd1;
     selection-background-color:  rgba(60, 60,60, 255);
     outline: 0px;
 }
@@ -224,7 +225,7 @@ QTreeWidget
     color: white;
     border-style: solid;
     border-color: grey;
-    gridline-color: green;
+    gridline-color: #aacfd1;
     selection-background-color:  rgba(60, 60,60, 255);
     outline: 0px;
 }
@@ -234,13 +235,13 @@ QTextEdit
     background-color: black;
     border-width: 1px;
     border-style: solid;
-    border-color: rgb(0,180,0);
+    border-color: #aacfd1;
     color: rgb(255,255,255);
 }
 
 QSplitter::handle
 {
-    background : rgb(0,180,0);
+    background : #aacfd1;
     height: 10px;
     border-radius: 2px;
 }

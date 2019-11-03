@@ -47,8 +47,10 @@ void DataWorker::exec()
 bool DataWorker::processData()
 {
     if(_device.isNull() || !_device->isOpenDevice())
+    {
+        usleep(1000);
         return false;
-
+    }
     const uint8_t* ptrData = _device->getDataBlockPtr(size_t(MODES_DATA_LEN));
 
     if(ptrData == nullptr)

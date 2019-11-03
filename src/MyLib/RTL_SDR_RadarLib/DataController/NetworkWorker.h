@@ -3,8 +3,8 @@
 
 #include <QTcpSocket>
 #include <memory>
-#include "INetworkWorker.h"
-#include "ILogger.h"
+#include "interface/INetworkWorker.h"
+#include "interface/ILogger.h"
 
 class NetworkWorker : public INetworkWorker
 {
@@ -15,6 +15,9 @@ class NetworkWorker : public INetworkWorker
     std::unique_ptr<QTcpSocket> _socket = nullptr;
 
     void addDebugMsg(const QString& str);
+
+    bool _addLogInfo = false;
+
 public:
     NetworkWorker(const QString& ip,
                   uint16_t port);

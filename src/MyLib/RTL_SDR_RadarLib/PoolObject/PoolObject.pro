@@ -19,9 +19,9 @@ SOURCES += PoolObject.cpp \
 
 HEADERS += PoolObject.h\
         poolobject_global.h \
-    ../../../include/IObject.h \
-    ../../../include/ILogger.h \
-    ../../../include/IPoolObject.h \
+    ../../../include/interface/IObject.h \
+    ../../../include/interface/ILogger.h \
+    ../../../include/interface/IPoolObject.h \
     GraphicsObject.h \
     AirObject.h \
     ../../../include/coord/Position.h \

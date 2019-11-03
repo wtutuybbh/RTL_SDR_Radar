@@ -5,7 +5,7 @@
 #include <QTimer>
 #include <QProgressBar>
 
-#include "ILogger.h"
+#include "interface/ILogger.h"
 #include "widget/led/led.h"
 
 namespace Ui {

@@ -83,6 +83,8 @@ public:
 
     QByteArray serialize();
     bool unserialize(QByteArray array);
+
+    static uint32_t  serializedFrameSize();
 };
 
 #endif // AIRCRAFT_H

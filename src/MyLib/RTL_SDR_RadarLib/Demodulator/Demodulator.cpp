@@ -132,12 +132,21 @@ void Demodulator::run()
 
 QByteArray Demodulator::getRawDump()
 {
+    if(_hashAircrafts.isEmpty())
+        return QByteArray();
+
     QByteArray array;
+    uint32_t frameSize = Aircraft::serializedFrameSize();
+    uint32_t countFrame = _hashAircrafts.count();
+    array.append((char*)(&frameSize),sizeof(uint32_t));
+    array.append((char*)(&countFrame),sizeof(uint32_t));
+
     for(auto &a: _hashAircrafts.values())
     {
         array.append(a->serialize());
         qDebug()<< a->toString();
     }
+
     return array;
 }
 
@@ -974,10 +983,11 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
         addDebugMsg(QString("Update info aircraft with ICAO : %1\nCount aircraft = %2")
                         .arg(addr,16,16)
                         .arg(_hashAircrafts.count()));
+        a->incNumberMsg();
     }
 
     a->setSeenTime(QDateTime::currentMSecsSinceEpoch());
-    a->incNumberMsg();
+
 
     if (mm->msgtype == 0 || mm->msgtype == 4 || mm->msgtype == 20)
         a->setAltitude( mm->altitude / CONVERT_FT_TO_METERS);
@@ -1466,15 +1476,12 @@ void Demodulator::interactiveRemoveStaleAircrafts()
     {
         if ((now - a->getSeenTime()) > MODES_INTERACTIVE_TTL)
         {
+            _hashAircrafts.remove(a->getICAO());
+
             addDebugMsg(QString("Remove aircraft with ICAO : %1 last update : %2\nCount aircraft = %3\n")
                             .arg(a->getICAO(),16,16)
                             .arg(QDateTime::fromMSecsSinceEpoch(a->getSeenTime()).toString("hh:mm:ss.zzz"))
                             .arg(_hashAircrafts.count()));
-
-            addDebugMsg(QString("Remove aircraft  : \n%1")
-                            .arg(a->toString()));
-
-            _hashAircrafts.remove(a->getICAO());
             a.clear();
 
         }

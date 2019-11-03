@@ -29,18 +29,18 @@ SOURCES += \
     NetworkWorker.cpp
 
 HEADERS += \
-        ../../../include/INetworkWorker.h \
+        ../../../include/interface/INetworkWorker.h \
         DataController.h \
         DataWorkerNetSender.h \
         NetworkWorker.h \
         datacontroller_global.h \ 
-        ../../../include/IDataController.h \
-        ../../../include/IWorker.h \
-        ../../../include/IDemodulator.h \
-        DataWorker.h \
-        ../../../include/dsp/SrcDataAdc.h \
-        ../../../include/IDataFIFO.h \
-        ../../../include/dsp/IDSP.h
+    ../../../include/interface/IDataController.h \
+    ../../../include/interface/IWorker.h \
+    ../../../include/interface/IDemodulator.h \
+    DataWorker.h \
+    ../../../include/dsp/SrcDataAdc.h \
+    ../../../include/interface/IDataFIFO.h \
+    ../../../include/dsp/IDSP.h
 
 unix {
     target.path = /usr/lib

@@ -3,7 +3,7 @@
 
 #include <QSharedPointer>
 
-#include "ICarrierClass.h"
+#include "interface/ICarrierClass.h"
 #include "NullCarrier.h"
 
 class ServiceLocator

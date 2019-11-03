@@ -8,7 +8,7 @@
 #include <QMutexLocker>
 #include <QSharedPointer>
 
-#include "IObserver.h"
+#include "interface/IObserver.h"
 
 class SUBJECTSHARED_EXPORT Subject
 {

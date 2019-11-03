@@ -3,7 +3,7 @@
 
 #include <QSharedPointer>
 
-#include "ICarrierClass.h"
+#include "interface/ICarrierClass.h"
 #include "NullNavigationSystem.h"
 
 class NullCarrier final : public ICarrierClass

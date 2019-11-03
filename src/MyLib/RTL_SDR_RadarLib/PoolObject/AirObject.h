@@ -5,7 +5,7 @@
 #include <QGraphicsItem>
 #include <QDateTime>
 
-#include "IObject.h"
+#include "interface/IObject.h"
 #include "GraphicsObject.h"
 
 class AirObject : public GraphicsObject, public IObject

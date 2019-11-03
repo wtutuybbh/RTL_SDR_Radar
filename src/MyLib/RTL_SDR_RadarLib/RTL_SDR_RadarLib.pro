@@ -5,7 +5,6 @@ SUBDIRS += \
     Demodulator \
     Subject \
     Carrier \
-    MapLib \
     PoolObject \
     GraphicsWidget \
     RTL_SDR_Reciver \
