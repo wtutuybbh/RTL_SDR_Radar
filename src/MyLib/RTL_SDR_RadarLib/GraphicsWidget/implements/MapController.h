@@ -41,7 +41,11 @@ public:
     QPointF realPolarToScreen(const SPolarCoord &plr) override;
 
     Position screenToGeoCoordinates(const QPointF &point) override;
-    QPointF geoToScreenCoordinates(const Position &sgc) override;
+    QPointF geoToScreenCoordinates(int w,
+                                   int h,
+                                   const Position &centerCoord,
+                                   const Position &position,
+                                   int zoom) override;
 
     double getDistanceRadarScale_KM() override;
     double getDistanceRadarScale_M() override;

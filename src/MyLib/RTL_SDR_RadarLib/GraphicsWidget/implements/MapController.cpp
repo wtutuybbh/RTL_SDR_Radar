@@ -19,19 +19,21 @@ MapController::~MapController()
 
 }
 
-QImage MapController::getImageMap(int w, int h, const Position &center, int zoom, FilterType filterType)
+QImage MapController::getImageMap(int w,
+                                  int h,
+                                  const Position &center,
+                                  int zoom,
+                                  FilterType filterType)
 {
     int zoomLevel = zoom + 3;
 
     //переводим географические координаты в метры
-    QPointF dot(center.longitude(), center.latitude());
-
-    QPointF qgsPos = _tileSource->ll2qgs(dot, zoomLevel);
+    QPointF qgsPos = _tileSource->ll2qgs(center.lonLat(), zoomLevel);
 
     //весь мир у нас состоит из тайлов, размер одного тайла 256 пикселей
     const quint16 tileSize = _tileSource->tileSize();
 
-    //узнаем сколько тайлов поместиться в нашем окне вертикали и добавим небольшой запасик
+    //узнаем сколько тайлов поместиться в нашем окне
     const qint32 tilesPerRow = w / _tileSource->tileSize() + 3;
     const qint32 tilesPerCol = tilesPerRow;
 
@@ -63,8 +65,8 @@ QImage MapController::getImageMap(int w, int h, const Position &center, int zoom
                 double shift_x = (qgsPos.x() - ((int)qgsPos.x() / tileSize) * tileSize) ;
                 double shift_y = (qgsPos.y() - ((int)qgsPos.y() / tileSize) * tileSize);
                 //отрисуем карту
-                p.drawPixmap( w / 2 - shift_x - x * tileSize,
-                              w / 2 - shift_y - y * tileSize,
+                p.drawPixmap( (double)w / 2 - shift_x - x * tileSize,
+                              (double)w / 2 - shift_y - y * tileSize,
                               pmMap);
                 yyc++;
             }
@@ -106,9 +108,22 @@ Position MapController::screenToGeoCoordinates(const QPointF &point)
     return Position();
 }
 
-QPointF MapController::geoToScreenCoordinates(const Position &sgc)
+QPointF MapController::geoToScreenCoordinates(int w,
+                                              int h,
+                                              const Position &centerCoord,
+                                              const Position &position,
+                                              int zoom )
 {
-    return QPointF();
+    QPointF dot;
+    int _zoomLevel = zoom + 3;
+    QPointF temp = _tileSource->ll2qgs(centerCoord.lonLat(), _zoomLevel);
+
+    dot.setX(_tileSource->ll2qgs(position.lonLat(),
+                                 _zoomLevel).x() + w / 2 - temp.x());
+
+    dot.setY(_tileSource->ll2qgs(position.lonLat(),
+                                 _zoomLevel).y() + h / 2 - temp.y());
+    return dot;
 }
 
 double MapController::getDistanceRadarScale_KM()

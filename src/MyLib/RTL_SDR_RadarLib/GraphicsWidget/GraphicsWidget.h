@@ -57,7 +57,7 @@ private:
     QPointF _cursorCoord;
 
     // масштаб
-    int  _mapZoom;
+    int  _mapZoom = 8;
     //пиксмап для карты
     QPixmap _pxmMap;
     QConicalGradient gradient;
@@ -103,21 +103,23 @@ private:
     void drawForeground(QPainter *painter, const QRectF &rect) override;
 
 
-//    //узнать масштаб в километрах
-//    double getDistanceRadarScale();
-//    //рассчет дистанции до объекта
-//    double getDistanceObject(const Position &pos);
+    //    //узнать масштаб в километрах
+    //    double getDistanceRadarScale();
+    //    //рассчет дистанции до объекта
+    //    double getDistanceObject(const Position &pos);
 
     //события мыши
     void mouseMoveEvent(QMouseEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent (QMouseEvent * event);
+    void wheelEvent (QWheelEvent * event);
 
 
-//    // из координаты в экранную точку
-//    QPointF geoToScreen(const Position &coord);
-//    // Преобразования из точки экрана в координаты
-//    Position screenToGeo(QPointF view);
-//    void recalcCoordGraphObj();
+    //    // из координаты в экранную точку
+    //    QPointF geoToScreen(const Position &coord);
+    //    // Преобразования из точки экрана в координаты
+    //    Position screenToGeo(QPointF view);
+    //    void recalcCoordGraphObj();
 
 
 protected:
@@ -141,15 +143,11 @@ protected:
 private slots:
     void timeout();
     void slotUpdateData();
-    //public slots:
+public slots:
 
-    //    // +,- масштаба
-    //    void RadarScalePlus();
-    //    void RadarScaleMinus();
-
-    //    //ночь-день
-    //    void setNight(bool value);
-    //    //обновление сцены при загрузке карты
+    // +,- масштаба
+    void RadarScalePlus();
+    void RadarScaleMinus();
 
     void updateScene();
 

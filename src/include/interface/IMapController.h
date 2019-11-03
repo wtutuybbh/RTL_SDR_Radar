@@ -41,7 +41,12 @@ public:
     virtual QPointF realPolarToScreen(const SPolarCoord &plr) = 0;
 
     virtual Position screenToGeoCoordinates(const QPointF &point) = 0;
-    virtual QPointF geoToScreenCoordinates(const Position &sgc) = 0;
+
+    virtual QPointF geoToScreenCoordinates(int w,
+                                           int h,
+                                           const Position &centerCoord,
+                                           const Position &position,
+                                           int zoom) = 0;
 
     virtual double getDistanceRadarScale_KM() = 0;
     virtual double getDistanceRadarScale_M() = 0;

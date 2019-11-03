@@ -206,7 +206,7 @@ void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
 
     if(object->getDistance_KM() < (_ptrMapController->getDistanceRadarScale_KM()))
     {
-        dot = _ptrMapController->geoToScreenCoordinates(object->getGeoCoord());
+        //dot = _ptrMapController->geoToScreenCoordinates(object->getGeoCoord());
 
         graphItem->setPos(dot);
         graphItem->setOpacity(1);
@@ -312,6 +312,22 @@ void GraphicsWidget::mousePressEvent(QMouseEvent *event)
     _scene->update();//обновим всё
 }
 
+//отпускаем кнопку мышки
+void GraphicsWidget::mouseReleaseEvent(QMouseEvent * event)
+{
+//    if (event->button() == Qt::LeftButton)
+//        _oldPos = event->pos();
+}
+
+//крутим колесико
+void GraphicsWidget::wheelEvent(QWheelEvent * event)
+{
+    if (event->delta() < 0)
+        RadarScalePlus();
+    if (event->delta() > 0)
+        RadarScaleMinus();
+}
+
 void GraphicsWidget::drawBackground(QPainter *painter, const QRectF &rect)
 {
     Q_UNUSED(rect);
@@ -321,14 +337,13 @@ void GraphicsWidget::drawBackground(QPainter *painter, const QRectF &rect)
     if(!_ptrMapController.isNull())
     {
         QImage img = _ptrMapController->getImageMap(_widthWidget,
-                                                    _heightWidget,
+                                                    _widthWidget,
                                                      ServiceLocator::getCarrier()->getGeoCoord(),
-                                                    4,
+                                                    _mapZoom,
                                                     FilterType::Night);
 
         if (!img.isNull())
         {
-
             //режим круга
             int size = _widthWidget;
 
@@ -355,7 +370,7 @@ void GraphicsWidget::drawBackground(QPainter *painter, const QRectF &rect)
             p.setCompositionMode(QPainter::CompositionMode_SourceIn);
             p.drawImage(0, 0, img);
             p.end();
-            //if(getDisplayMode() == MapMode::POLAR_MODE)
+
             img = roundSquaredImage;
         }
 
@@ -363,6 +378,7 @@ void GraphicsWidget::drawBackground(QPainter *painter, const QRectF &rect)
     }
     painter->setPen(QPen(QBrush(_clrGreen),1));
 
+    painter->drawRect(0,0,_widthWidget,_heightWidget);
     //внешние точки, большие через 5 градусов
     double rad = _scene->sceneRect().width()/2 - _textBorder + 5;
 
@@ -394,7 +410,7 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
 
     //TODO: исправить расчет положения надписей
     //    drawInfo(painter);
-    //    printCoord(painter);
+    printCoord(painter);
 
     //qDebug()<< QThread::currentThreadId() <<"draw";
 
@@ -406,7 +422,11 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
 
         if(!_ptrMapController.isNull())
         {
-          //  dot = _ptrMapController->geoToScreenCoordinates(_ptrCarrier->getGeoCoord());
+           dot = _ptrMapController->geoToScreenCoordinates(_widthWidget,
+                                                           _widthWidget,
+                                                           _ptrCarrier->getGeoCoord(),
+                                                           _ptrCarrier->getGeoCoord(),
+                                                           _mapZoom);
         }
 
         //для отрисовки градиента, как на старых радарах
@@ -469,7 +489,11 @@ void GraphicsWidget::drawCarrier(QPainter *p)
 
     if(!_ptrMapController.isNull())
     {
-       // dot = _ptrMapController->geoToScreenCoordinates(_ptrCarrier->getGeoCoord());
+       dot = _ptrMapController->geoToScreenCoordinates(_widthWidget,
+                                                       _widthWidget,
+                                                       _ptrCarrier->getGeoCoord(),
+                   _ptrCarrier->getGeoCoord(),
+                                                       _mapZoom);
     }
     p->save();
     p->setPen(QPen(QBrush(QColor(0,250,0)),5));
@@ -699,4 +723,33 @@ void GraphicsWidget::drawDotCicleWithLabel(QPainter *p, const qreal rad)
         }
     }
     p->restore();
+}
+
+void GraphicsWidget::RadarScalePlus()
+{
+    //сетку масштабов переделать,сейчас под OSM
+    if (_mapZoom <= 0)
+        return;
+
+        _mapZoom -= 1;
+
+//    setCenterPoint(geoToScreen(_ourPosition));
+//    recalcCoordGraphObj();
+    QGraphicsView::resetCachedContent ();
+    _scene->update();
+}
+
+
+void GraphicsWidget::RadarScaleMinus()
+{
+    //сетку масштабов переделать,сейчас под OSM
+    if (_mapZoom >= 15)
+       return;
+
+    _mapZoom += 1;
+
+//    setCenterPoint(geoToScreen(_ourPosition));
+//    recalcCoordGraphObj();
+    QGraphicsView::resetCachedContent ();
+    _scene->update();
 }
