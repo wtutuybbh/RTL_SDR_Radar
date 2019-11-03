@@ -40,6 +40,7 @@ void Core::init()
 
     _mainWindow  = new MainWindow();
     _mainWindow->show();
+    _mainWindow->adjustSize();
 
     QObject::connect(&_timer,SIGNAL(timeout()),this,SLOT(slotTimeout()));
     _timer.start(1000);

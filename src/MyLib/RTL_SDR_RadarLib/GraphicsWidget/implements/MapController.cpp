@@ -34,7 +34,7 @@ QImage MapController::getImageMap(int w,
     const quint16 tileSize = _tileSource->tileSize();
 
     //узнаем сколько тайлов поместиться в нашем окне
-    const qint32 tilesPerRow = w / _tileSource->tileSize() + 3;
+    const qint32 tilesPerRow = w / _tileSource->tileSize() + 4;
     const qint32 tilesPerCol = tilesPerRow;
 
     QPixmap pxm = QPixmap(w, h);

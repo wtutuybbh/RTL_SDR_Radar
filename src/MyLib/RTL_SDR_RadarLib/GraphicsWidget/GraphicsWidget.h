@@ -39,7 +39,6 @@ public:
     void unsubscribe() override;
     void update(Subject* sub) override;
 
-private:
     QSharedPointer<IPoolObject> _ptrPoolObject;
     QSharedPointer<IMapController> _ptrMapController;
     QSharedPointer<ICarrierClass> _ptrCarrier;
@@ -48,29 +47,17 @@ private:
     //графическая сцена
     QGraphicsScene * _scene;
 
-    double _widthWidget;
-    double _heightWidget;
-    //координата центра
-    QPointF  _screenCenter;
-
     QPointF _fixCursorCoord;
     QPointF _cursorCoord;
 
     // масштаб
     int  _mapZoom = 8;
-    //пиксмап для карты
-    QPixmap _pxmMap;
     QConicalGradient gradient;
+
     //пиксмапы для курсоров
     QPixmap _pxmCursor;
     QPixmap _pxmSelect;
 
-    //рисовать инфу и легенду
-    bool _isDrawInfo = true;
-    //ночь или день
-    bool _isNight = false;
-    //рисовать карту
-    bool _isDrawMap = false;
     //флаг фиксации
     bool _fixCursor = false;
 
@@ -121,6 +108,8 @@ private:
     //    Position screenToGeo(QPointF view);
     //    void recalcCoordGraphObj();
 
+    QPointF getSceneCenterPont();
+    void drawMap(QPainter *painter, bool isDraw = true);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -129,9 +118,12 @@ protected:
     //центральная точка
     virtual void drawCarrier(QPainter *p);
     virtual void drawHiddenObject(QPainter*p);
-    //информация
-    virtual void drawInfo(QPainter *p);
-    virtual void drawText(QPainter *p, double X, double Y, const QString &str, bool drawBorder = false);
+
+    virtual void drawText(QPainter *p,
+                          double X,
+                          double Y,
+                          const QString &str,
+                          bool drawBorder = false);
     //координаты
     virtual void printCoord(QPainter *p);
 
