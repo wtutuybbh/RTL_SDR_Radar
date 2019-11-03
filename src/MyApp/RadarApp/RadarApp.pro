@@ -51,7 +51,6 @@ DISTFILES += \
 LIBS += -lLogger \
         -lPoolObject \
         -lSubject \
-        -lMapLib \
         -lGraphicsWidget \
         -lCarrier \
         -lDataController \
