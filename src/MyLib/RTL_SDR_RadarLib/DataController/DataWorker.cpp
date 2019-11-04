@@ -79,6 +79,7 @@ bool DataWorker::processData()
     {
         _dsp->makeAll(_dataVector);
     }
+    _mutex.unlock();
 
     QThreadPool::globalInstance()->waitForDone();
     return true;

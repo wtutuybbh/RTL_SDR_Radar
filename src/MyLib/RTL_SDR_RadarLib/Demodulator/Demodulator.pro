@@ -27,7 +27,7 @@ SOURCES += \
         Demodulator.cpp
 
 HEADERS += \
-        ../../../include/IDemodulator.h \
+        ../../../include/interface/IDemodulator.h \
         Aircraft.h \
         Demodulator.h \
         StructAircraft.h \

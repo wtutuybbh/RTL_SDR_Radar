@@ -184,7 +184,6 @@ void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
 
     QPointF dot = {-10.0,-10.0};
 
-
     if(object->getDistance_KM() < (_ptrMapController->getDistanceRadarScale_KM()))
     {
         //dot = _ptrMapController->geoToScreenCoordinates(object->getGeoCoord());

@@ -95,6 +95,7 @@ static uint32_t modes_checksum_table[112] =
         0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
 };
 
+
 Demodulator::Demodulator(QSharedPointer<IPoolObject> pool)
 {
     setAutoDelete(false);
@@ -190,7 +191,6 @@ void Demodulator::detectModeS(uint16_t *m, uint32_t mlen)
     unsigned char bits[MODES_LONG_MSG_BITS];
     unsigned char msg[MODES_LONG_MSG_BITS/2];
     uint16_t aux[MODES_LONG_MSG_BITS*2];
-
     bool use_correction = false;
 
     /* The Mode S preamble is made of impulses of 0.5 microseconds at
@@ -216,6 +216,7 @@ void Demodulator::detectModeS(uint16_t *m, uint32_t mlen)
      * 8   --
      * 9   -------------------
      */
+
     for (uint32_t j = 0; j < mlen - MODES_FULL_LEN * 2; j++)
     {
         int low, high, delta, errors;
@@ -295,6 +296,7 @@ void Demodulator::detectModeS(uint16_t *m, uint32_t mlen)
         /* Decode all the next 112 bits, regardless of the actual message
          * size. We'll check the actual message type later. */
         errors = 0;
+
         for (uint32_t i = 0; i < MODES_LONG_MSG_BITS*2; i += 2)
         {
             low = m[j+i+MODES_PREAMBLE_US*2];
@@ -349,6 +351,7 @@ void Demodulator::detectModeS(uint16_t *m, uint32_t mlen)
         /* Last check, high and low bits are different enough in magnitude
          * to mark this as real message and not just noise? */
         delta = 0;
+
         for (uint32_t i = 0; i < msglen*8*2; i += 2)
         {
             delta += abs(m[j+i+MODES_PREAMBLE_US*2] - m[j+i+MODES_PREAMBLE_US*2+1]);
@@ -382,6 +385,7 @@ void Demodulator::detectModeS(uint16_t *m, uint32_t mlen)
                     stat_demodulated++;
                     //addDebugMsg(QString("demodulated frame num = %1\n").arg(stat_demodulated));
                 }
+
                 if (mm.errorbit == -1)
                 {
                     if (mm.crcok)
@@ -401,6 +405,7 @@ void Demodulator::detectModeS(uint16_t *m, uint32_t mlen)
             }
 
             /* Output debug mode info if needed. */
+
             if (use_correction == false)
             {
                 if (debug & MODES_DEBUG_DEMOD)
@@ -442,9 +447,7 @@ void Demodulator::detectModeS(uint16_t *m, uint32_t mlen)
             use_correction = true;
         }
         else
-        {
             use_correction = false;
-        }
     }
 
     interactiveRemoveStaleAircrafts();
@@ -959,11 +962,11 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
 
     if (check_crc && mm->crcok == 0)
         return;
-
     addr = (mm->aa1 << 16) | (mm->aa2 << 8) | mm->aa3;
     if(addr == 0)
         return;
     /* Loookup our aircraft or create a new one. */
+
     QSharedPointer<Aircraft> a;
 
     if (!_hashAircrafts.contains(addr))
@@ -1273,7 +1276,6 @@ void Demodulator::displayModesMessage(struct modesMessage *mm)
         qDebug("%02x%02x%02x", mm->aa1, mm->aa2, mm->aa3);
         return;
     }
-
     QString strLog = QString("ICAO Address   : %1%2%3\n")
                          .arg(mm->aa1,2,16)
                          .arg(mm->aa2,2,16)
@@ -1334,7 +1336,6 @@ void Demodulator::displayModesMessage(struct modesMessage *mm)
                           .arg(mm->aa1,2,16)
                           .arg(mm->aa2,2,16)
                           .arg(mm->aa3,2,16));
-
         if (mm->msgtype == 21)
         {
             /* TODO: 56 bits DF21 MB additional field. */
@@ -1486,7 +1487,6 @@ void Demodulator::interactiveRemoveStaleAircrafts()
         }
     }
 }
-
 
 void Demodulator::addDebugMsg(const QString &str)
 {

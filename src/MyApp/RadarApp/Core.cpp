@@ -13,6 +13,25 @@ Core::Core(QObject *parent) : QObject(parent)
     }
     else
         qDebug()<<"error load QSS file.Need filepath"<<QApplication::applicationDirPath()+"/import/style.qss";
+
+    ServiceLocator::provide(QSharedPointer<ICarrierClass>( new Carrier(false)) );
+
+    _device = QSharedPointer<IReciverDevice>(new RTL_SDR_Reciver());
+    _device->openDevice();
+
+    _demodulator = QSharedPointer<IDemodulator>(new Demodulator(QSharedPointer<IPoolObject>()));
+
+    _dataController = new DataController(_device,_demodulator);
+    _dataController->run();
+
+    _poolObjects = QSharedPointer<IPoolObject>(new PoolObject());
+
+    if(_mainWindow)
+        _mainWindow->subscribe(_poolObjects);
+
+    QObject::connect(&_timer,SIGNAL(timeout()),this,SLOT(slotTimeout()));
+    _timer.start(500);
+
 }
 
 Core::~Core()
@@ -44,7 +63,6 @@ void Core::init()
 
     QObject::connect(&_timer,SIGNAL(timeout()),this,SLOT(slotTimeout()));
     _timer.start(1000);
-
 }
 
 void Core::slotTimeout()

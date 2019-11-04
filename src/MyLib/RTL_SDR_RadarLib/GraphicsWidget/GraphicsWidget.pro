@@ -37,5 +37,4 @@ include( ../../../../lib.pri )
 
 
 LIBS += -lSubject \
-        -lMapLib
-#        -lCarrier
+        -lCarrier

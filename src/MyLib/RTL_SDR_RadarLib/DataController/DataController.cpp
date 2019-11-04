@@ -60,7 +60,6 @@ DataController::~DataController()
         _worker->abortExec();
     _dataThread->wait();
     _worker.reset();
-
     qDebug()<<"delete DataController";
 }
 

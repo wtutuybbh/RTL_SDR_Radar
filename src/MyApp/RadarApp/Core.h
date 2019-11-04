@@ -22,9 +22,10 @@ class Core : public QObject
 {
     Q_OBJECT
     QTimer _timer;
+
     MainWindow* _mainWindow = nullptr;
 
-    QSharedPointer<IPoolObject> _poolObjects;
+    QSharedPointer<IPoolObject> _poolObjects = nullptr;
     IDataController* _dataController = nullptr;
     QSharedPointer<IReciverDevice> _device;
     QSharedPointer<IDemodulator> _demodulator;

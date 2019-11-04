@@ -31,8 +31,7 @@ protected:
 
     QSharedPointer<IDemodulator> _demod;
     QSharedPointer<IDSP> _dsp;
-    ILogger* _log;
-
+    ILogger* _log = nullptr;
     bool processData();
 
 public:

@@ -86,6 +86,7 @@ struct modesMessage
     int altitude, unit;
 };
 
+
 class Aircraft;
 
 class DEMODULATORSHARED_EXPORT Demodulator : public IDemodulator
@@ -111,6 +112,7 @@ class DEMODULATORSHARED_EXPORT Demodulator : public IDemodulator
     bool fix_errors = true;                 /* Single bit error correction if true. */
     bool check_crc = true;                  /* Only display messages with good CRC. */
     bool debug = false;                      /* Debugging mode. */
+
     int interactive_ttl = MODES_INTERACTIVE_TTL;            /* Interactive mode: TTL before deletion. */
     bool onlyaddr = false;                   /* Print only ICAO addresses. */
     bool metric = true;                     /* Use metric units. */
@@ -119,8 +121,7 @@ class DEMODULATORSHARED_EXPORT Demodulator : public IDemodulator
     uint16_t* maglut;
 public:
     Demodulator(QSharedPointer<IPoolObject> pool);
-    ~Demodulator() override ;
-
+    ~Demodulator() override;
     /*!
      *  \brief внедрение зависимости модуля логгирования
      */
