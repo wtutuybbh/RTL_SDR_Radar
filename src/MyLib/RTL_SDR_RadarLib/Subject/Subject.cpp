@@ -14,7 +14,6 @@ Subject::~Subject()
 
 void Subject::Attach(IObserver* o)
 {
-
     QMutexLocker _lock(&_mutex);
     if(o == nullptr)
     {

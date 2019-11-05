@@ -1,19 +1,15 @@
 #include "GraphicsWidget.h"
 
 
-GraphicsWidget::GraphicsWidget(double w,
+GraphicsWidget::GraphicsWidget(uint32_t widthRect,
                                QSharedPointer<IPoolObject> poolObject,
                                QWidget *parent):
     QGraphicsView(parent)
 {
     subscribe(poolObject);
 
-    initWidget(QRect(0,
-                     0,
-                     static_cast<int>(w),
-                     static_cast<int>(w)),
-               true);
-    initCirsor();
+    initWidget(QRect(0,0,widthRect,widthRect),true);
+    initCursors();
 
     _ptrMapController = QSharedPointer<IMapController>(new MapController());
 
@@ -21,8 +17,8 @@ GraphicsWidget::GraphicsWidget(double w,
             this, SLOT(updateScene()));
 
     //обновление сектора
-    connect(&_timer,SIGNAL(timeout()),this,SLOT(timeout()));
-    _timer.start(25);
+    connect(&_timer,&QTimer::timeout,this,&GraphicsWidget::timeout);
+    _timer.start(TIMEOUT);
 }
 
 GraphicsWidget::~GraphicsWidget()
@@ -112,7 +108,7 @@ void GraphicsWidget::initWidget(const QRect &rect, bool enableOpenGL)
 
 }
 
-void GraphicsWidget::initCirsor()
+void GraphicsWidget::initCursors()
 {
     //курсор для наведения
     _pxmCursor = QPixmap(_cursorSize);
@@ -199,7 +195,6 @@ void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
         _vHiddenObject.append(object->getAzimuth());
         graphItem->hide();
     }
-
 
     //если графический объект выбран текущим
     if(object->isSelectedObject() && _fixCursor)
@@ -312,7 +307,7 @@ QPointF GraphicsWidget::getSceneCenterPont()
 
 void GraphicsWidget::drawMap(QPainter* painter,bool isDraw)
 {
-    if(_ptrMapController.isNull() || (!isDraw))
+    if(_ptrMapController.isNull() || (!isDraw) || (painter == nullptr))
         return;
 
     QImage img = _ptrMapController->getImageMap(_scene->sceneRect().width(),
@@ -364,12 +359,12 @@ void GraphicsWidget::drawBackground(QPainter *painter, const QRectF &rect)
 
     drawMap(painter);
 
-    painter->setPen(QPen(QBrush(_clrGreen),1));
+    painter->setPen(QPen(QBrush(_clrTron),1));
 
-    //    painter->drawRect(0,
-    //                      0,
-    //                      _scene->sceneRect().width(),
-    //                      _scene->sceneRect().height());
+    painter->drawRect(0,
+                      0,
+                      _scene->sceneRect().width(),
+                      _scene->sceneRect().height());
     //внешние точки, большие через 5 градусов
     double rad = _scene->sceneRect().width()/2 - _textBorder + 5;
 
@@ -415,7 +410,7 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
     //второй вариант - это один раз нарисовать градиент и вращать его
     //по производительности одинаково, но так меньше кода
     gradient.setCenter(drawingRect.center());
-    gradient.setAngle(-_cource);
+    gradient.setAngle(-_angleGradientSector);
     gradient.setColorAt(0, QColor(170,207,209,100));
     gradient.setColorAt(0.2, QColor(0,0,0,0));
 
@@ -428,7 +423,7 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
 
     painter->drawLine(drawingRect.center(),
                       QPointF(ScreenConversions::polarToScreen(getSceneCenterPont(),
-                                                               _cource + _sectorSize * 2,
+                                                               _angleGradientSector + _sectorSize * 2,
                                                                _distToBorderMap)));
 
 }
@@ -445,6 +440,7 @@ void GraphicsWidget::resizeEvent(QResizeEvent *event)
         w = h;
     else
         h = w;
+
     const uint64_t dimension = static_cast<uint64_t>(sqrt(w * h));
     _scene->setSceneRect(0, 0, dimension, dimension);
 
@@ -496,7 +492,7 @@ void GraphicsWidget::drawHiddenObject(QPainter *p)
                     _distToBorderMap);
 
         QPen pen(p->pen());
-        p->setPen(QPen(QBrush(_clrGreen),2));
+        p->setPen(QPen(QBrush(_clrTron),2));
         p->save();
         p->translate(dot);
 
@@ -583,7 +579,7 @@ void GraphicsWidget::printCoord(QPainter *p)
 
 void GraphicsWidget::timeout()
 {
-    _cource += 2;
+    _angleGradientSector += 2;
     _scene->update();
 }
 
@@ -618,9 +614,9 @@ void GraphicsWidget::drawDotCicleWithLabel(QPainter *p, const qreal rad)
     //с шагом grad
     for (int i = 0; i < grad; ++i)
     {
-        p->setPen(QPen(QBrush(_clrGreen), 2));
+        p->setPen(QPen(QBrush(_clrTron), 2));
         if((i % 5) == 0)
-            p->setPen(QPen(QBrush(_clrGreen), 5));
+            p->setPen(QPen(QBrush(_clrTron), 5));
         //вычисляем координату точки и рисуем её
         QPointF dot = ScreenConversions::polarToScreen(getSceneCenterPont(), i, rad);
 
