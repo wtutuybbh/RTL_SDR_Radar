@@ -103,9 +103,20 @@ QPointF MapController::realPolarToScreen(const SPolarCoord &plr)
     return QPointF();
 }
 
-Position MapController::screenToGeoCoordinates(const QPointF &point)
+Position MapController::screenToGeoCoordinates(int w,
+                                               int h,
+                                               const Position &centerCoord,
+                                               const QPointF &point,
+                                               int zoom)
 {
-    return Position();
+    QPointF dot;
+    int _zoomLevel= zoom +3;
+    QPointF temp = _tileSource->ll2qgs(centerCoord.lonLat(),_zoomLevel);
+
+    dot.setX(point.x() - w / 2 + temp.x());
+    dot.setY(point.y() - h / 2 + temp.y());
+
+    return Position (_tileSource->qgs2ll(dot,_zoomLevel));
 }
 
 QPointF MapController::geoToScreenCoordinates(int w,
@@ -154,11 +165,12 @@ bool MapController::isVisibleInCurrentScale(double dist)
 QImage MapController::addFilterImage(const QPixmap &pxm, FilterType type)
 {
     QImage img = pxm.toImage();
+
     //ночной режим
     if(type == FilterType::Night)
     {
         int pixels = img.width() * img.height();
-        if (pixels*(int)sizeof(QRgb) <= img.byteCount())
+        if (pixels * (int)sizeof(QRgb) <= img.byteCount())
         {
             QRgb *data = (QRgb *)img.bits();
             int val = 0;

@@ -117,11 +117,6 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
     void mouseReleaseEvent (QMouseEvent * event) override;
     void wheelEvent (QWheelEvent * event) override;
 
-
-    //    // из координаты в экранную точку
-    //    QPointF geoToScreen(const Position &coord);
-    //    // Преобразования из точки экрана в координаты
-    //    Position screenToGeo(QPointF view);
     //    void recalcCoordGraphObj();
 
     /*!
@@ -129,6 +124,7 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
      * \return координаты центра сцены
      */
     QPointF getSceneCenterPont();
+    double getDistanceObject(const Position &pos);
 public:
     /*!
      * \brief GraphicsWidget конструктор класса для отображения карты и объектов
@@ -205,16 +201,25 @@ protected:
      * \param drawBorder - вывод внутри рамки
      */
     virtual void drawText(QPainter *p,
-                          double X,
-                          double Y,
-                          const QString &str,
-                          bool drawBorder = false);
+                          int X,
+                          int Y,
+                          const QString &str);
+
+    virtual void drawText(QPainter *p,
+                          int X,
+                          int Y,
+                          const QStringList &strList);
+
     /*!
-     * \brief printCoord - вывод экранных и геокоординат
-     * в область виджетв
+     * \brief printScreenCoord - вывод экранных координат
      * \param p - класс, отвечающий за отрисовку
      */
-    virtual void printCoord(QPainter *p);
+    virtual void printScreenCoord(QPainter *p);
+    /*!
+     * \brief printGeoCoord - вывод геокоординат координат
+     * \param p - класс, отвечающий за отрисовку
+     */
+    virtual void printGeoCoord(QPainter *p);
     /*!
      * \brief updateObjectOnScene - обновление РТО объекта на сцене.
      * Если объект новый - добавление на сцену

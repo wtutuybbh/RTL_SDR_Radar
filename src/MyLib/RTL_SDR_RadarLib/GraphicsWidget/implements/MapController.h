@@ -40,7 +40,12 @@ public:
     SPolarCoord screenToRealPolar(const QPointF &xy) override;
     QPointF realPolarToScreen(const SPolarCoord &plr) override;
 
-    Position screenToGeoCoordinates(const QPointF &point) override;
+    Position screenToGeoCoordinates(int w,
+                                    int h,
+                                    const Position &centerCoord,
+                                    const QPointF &point,
+                                    int zoom) override;
+
     QPointF geoToScreenCoordinates(int w,
                                    int h,
                                    const Position &centerCoord,

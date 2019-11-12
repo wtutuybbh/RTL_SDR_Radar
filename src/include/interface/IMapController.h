@@ -40,7 +40,11 @@ public:
     virtual SPolarCoord screenToRealPolar(const QPointF &xy) = 0;
     virtual QPointF realPolarToScreen(const SPolarCoord &plr) = 0;
 
-    virtual Position screenToGeoCoordinates(const QPointF &point) = 0;
+    virtual Position screenToGeoCoordinates(int w,
+                                            int h,
+                                            const Position &centerCoord,
+                                            const QPointF &point,
+                                            int zoom) = 0;
 
     virtual QPointF geoToScreenCoordinates(int w,
                                            int h,
