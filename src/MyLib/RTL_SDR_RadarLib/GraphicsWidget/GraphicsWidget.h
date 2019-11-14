@@ -103,12 +103,6 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
      */
     void drawForeground(QPainter *painter, const QRectF &rect) override;
 
-
-    //    //узнать масштаб в километрах
-    //    double getDistanceRadarScale();
-    //    //рассчет дистанции до объекта
-    //    double getDistanceObject(const Position &pos);
-
     /*!
      * \brief переопределение событий мыши
      */
@@ -117,14 +111,11 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
     void mouseReleaseEvent (QMouseEvent * event) override;
     void wheelEvent (QWheelEvent * event) override;
 
-    //    void recalcCoordGraphObj();
-
     /*!
      * \brief getSceneCenterPont получение центральных координат сцены
      * \return координаты центра сцены
      */
     QPointF getSceneCenterPont();
-    double getDistanceObject(const Position &pos);
 public:
     /*!
      * \brief GraphicsWidget конструктор класса для отображения карты и объектов
@@ -210,6 +201,8 @@ protected:
                           int Y,
                           const QStringList &strList);
 
+    virtual void initDrawText(QPainter *p);
+
     /*!
      * \brief printScreenCoord - вывод экранных координат
      * \param p - класс, отвечающий за отрисовку
@@ -227,6 +220,9 @@ protected:
      * Если объект устарел  - удаление его со сцены
      * \param object
      */
+
+    virtual void printMapScale(QPainter *p);
+
     virtual void updateObjectOnScene(QSharedPointer<IObject> &object);
     /*!
      * \brief recalculateCoordObjects - перерасчёт координат объекта на сцене

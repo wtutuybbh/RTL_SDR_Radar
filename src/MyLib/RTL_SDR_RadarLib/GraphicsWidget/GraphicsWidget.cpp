@@ -181,21 +181,21 @@ void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
 
     QPointF dot = {-10.0,-10.0};
 
-    if(object->getDistance_KM() < (_ptrMapController->getDistanceRadarScale_KM()))
-    {
-        //dot = _ptrMapController->geoToScreenCoordinates(object->getGeoCoord());
+    //    if(object->getDistance_KM() < (_ptrMapController->getDistanceRadarScale_KM()))
+    //    {
+    //        //dot = _ptrMapController->geoToScreenCoordinates(object->getGeoCoord());
 
-        graphItem->setPos(dot);
-        graphItem->setOpacity(1);
+    //        graphItem->setPos(dot);
+    //        graphItem->setOpacity(1);
 
-        if(!graphItem->isVisible())
-            graphItem->show();
-    }
-    else
-    {
-        _vHiddenObject.append(object->getAzimuth());
-        graphItem->hide();
-    }
+    //        if(!graphItem->isVisible())
+    //            graphItem->show();
+    //    }
+    //    else
+    //    {
+    //        _vHiddenObject.append(object->getAzimuth());
+    //        graphItem->hide();
+    //    }
 
     //если графический объект выбран текущим
     if(object->isSelectedObject() && _fixCursor)
@@ -312,10 +312,8 @@ void GraphicsWidget::drawMap(QPainter* painter,bool isDraw)
     if(_ptrMapController.isNull() || (!isDraw) || (painter == nullptr))
         return;
 
-    QImage img = _ptrMapController->getImageMap(_scene->width(),
-                                                _scene->height(),
+    QImage img = _ptrMapController->getImageMap(_scene->sceneRect().size(),
                                                 ServiceLocator::getCarrier()->getGeoCoord(),
-                                                _mapZoom,
                                                 FilterType::Night);
 
     if (!img.isNull())
@@ -372,7 +370,8 @@ void GraphicsWidget::drawBackground(QPainter *painter, const QRectF &rect)
 
     //рисуем большие точки и надписи
     drawDotCicleWithLabel(painter, rad);
-
+    initDrawText(painter);
+    printMapScale(painter);
 }
 
 void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
@@ -380,9 +379,9 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
     Q_UNUSED(rect);
     painter->setRenderHint(QPainter::Antialiasing);
 
+    //зафиксированный на карте курсо необходимо отрисовывать отдельно
     if(_fixCursor)
     {
-        //рисуем свой курсор красного цвета
         painter->drawPixmap(static_cast<int32_t>(_fixCursorCoord.x()-_pxmSelect.width()/2),
                             static_cast<int32_t>(_fixCursorCoord.y()-_pxmSelect.height()/2),
                             _pxmSelect.width(),
@@ -391,6 +390,7 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
     }
 
     drawCarrier(painter);
+    initDrawText(painter);
     printScreenCoord(painter);
     printGeoCoord(painter);
 
@@ -451,15 +451,6 @@ void GraphicsWidget::resizeEvent(QResizeEvent *event)
 void GraphicsWidget::drawCarrier(QPainter *p)
 {
     QPointF dot = getSceneCenterPont();
-
-    if(!_ptrMapController.isNull())
-    {
-        dot = _ptrMapController->geoToScreenCoordinates(_scene->sceneRect().width(),
-                                                        _scene->sceneRect().height(),
-                                                        _ptrCarrier->getGeoCoord(),
-                                                        _ptrCarrier->getGeoCoord(),
-                                                        _mapZoom);
-    }
     p->save();
     p->setPen(QPen(QBrush(QColor(0,250,0)),5));
     p->drawPoint(dot);
@@ -479,7 +470,7 @@ void GraphicsWidget::drawHiddenObject(QPainter *p)
 
     for(auto & iter: _vHiddenObject)
     {
-        SPolarCoord crd(iter,_distToBorderMap);
+        PolarCoord crd(iter,_distToBorderMap);
 
         QPointF dot = ScreenConversions::polarToScreen(
                     getSceneCenterPont(),
@@ -561,7 +552,7 @@ void GraphicsWidget::drawText(QPainter *p,
     }
 }
 
-void GraphicsWidget::printScreenCoord(QPainter *p)
+void GraphicsWidget::initDrawText(QPainter *p)
 {
     QFont font = p->font();
     font.setStyleStrategy(QFont::PreferAntialias);
@@ -572,7 +563,10 @@ void GraphicsWidget::printScreenCoord(QPainter *p)
     QPen pen(p->pen());
     pen.setCosmetic(true);
     p->setPen(QPen(QBrush(_clrWhite),2));
+}
 
+void GraphicsWidget::printScreenCoord(QPainter *p)
+{
     double X = _scene->sceneRect().bottomLeft().x();
     double Y = _scene->sceneRect().bottomLeft().y();
 
@@ -586,11 +580,9 @@ void GraphicsWidget::printScreenCoord(QPainter *p)
 
 void GraphicsWidget::printGeoCoord(QPainter *p)
 {
-    Position ps = _ptrMapController->screenToGeoCoordinates(_scene->sceneRect().width(),
-                                                            _scene->sceneRect().height(),
+    Position ps = _ptrMapController->screenToGeoCoordinates(_scene->sceneRect().size(),
                                                             _ptrCarrier->getGeoCoord(),
-                                                            _cursorCoord,
-                                                            _mapZoom);
+                                                            _cursorCoord);
 
     double X = _scene->sceneRect().bottomRight().x();
     double Y = _scene->sceneRect().bottomRight().y();
@@ -604,25 +596,48 @@ void GraphicsWidget::printGeoCoord(QPainter *p)
 
     QPointF dot = (!_fixCursor) ? _cursorCoord : _fixCursorCoord;
 
-    //перевод в полярную систему
-    SPolarCoord plr = ScreenConversions::screenToPolar(getSceneCenterPont(),
-                                                       dot);
-    Position sg = _ptrMapController->screenToGeoCoordinates(scene()->width(),
-                                                            scene()->height(),
-                                                            _ptrCarrier->getGeoCoord(),
-                                                            dot,
-                                                            _mapZoom);
-    plr.range = getDistanceObject(sg);
+    //перевод в полярную систему для рассчета пеленга и дальности
+    PolarCoord plr = ScreenConversions::screenToPolar(getSceneCenterPont(),
+                                                      dot);
 
-    p->drawText(dot.x() - _cursorSize.width() / 2,
-                dot.y() - _cursorSize.height() / 2 - 2,
-                QString("П=%1").arg(plr.phi));
+    if(plr.range < _distToBorderMap)
+    {
+        Position sg = _ptrMapController->screenToGeoCoordinates(scene()->sceneRect().size(),
+                                                                _ptrCarrier->getGeoCoord(),
+                                                                dot);
 
-    p->drawText(dot.x() - _cursorSize.width() / 2,
-                dot.y() + _cursorSize.height() / 2 +12,
-                QString("Д=%1").arg(plr.range));
+        plr.range = _ptrMapController->getDistanceObject_KM(_ptrCarrier->getGeoCoord(),
+                                                         sg);
 
+        p->drawText(dot.x() - _cursorSize.width() / 2,
+                    dot.y() - _cursorSize.height() / 2 - 2,
+                    QString("П=%1").arg(plr.phi, 0,'f',1));
 
+        p->drawText(dot.x() - _cursorSize.width() / 2,
+                    dot.y() + _cursorSize.height() / 2 +12,
+                    QString("Д=%1").arg(plr.range,0,'f',2));
+    }
+}
+
+void GraphicsWidget::printMapScale(QPainter *p)
+{
+    double X = _scene->sceneRect().topLeft().x();
+    double Y = _scene->sceneRect().topLeft().y();
+
+    double dist = 0.0;
+    if(!_ptrMapController.isNull())
+    {
+        dist = _ptrMapController->getDistanceRadarScale_KM(_scene->sceneRect().size(),
+                                                           _ptrCarrier->getGeoCoord(),
+                                                           QPointF(_scene->width()/2 + _distToBorderMap,
+                                                                   _scene->width()/2 ));
+    }
+
+    QStringList list;
+    list.append(QObject::tr("ДЗВ"));
+    list.append(QString("М = %1").arg(dist, 0 , 'f', 2));
+
+    drawText(p, X, Y,list);
 }
 
 void GraphicsWidget::timeout()
@@ -699,10 +714,11 @@ void GraphicsWidget::drawDotCicleWithLabel(QPainter *p, const qreal rad)
 
 void GraphicsWidget::RadarScalePlus()
 {
-    //сетку масштабов переделать,сейчас под OSM
-    if (_mapZoom <= 0)
+    if (_ptrMapController.isNull())
         return;
-    _mapZoom -= 1;
+
+    if(_ptrMapController->getScale() == _ptrMapController->decScale())
+        return;
 
     recalculateCoordObjects();
 }
@@ -710,16 +726,11 @@ void GraphicsWidget::RadarScalePlus()
 
 void GraphicsWidget::RadarScaleMinus()
 {
-    if (_mapZoom >= 15)
+    if (_ptrMapController.isNull())
         return;
-    _mapZoom += 1;
+
+    if(_ptrMapController->getScale() == _ptrMapController->incScale())
+        return;
 
     recalculateCoordObjects();
-}
-
-//получение дистанции до объекта
-double GraphicsWidget::getDistanceObject(const Position &pos)
-{
-    Position sp1 = _ptrCarrier->getGeoCoord();
-    return pos.flatDistanceEstimate(sp1)  / 1000;
 }

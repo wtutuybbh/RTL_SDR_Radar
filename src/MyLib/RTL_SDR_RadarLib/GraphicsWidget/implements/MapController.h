@@ -12,56 +12,120 @@
 class MapController : public IMapController
 {
     Q_OBJECT
+
     //карта
     std::unique_ptr<OSMTileSource> _tileSource = nullptr;
-
+    int _zoom = 8;
+    /*!
+     * \brief addFilterImage - наложение фильтра на изображение
+     * \param pxm - QPixmap растрового изображения карты
+     * \param type - тип фильтра
+     * \return растровое изображение карты
+     */
     QImage addFilterImage(const QPixmap &pxm,  FilterType type);
 
 public:
     explicit MapController();
     ~MapController() override;
 
-    QImage getImageMap(int w,
-                        int h,
+    /*!
+     * \brief getImageMap - получение картографической основы в растровом формате
+     * \param size - размер изображения
+     * \param center - центральная точка карты (широта и долгота)
+     * \param type - тип изображения (цветоное или наложение фильтра)
+     * \return растровое изображение карты
+     */
+    QImage getImageMap( const QSizeF &size,
                         const Position &center,
-                        int zoom,
                         FilterType filterType = FilterType::No) override;
 
-    QImage getImageMap( int w,
-                        int h,
-                        int zoom,
-                        FilterType type = FilterType::No) override;
-
-    //центральная точка в географических координатах
+    /*!
+     * \brief getCenterGeoPoint центральная точка в географических координатах
+     * \return текущее значение
+     */
     Position getCenterGeoPoint() const override;
+
+    /*!
+     * \brief setCenterGeoPoint - установка текущего значения центральной точки
+     *  в географических координатах
+     * \param geoCenter - значение широты и долготы
+     */
     void setCenterGeoPoint(const Position &geoCenter) override;
 
-    //экранные координаты в полярные c учетом масштаба
-    SPolarCoord screenToRealPolar(const QPointF &xy) override;
-    QPointF realPolarToScreen(const SPolarCoord &plr) override;
+    /*!
+     * \brief screenToRealPolar перевод экранных координат
+     * в значения пеленг-дальность c учетом масштаба
+     * пеленг в градусах, дальность в метрах
+     * \param xy - значение экранных координат
+     * \return  пеленг - дальность
+     */
+    PolarCoord screenToRealPolar(const QSizeF &size,
+                                 const Position &centerCoord,
+                                 const QPointF &xy) override;
 
-    Position screenToGeoCoordinates(int w,
-                                    int h,
+    /*!
+     * \brief realPolarToScreen - перевод значения пеленг - дальность
+     * в экранные координаты
+     * пеленг в градусах, дальностьв метрах
+     * \param size - размер картографической основы в пикселя
+     * \param centerCoord - центральная геокоордината
+     * \param plr - значение пеленг-дальность
+     * \return экранные координаты
+     */
+    QPointF realPolarToScreen(const QSizeF &size,
+                              const Position &centerCoord,
+                              const PolarCoord &plr) override;
+
+    /*!
+     * \brief screenToGeoCoordinates перевод экранных координат в
+     * географические (широта и долгота)
+     * \param size - размер картографической основы в пикселя
+     * \param centerCoord - центральная геокоордината
+     * \param point - экранная точка
+     * \return значение геоокординаты
+     */
+    Position screenToGeoCoordinates(const QSizeF &size,
                                     const Position &centerCoord,
-                                    const QPointF &point,
-                                    int zoom) override;
-
-    QPointF geoToScreenCoordinates(int w,
-                                   int h,
+                                    const QPointF &point) override;
+    /*!
+     * \brief geoToScreenCoordinates - перевод географисеких координат в
+     * экранные (широта и догота)
+     * \param size - размер картографической основы в пикселях
+     * \param centerCoord - центральная геоточка
+     * \param position - геокоордината точки для перевода
+     * \return значений экранной координаты в пикселях
+     */
+    QPointF geoToScreenCoordinates(const QSizeF &size,
                                    const Position &centerCoord,
-                                   const Position &position,
-                                   int zoom) override;
+                                   const Position &position) override;
 
-    double getDistanceRadarScale_KM() override;
-    double getDistanceRadarScale_M() override;
+    /*!
+     * \brief getDistanceRadarScale_KM - дистанция в километрах от края до края карты
+     * в текущем масштабе
+     * \return дистанция в километрах
+     */
+    double getDistanceRadarScale_KM(const QSizeF &size,
+                                    const Position &centerCoordinate,
+                                    const QPointF mapBorderCordinate) override;
+
+    double getDistanceRadarScale_M(const QSizeF &size,
+                                   const Position &centerCoordinate,
+                                   const QPointF mapBorderCordinate) override;
 
     //масштаб
-    double getScale() override;
-    void setScale(double scale) override;
+    int getScale() override;
+    void setScale(int scale) override;
+    int incScale() override;
+    int decScale() override;
 
     //проверка попадает ли точка в область видимости
     bool isVisibleInCurrentScale(double dist) override;
 
+    double getDistanceObject_KM(const Position &centerCoord,
+                             const Position &dot) override;
+
+    double getDistanceObject_M(const Position &centerCoord,
+                             const Position &dot) override;
 signals:
     void updateTileGride();
 
