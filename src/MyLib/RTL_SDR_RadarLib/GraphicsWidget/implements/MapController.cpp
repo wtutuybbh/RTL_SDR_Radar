@@ -19,13 +19,11 @@ MapController::~MapController()
 
 }
 
-QImage MapController::getImageMap(int w,
-                                  int h,
+QImage MapController::getImageMap(const QSizeF &size,
                                   const Position &center,
-                                  int zoom,
                                   FilterType filterType)
 {
-    int zoomLevel = zoom + 3;
+    int zoomLevel = _zoom + 3;
 
     //переводим географические координаты в метры
     QPointF qgsPos = _tileSource->ll2qgs(center.lonLat(), zoomLevel);
@@ -34,10 +32,11 @@ QImage MapController::getImageMap(int w,
     const quint16 tileSize = _tileSource->tileSize();
 
     //узнаем сколько тайлов поместиться в нашем окне
-    const qint32 tilesPerRow = w / _tileSource->tileSize() + 4;
+    const qint32 tilesPerRow = size.width() / _tileSource->tileSize() + 4;
     const qint32 tilesPerCol = tilesPerRow;
 
-    QPixmap pxm = QPixmap(w, h);
+    QPixmap pxm = QPixmap(qRound(size.width()),
+                          qRound(size.height()));
     pxm.fill(Qt::black);
 
     QPainter p(&pxm);
@@ -65,8 +64,8 @@ QImage MapController::getImageMap(int w,
                 double shift_x = (qgsPos.x() - ((int)qgsPos.x() / tileSize) * tileSize) ;
                 double shift_y = (qgsPos.y() - ((int)qgsPos.y() / tileSize) * tileSize);
                 //отрисуем карту
-                p.drawPixmap( (double)w / 2 - shift_x - x * tileSize,
-                              (double)w / 2 - shift_y - y * tileSize,
+                p.drawPixmap( (double)size.width() / 2 - shift_x - x * tileSize,
+                              (double)size.height() / 2 - shift_y - y * tileSize,
                               pmMap);
                 yyc++;
             }
@@ -78,10 +77,6 @@ QImage MapController::getImageMap(int w,
     return addFilterImage(pxm,filterType);
 }
 
-QImage MapController::getImageMap(int w, int h, int zoom, FilterType type)
-{
-    return QImage();
-}
 
 Position MapController::getCenterGeoPoint() const
 {
@@ -93,57 +88,87 @@ void MapController::setCenterGeoPoint(const Position &geoCenter)
 
 }
 
-SPolarCoord MapController::screenToRealPolar(const QPointF &xy)
+PolarCoord MapController::screenToRealPolar(const QSizeF &size,
+                                            const Position &centerCoord,
+                                            const QPointF &xy)
 {
-    return SPolarCoord(0.0, 0.0);
+    return PolarCoord(0.0, 0.0);
 }
 
-QPointF MapController::realPolarToScreen(const SPolarCoord &plr)
+QPointF MapController::realPolarToScreen(const QSizeF &size,
+                                         const Position &centerCoord,
+                                         const PolarCoord &plr)
 {
     return QPointF();
 }
 
-Position MapController::screenToGeoCoordinates(const QPointF &point)
-{
-    return Position();
-}
-
-QPointF MapController::geoToScreenCoordinates(int w,
-                                              int h,
-                                              const Position &centerCoord,
-                                              const Position &position,
-                                              int zoom )
+Position MapController::screenToGeoCoordinates(const QSizeF &size,
+                                               const Position &centerCoord,
+                                               const QPointF &point)
 {
     QPointF dot;
-    int _zoomLevel = zoom + 3;
-    QPointF temp = _tileSource->ll2qgs(centerCoord.lonLat(), _zoomLevel);
+    int zoomLevel= _zoom + 3;
+    QPointF temp = _tileSource->ll2qgs(centerCoord.lonLat(),zoomLevel);
+
+    dot.setX(point.x() - size.width() / 2 + temp.x());
+    dot.setY(point.y() - size.height() / 2 + temp.y());
+
+    return Position (_tileSource->qgs2ll(dot,zoomLevel));
+}
+
+QPointF MapController::geoToScreenCoordinates(const QSizeF &size,
+                                              const Position &centerCoord,
+                                              const Position &position)
+{
+    QPointF dot;
+    int zoomLevel = _zoom + 3;
+    QPointF temp = _tileSource->ll2qgs(centerCoord.lonLat(), zoomLevel);
 
     dot.setX(_tileSource->ll2qgs(position.lonLat(),
-                                 _zoomLevel).x() + w / 2 - temp.x());
+                                 zoomLevel).x() + size.width() / 2 - temp.x());
 
     dot.setY(_tileSource->ll2qgs(position.lonLat(),
-                                 _zoomLevel).y() + h / 2 - temp.y());
+                                 zoomLevel).y() + size.height() / 2 - temp.y());
     return dot;
 }
 
-double MapController::getDistanceRadarScale_KM()
+double MapController::getDistanceRadarScale_KM(const QSizeF &size,
+                                               const Position &centerCoordinate,
+                                               const QPointF mapBorderCordinate)
 {
-    return 0.0;
+    return getDistanceRadarScale_M(size,centerCoordinate,mapBorderCordinate)/ 1000;
 }
 
-double MapController::getDistanceRadarScale_M()
+double MapController::getDistanceRadarScale_M(const QSizeF &size,
+                                              const Position &centerCoordinate,
+                                              const QPointF mapBorderCordinate)
 {
-    return 0.0;
+    Position sp0 = screenToGeoCoordinates(size,
+                                          centerCoordinate,
+                                          mapBorderCordinate);
+
+    return centerCoordinate.flatDistanceEstimate(sp0) * 2 ;
 }
 
-double MapController::getScale()
+int MapController::getScale()
 {
-    return 0.0;
+    return _zoom;
 }
 
-void MapController::setScale(double scale)
-{
 
+void MapController::setScale(int scale)
+{
+    _zoom = scale;
+}
+
+int MapController::incScale()
+{
+    return  (_zoom < 15) ? ++_zoom : _zoom;
+}
+
+int MapController::decScale()
+{
+     return  (_zoom > 0) ? --_zoom : _zoom;
 }
 
 bool MapController::isVisibleInCurrentScale(double dist)
@@ -154,11 +179,12 @@ bool MapController::isVisibleInCurrentScale(double dist)
 QImage MapController::addFilterImage(const QPixmap &pxm, FilterType type)
 {
     QImage img = pxm.toImage();
+
     //ночной режим
     if(type == FilterType::Night)
     {
         int pixels = img.width() * img.height();
-        if (pixels*(int)sizeof(QRgb) <= img.byteCount())
+        if (pixels * (int)sizeof(QRgb) <= img.byteCount())
         {
             QRgb *data = (QRgb *)img.bits();
             int val = 0;
@@ -172,3 +198,14 @@ QImage MapController::addFilterImage(const QPixmap &pxm, FilterType type)
     return img;
 }
 
+double MapController::getDistanceObject_M(const Position& centerCoord,
+                                        const Position& dot)
+{
+    return centerCoord.flatDistanceEstimate(dot);
+}
+
+double MapController::getDistanceObject_KM(const Position& centerCoord,
+                                        const Position& dot)
+{
+    return getDistanceObject_M(centerCoord, dot) / 1000.0;
+}

@@ -1,28 +1,26 @@
 #include "GraphicsWidget.h"
 
 
-GraphicsWidget::GraphicsWidget(double w,
+GraphicsWidget::GraphicsWidget(uint32_t widthRect,
                                QSharedPointer<IPoolObject> poolObject,
                                QWidget *parent):
     QGraphicsView(parent)
 {
     subscribe(poolObject);
 
-    initWidget(QRect(0,
-                     0,
-                     static_cast<int>(w),
-                     static_cast<int>(w)),
-               true);
-    initCirsor();
+    initWidget(QRect(0,0,widthRect,widthRect),true);
+    initCursors();
 
     _ptrMapController = QSharedPointer<IMapController>(new MapController());
 
     connect(_ptrMapController.data(), SIGNAL(updateTileGride()),
             this, SLOT(updateScene()));
 
+    _ptrCarrier = ServiceLocator::getCarrier();
+
     //обновление сектора
-    connect(&_timer,SIGNAL(timeout()),this,SLOT(timeout()));
-    _timer.start(25);
+    connect(&_timer,&QTimer::timeout,this,&GraphicsWidget::timeout);
+    _timer.start(TIMEOUT);
 }
 
 GraphicsWidget::~GraphicsWidget()
@@ -112,7 +110,7 @@ void GraphicsWidget::initWidget(const QRect &rect, bool enableOpenGL)
 
 }
 
-void GraphicsWidget::initCirsor()
+void GraphicsWidget::initCursors()
 {
     //курсор для наведения
     _pxmCursor = QPixmap(_cursorSize);
@@ -181,25 +179,23 @@ void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
         scene()->addItem(graphItem);
     }
 
-
     QPointF dot = {-10.0,-10.0};
 
-    if(object->getDistance_KM() < (_ptrMapController->getDistanceRadarScale_KM()))
-    {
-        //dot = _ptrMapController->geoToScreenCoordinates(object->getGeoCoord());
+    //    if(object->getDistance_KM() < (_ptrMapController->getDistanceRadarScale_KM()))
+    //    {
+    //        //dot = _ptrMapController->geoToScreenCoordinates(object->getGeoCoord());
 
-        graphItem->setPos(dot);
-        graphItem->setOpacity(1);
+    //        graphItem->setPos(dot);
+    //        graphItem->setOpacity(1);
 
-        if(!graphItem->isVisible())
-            graphItem->show();
-    }
-    else
-    {
-        _vHiddenObject.append(object->getAzimuth());
-        graphItem->hide();
-    }
-
+    //        if(!graphItem->isVisible())
+    //            graphItem->show();
+    //    }
+    //    else
+    //    {
+    //        _vHiddenObject.append(object->getAzimuth());
+    //        graphItem->hide();
+    //    }
 
     //если графический объект выбран текущим
     if(object->isSelectedObject() && _fixCursor)
@@ -234,7 +230,7 @@ QStringList GraphicsWidget::getDataForTable(IObject* object)
          << object->getObjectName()
          << QString::number(object->getDistance_KM())
          << QString::number(object->getGeoCoord().latitude())
-         <<  QString::number(object->getGeoCoord().longitude());
+         << QString::number(object->getGeoCoord().longitude());
 
     return list;
 }
@@ -304,21 +300,20 @@ void GraphicsWidget::wheelEvent(QWheelEvent * event)
         RadarScaleMinus();
 }
 
+
 QPointF GraphicsWidget::getSceneCenterPont()
 {
-    return QPoint(_scene->sceneRect().width()/2.0,
-                  _scene->sceneRect().height()/2.0);
+    return QPoint(_scene->width()/2.0,
+                  _scene->height()/2.0);
 }
 
 void GraphicsWidget::drawMap(QPainter* painter,bool isDraw)
 {
-    if(_ptrMapController.isNull() || (!isDraw))
+    if(_ptrMapController.isNull() || (!isDraw) || (painter == nullptr))
         return;
 
-    QImage img = _ptrMapController->getImageMap(_scene->sceneRect().width(),
-                                                _scene->sceneRect().height(),
+    QImage img = _ptrMapController->getImageMap(_scene->sceneRect().size(),
                                                 ServiceLocator::getCarrier()->getGeoCoord(),
-                                                _mapZoom,
                                                 FilterType::Night);
 
     if (!img.isNull())
@@ -364,18 +359,19 @@ void GraphicsWidget::drawBackground(QPainter *painter, const QRectF &rect)
 
     drawMap(painter);
 
-    painter->setPen(QPen(QBrush(_clrGreen),1));
+    painter->setPen(QPen(QBrush(_clrTron),1));
 
-    //    painter->drawRect(0,
-    //                      0,
-    //                      _scene->sceneRect().width(),
-    //                      _scene->sceneRect().height());
+    painter->drawRect(0,
+                      0,
+                      _scene->sceneRect().width(),
+                      _scene->sceneRect().height());
     //внешние точки, большие через 5 градусов
     double rad = _scene->sceneRect().width()/2 - _textBorder + 5;
 
     //рисуем большие точки и надписи
     drawDotCicleWithLabel(painter, rad);
-
+    initDrawText(painter);
+    printMapScale(painter);
 }
 
 void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
@@ -383,9 +379,9 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
     Q_UNUSED(rect);
     painter->setRenderHint(QPainter::Antialiasing);
 
+    //зафиксированный на карте курсо необходимо отрисовывать отдельно
     if(_fixCursor)
     {
-        //рисуем свой курсор красного цвета
         painter->drawPixmap(static_cast<int32_t>(_fixCursorCoord.x()-_pxmSelect.width()/2),
                             static_cast<int32_t>(_fixCursorCoord.y()-_pxmSelect.height()/2),
                             _pxmSelect.width(),
@@ -393,13 +389,10 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
                             _pxmSelect);
     }
 
-    QSharedPointer<ICarrierClass> _ptrCarrier = ServiceLocator::getCarrier();
-
-
     drawCarrier(painter);
-
-    //TODO: исправить расчет положения надписей
-    printCoord(painter);
+    initDrawText(painter);
+    printScreenCoord(painter);
+    printGeoCoord(painter);
 
     if(!_updateInSector)
         return;
@@ -415,7 +408,7 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
     //второй вариант - это один раз нарисовать градиент и вращать его
     //по производительности одинаково, но так меньше кода
     gradient.setCenter(drawingRect.center());
-    gradient.setAngle(-_cource);
+    gradient.setAngle(-_angleGradientSector);
     gradient.setColorAt(0, QColor(170,207,209,100));
     gradient.setColorAt(0.2, QColor(0,0,0,0));
 
@@ -428,7 +421,7 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
 
     painter->drawLine(drawingRect.center(),
                       QPointF(ScreenConversions::polarToScreen(getSceneCenterPont(),
-                                                               _cource + _sectorSize * 2,
+                                                               _angleGradientSector + _sectorSize * 2,
                                                                _distToBorderMap)));
 
 }
@@ -445,6 +438,7 @@ void GraphicsWidget::resizeEvent(QResizeEvent *event)
         w = h;
     else
         h = w;
+
     const uint64_t dimension = static_cast<uint64_t>(sqrt(w * h));
     _scene->setSceneRect(0, 0, dimension, dimension);
 
@@ -456,18 +450,7 @@ void GraphicsWidget::resizeEvent(QResizeEvent *event)
 
 void GraphicsWidget::drawCarrier(QPainter *p)
 {
-    QSharedPointer<ICarrierClass> _ptrCarrier = ServiceLocator::getCarrier();
-
     QPointF dot = getSceneCenterPont();
-
-    if(!_ptrMapController.isNull())
-    {
-        dot = _ptrMapController->geoToScreenCoordinates(_scene->sceneRect().width(),
-                                                        _scene->sceneRect().height(),
-                                                        _ptrCarrier->getGeoCoord(),
-                                                        _ptrCarrier->getGeoCoord(),
-                                                        _mapZoom);
-    }
     p->save();
     p->setPen(QPen(QBrush(QColor(0,250,0)),5));
     p->drawPoint(dot);
@@ -477,7 +460,6 @@ void GraphicsWidget::drawCarrier(QPainter *p)
 
 void GraphicsWidget::drawHiddenObject(QPainter *p)
 {
-
     //кто-то за масштабом
     static const QPointF points[3] =
     {
@@ -488,7 +470,7 @@ void GraphicsWidget::drawHiddenObject(QPainter *p)
 
     for(auto & iter: _vHiddenObject)
     {
-        SPolarCoord crd(iter,_distToBorderMap);
+        PolarCoord crd(iter,_distToBorderMap);
 
         QPointF dot = ScreenConversions::polarToScreen(
                     getSceneCenterPont(),
@@ -496,7 +478,7 @@ void GraphicsWidget::drawHiddenObject(QPainter *p)
                     _distToBorderMap);
 
         QPen pen(p->pen());
-        p->setPen(QPen(QBrush(_clrGreen),2));
+        p->setPen(QPen(QBrush(_clrTron),2));
         p->save();
         p->translate(dot);
 
@@ -512,14 +494,13 @@ void GraphicsWidget::drawHiddenObject(QPainter *p)
 }
 
 void GraphicsWidget::drawText(QPainter *p,
-                              double X,
-                              double Y,
-                              const QString &str,
-                              bool drawBorder)
+                              int X,
+                              int Y,
+                              const QString &str)
 {
     QFont font = p->font();
     int captionWidth = QFontMetrics(font.family()).width(str);
-    int captionHeight = QFontMetrics(font.family()).ascent() + 2;
+    int captionHeight = QFontMetrics(font.family()).height() + 2;
 
     if(X > _scene->width()/2)
         X -= captionWidth;
@@ -528,62 +509,140 @@ void GraphicsWidget::drawText(QPainter *p,
         Y -= captionHeight;
 
     QRectF rect(X,
-                Y + QFontMetrics(font.family()).ascent() + 5.0,
+                Y + QFontMetrics(font.family()).height() + 5.0,
                 captionWidth,
                 captionHeight);
-    if(drawBorder)
-        p->drawRect(rect);
+
     p->drawText(rect,Qt::AlignCenter,str);
 }
 
-void GraphicsWidget::printCoord(QPainter *p)
-{ 
+void GraphicsWidget::drawText(QPainter *p,
+                              int X,
+                              int Y,
+                              const QStringList &strList)
+{
+    QFont font = p->font();
+    int captionWidth = 0;
+    int captionHeight = QFontMetrics(font.family()).height() + 2;
+
+    for(auto & iter: strList)
+        captionWidth = std::max(captionWidth,
+                                QFontMetrics(font.family()).width(iter));
+
+    p->setBrush(_clrTronAlpha);
+    int YY = Y;
+    int XX = X;
+    for(int i = strList.size(); i > 0 ; --i)
+    {
+        XX = (X > _scene->width() / 2) ?
+                    (X - captionWidth  - _textBorder / 4) :
+                    (X + _textBorder / 4);
+
+        YY = (Y > _scene->width() / 2) ?
+                    (Y - i * captionHeight -_textBorder/4) :
+                    (Y + i * captionHeight);
+
+        QRectF rect(XX,
+                    YY,
+                    captionWidth,
+                    captionHeight);
+
+        p->drawText(rect,Qt::AlignCenter,strList.at(strList.size() - i));
+        p->drawRect(rect);
+    }
+}
+
+void GraphicsWidget::initDrawText(QPainter *p)
+{
     QFont font = p->font();
     font.setStyleStrategy(QFont::PreferAntialias);
-    font.setStyleHint(QFont::Monospace,QFont::PreferAntialias);
+    font.setStyleHint(QFont::System,QFont::PreferAntialias);
     font.setBold(true);
     p->setFont(font);
 
     QPen pen(p->pen());
     pen.setCosmetic(true);
     p->setPen(QPen(QBrush(_clrWhite),2));
+}
 
+void GraphicsWidget::printScreenCoord(QPainter *p)
+{
     double X = _scene->sceneRect().bottomLeft().x();
     double Y = _scene->sceneRect().bottomLeft().y();
 
-    QString caption(QString("X = %1 , Y = %2 ").arg(_cursorCoord.x())
-                    .arg(_cursorCoord.y()));
+    QStringList list;
+    list.append(QObject::tr("ЭК"));
+    list.append(QString("X = %1").arg(_cursorCoord.x()));
+    list.append(QString("Y = %1").arg(_cursorCoord.y()));
 
-    drawText(p,
-             X,
-             Y - 4 * QFontMetrics(font.family()).ascent() + 5,
-             caption);
+    drawText(p, X, Y,list);
+}
+
+void GraphicsWidget::printGeoCoord(QPainter *p)
+{
+    Position ps = _ptrMapController->screenToGeoCoordinates(_scene->sceneRect().size(),
+                                                            _ptrCarrier->getGeoCoord(),
+                                                            _cursorCoord);
+
+    double X = _scene->sceneRect().bottomRight().x();
+    double Y = _scene->sceneRect().bottomRight().y();
+    QStringList list;
+    list.append(QObject::tr("ГК"));
+    list.append(QString(QObject::tr("Ш = %1").arg(ps.latitude())));
+    list.append(QString(QObject::tr("Д = %1").arg(ps.longitude())));
+
+    drawText(p, X, Y,list);
 
 
-    //эти данные должен давать модуль картографии
+    QPointF dot = (!_fixCursor) ? _cursorCoord : _fixCursorCoord;
 
-    //    p->drawText(cX,cY-2*h,w,h,Qt::AlignLeft|Qt::AlignVCenter,
-    //                rus("M = %1 км").
-    //                arg(int(getDistanceRadarScale())));
+    //перевод в полярную систему для рассчета пеленга и дальности
+    PolarCoord plr = ScreenConversions::screenToPolar(getSceneCenterPont(),
+                                                      dot);
 
-    //    SPolarCoord plrCrs;
-    //    plrCrs = coordConv->screenToRealPolar(_cursorCoord);
-    //    p->drawText(cX,cY-4*h,w,h,Qt::AlignLeft|Qt::AlignVCenter,
-    //                rus("П = %1 ")
-    //                .arg(QString::number(plrCrs.phi,'g',3)));
+    if(plr.range < _distToBorderMap)
+    {
+        Position sg = _ptrMapController->screenToGeoCoordinates(scene()->sceneRect().size(),
+                                                                _ptrCarrier->getGeoCoord(),
+                                                                dot);
 
+        plr.range = _ptrMapController->getDistanceObject_KM(_ptrCarrier->getGeoCoord(),
+                                                         sg);
 
-    //    double dist = coordConv->getDistance(CORVETTE.getGeoCoord(),coordConv->screenToGeo(_fixCursorCoord));
-    //    if(dist > getDistanceRadarScale())
-    //        dist = 0;
-    //    p->drawText(cX,cY-3*h,w,h,Qt::AlignLeft|Qt::AlignVCenter,
-    //                rus("Д = %1")
-    //                .arg(QString::number((dist),'g',5)));
+        p->drawText(dot.x() - _cursorSize.width() / 2,
+                    dot.y() - _cursorSize.height() / 2 - 2,
+                    QString("П=%1").arg(plr.phi, 0,'f',1));
+
+        p->drawText(dot.x() - _cursorSize.width() / 2,
+                    dot.y() + _cursorSize.height() / 2 +12,
+                    QString("Д=%1").arg(plr.range,0,'f',2));
+    }
+}
+
+void GraphicsWidget::printMapScale(QPainter *p)
+{
+    double X = _scene->sceneRect().topLeft().x();
+    double Y = _scene->sceneRect().topLeft().y();
+
+    double dist = 0.0;
+    if(!_ptrMapController.isNull())
+    {
+        dist = _ptrMapController->getDistanceRadarScale_KM(_scene->sceneRect().size(),
+                                                           _ptrCarrier->getGeoCoord(),
+                                                           QPointF(_scene->width()/2 + _distToBorderMap,
+                                                                   _scene->width()/2 ));
+    }
+
+    QStringList list;
+    list.append(QObject::tr("ДЗВ"));
+    list.append(QString("М = %1").arg(dist, 0 , 'f', 2));
+
+    drawText(p, X, Y,list);
 }
 
 void GraphicsWidget::timeout()
 {
-    _cource += 2;
+    _angleGradientSector += 2;
     _scene->update();
 }
 
@@ -600,7 +659,8 @@ void GraphicsWidget::slotUpdateData()
     }
     _ptrPoolObject->unlockPool();
 
-    qDebug()<<"GraphicsWidget::update()->slotUpdateData();" <<_scene->items().count();
+    qDebug()<<"GraphicsWidget::update()->slotUpdateData();" <<
+              _scene->items().count();
     _scene->update();
 }
 
@@ -618,9 +678,9 @@ void GraphicsWidget::drawDotCicleWithLabel(QPainter *p, const qreal rad)
     //с шагом grad
     for (int i = 0; i < grad; ++i)
     {
-        p->setPen(QPen(QBrush(_clrGreen), 2));
+        p->setPen(QPen(QBrush(_clrTron), 2));
         if((i % 5) == 0)
-            p->setPen(QPen(QBrush(_clrGreen), 5));
+            p->setPen(QPen(QBrush(_clrTron), 5));
         //вычисляем координату точки и рисуем её
         QPointF dot = ScreenConversions::polarToScreen(getSceneCenterPont(), i, rad);
 
@@ -654,10 +714,11 @@ void GraphicsWidget::drawDotCicleWithLabel(QPainter *p, const qreal rad)
 
 void GraphicsWidget::RadarScalePlus()
 {
-    //сетку масштабов переделать,сейчас под OSM
-    if (_mapZoom <= 0)
+    if (_ptrMapController.isNull())
         return;
-    _mapZoom -= 1;
+
+    if(_ptrMapController->getScale() == _ptrMapController->decScale())
+        return;
 
     recalculateCoordObjects();
 }
@@ -665,9 +726,11 @@ void GraphicsWidget::RadarScalePlus()
 
 void GraphicsWidget::RadarScaleMinus()
 {
-    if (_mapZoom >= 15)
+    if (_ptrMapController.isNull())
         return;
-    _mapZoom += 1;
+
+    if(_ptrMapController->getScale() == _ptrMapController->incScale())
+        return;
 
     recalculateCoordObjects();
 }

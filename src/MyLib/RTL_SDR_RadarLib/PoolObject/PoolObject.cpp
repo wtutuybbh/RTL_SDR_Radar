@@ -84,7 +84,10 @@ void PoolObject::prepareAllObjectToDelete()
 {
     std::for_each(_container->begin(),
                   _container->end(),
-                  [](QSharedPointer<IObject> iter){ iter->setObjectState(OBJECT_STATE::DELETE_OBJECT);});
+                  [](QSharedPointer<IObject> iter)
+    { 
+        iter->setObjectState(OBJECT_STATE::DELETE_OBJECT);
+    });
 }
 
 void PoolObject::deleteMarkedObjects()
