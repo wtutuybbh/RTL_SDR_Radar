@@ -21,9 +21,10 @@ MapController::~MapController()
 
 QImage MapController::getImageMap(const QSizeF &size,
                                   const Position &center,
-                                  FilterType filterType)
+                                  double radius,
+                                  FILTER_TYPE filterType)
 {
-    int zoomLevel = _zoom + 3;
+    uint8_t zoomLevel = _zoom + 3;
 
     //переводим географические координаты в метры
     QPointF qgsPos = _tileSource->ll2qgs(center.lonLat(), zoomLevel);
@@ -32,7 +33,7 @@ QImage MapController::getImageMap(const QSizeF &size,
     const quint16 tileSize = _tileSource->tileSize();
 
     //узнаем сколько тайлов поместиться в нашем окне
-    const qint32 tilesPerRow = size.width() / _tileSource->tileSize() + 4;
+    const qint32 tilesPerRow = uint32_t(size.width()) / _tileSource->tileSize() + 4;
     const qint32 tilesPerCol = tilesPerRow;
 
     QPixmap pxm = QPixmap(qRound(size.width()),
@@ -52,20 +53,20 @@ QImage MapController::getImageMap(const QSizeF &size,
         for (qint32 y = -tilesPerCol / 2; y < tilesPerCol / 2; y++)
         {
             //используя координаты центра вычисляем номер тайла который нужно запросить
-            int lon = (qgsPos.x() - x * tileSize) / tileSize;
-            int lat = (qgsPos.y() - y * tileSize) / tileSize;
+            int lon = qRound(qgsPos.x() - x * tileSize) / tileSize;
+            int lat = qRound(qgsPos.y() - y * tileSize) / tileSize;
 
             //запрос тайла в необходимом нам масштабе
-            QPixmap pmMap = _tileSource->startTileRequest(lon , lat, zoomLevel);
+            QPixmap pmMap = _tileSource->startTileRequest(uint32_t(lon) , uint32_t(lat), zoomLevel);
 
             if(!pmMap.isNull())
             {
                 //тайл мы получили,теперь его надо отцентровать,для этого вычислим сдижку в пикселях
-                double shift_x = (qgsPos.x() - ((int)qgsPos.x() / tileSize) * tileSize) ;
-                double shift_y = (qgsPos.y() - ((int)qgsPos.y() / tileSize) * tileSize);
+                double shift_x = (qgsPos.x() - (qRound(qgsPos.x()) / tileSize) * tileSize) ;
+                double shift_y = (qgsPos.y() - (qRound(qgsPos.y()) / tileSize) * tileSize);
                 //отрисуем карту
-                p.drawPixmap( (double)size.width() / 2 - shift_x - x * tileSize,
-                              (double)size.height() / 2 - shift_y - y * tileSize,
+                p.drawPixmap( qRound(size.width() / 2 - shift_x - x * tileSize),
+                              qRound(size.height() / 2 - shift_y - y * tileSize),
                               pmMap);
                 yyc++;
             }
@@ -74,18 +75,18 @@ QImage MapController::getImageMap(const QSizeF &size,
         xxc++;
     }
 
-    return addFilterImage(pxm,filterType);
+    return addFilterImage(pxm, size, filterType, radius);
 }
 
 
 Position MapController::getCenterGeoPoint() const
 {
-    return Position();
+    return _centralGeoPosition;
 }
 
 void MapController::setCenterGeoPoint(const Position &geoCenter)
 {
-
+    _centralGeoPosition = geoCenter;
 }
 
 PolarCoord MapController::screenToRealPolar(const QSizeF &size,
@@ -99,6 +100,7 @@ QPointF MapController::realPolarToScreen(const QSizeF &size,
                                          const Position &centerCoord,
                                          const PolarCoord &plr)
 {
+
     return QPointF();
 }
 
@@ -107,7 +109,7 @@ Position MapController::screenToGeoCoordinates(const QSizeF &size,
                                                const QPointF &point)
 {
     QPointF dot;
-    int zoomLevel= _zoom + 3;
+    uint8_t zoomLevel = _zoom + 3;
     QPointF temp = _tileSource->ll2qgs(centerCoord.lonLat(),zoomLevel);
 
     dot.setX(point.x() - size.width() / 2 + temp.x());
@@ -121,7 +123,7 @@ QPointF MapController::geoToScreenCoordinates(const QSizeF &size,
                                               const Position &position)
 {
     QPointF dot;
-    int zoomLevel = _zoom + 3;
+    uint8_t zoomLevel = _zoom + 3;
     QPointF temp = _tileSource->ll2qgs(centerCoord.lonLat(), zoomLevel);
 
     dot.setX(_tileSource->ll2qgs(position.lonLat(),
@@ -156,7 +158,7 @@ int MapController::getScale()
 }
 
 
-void MapController::setScale(int scale)
+void MapController::setScale(uint8_t scale)
 {
     _zoom = scale;
 }
@@ -176,25 +178,76 @@ bool MapController::isVisibleInCurrentScale(double dist)
     return false;
 }
 
-QImage MapController::addFilterImage(const QPixmap &pxm, FilterType type)
+//TODO : вынести графическую обработку изображения в отдельный поток
+void MapController::createRadarImage(QImage & img, const QSizeF &size, double radius)
+{
+    QImage shapeImg(size.toSize(),
+                    QImage::Format_ARGB32_Premultiplied);
+
+    QRectF mapRect(QPointF(0.0, 0.0), size);
+    shapeImg.fill(QColor(0, 0, 0, 0).rgba());
+    QPainter sp(&shapeImg);
+    sp.setRenderHint(QPainter::Antialiasing);
+    sp.fillRect(QRectF(0.0,0.0,size.width(),size.height()), Qt::transparent);
+    sp.setPen(QPen(Qt::black));
+    sp.setBrush(QBrush(Qt::black));
+    double center = size.width() / 2;
+
+    sp.drawEllipse(QPointF(center, center),
+                   radius,
+                   radius);
+    sp.end();
+
+    QImage roundSquaredImage(size.toSize(),
+                             QImage::Format_ARGB32_Premultiplied);
+    roundSquaredImage.fill(QColor(0, 0, 0, 0).rgba());
+
+    QPainter p(&roundSquaredImage);
+    p.fillRect(QRectF(0.0,0.0,size.width(),size.height()), Qt::transparent);
+    p.drawImage(0, 0, shapeImg);
+    p.setPen(QPen(Qt::black));
+    p.setBrush(QBrush(Qt::black));
+    p.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    p.drawImage(0, 0, img);
+    p.end();
+
+    img = roundSquaredImage;
+}
+
+//TODO : вынести графическую обработку изображения в отдельный поток
+void MapController::createGrayImage(QImage& img)
+{
+    int pixels = img.width() * img.height();
+    if (pixels * (int)sizeof(QRgb) <= img.byteCount())
+    {
+        QRgb *data = (QRgb *)img.bits();
+        int val = 0;
+        for (int i = 0; i < pixels; i++)
+        {
+            val = qGray(data[i]);
+            data[i] = qRgba(0 , -val, -val, qAlpha(data[i]));
+        }
+    }
+}
+
+QImage MapController::addFilterImage(const QPixmap &pxm,
+                                     const QSizeF &size,
+                                     FILTER_TYPE type,
+                                     double radius)
 {
     QImage img = pxm.toImage();
 
+    if (img.isNull())
+        return QImage();
+
     //ночной режим
-    if(type == FilterType::Night)
-    {
-        int pixels = img.width() * img.height();
-        if (pixels * (int)sizeof(QRgb) <= img.byteCount())
-        {
-            QRgb *data = (QRgb *)img.bits();
-            int val = 0;
-            for (int i = 0; i < pixels; i++)
-            {
-                val = qGray(data[i]);
-                data[i] = qRgba(0 , -val, -val, qAlpha(data[i]));
-            }
-        }
-    }
+    if(( type == FILTER_TYPE::NIGHT ) || (type == FILTER_TYPE::NIGHT_AND_CIRCLE))
+        createGrayImage(img);
+
+    //наложение круга
+    if((type == FILTER_TYPE::CIRCLE) ||  (type == FILTER_TYPE::NIGHT_AND_CIRCLE))
+        createRadarImage(img, size, radius);
+
     return img;
 }
 

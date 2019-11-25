@@ -2,24 +2,15 @@
 #define GRAPHICSWIDGET_H
 
 #include "graphicswidget_global.h"
-
 #include <QGraphicsView>
-#include <QGraphicsItem>
-#include <QDebug>
-#include <QThread>
-#include <QGLWidget>
-#include <QResizeEvent>
-#include <QMouseEvent>
 #include <QTimer>
-#include <math.h>
 
-#include "interface/IPoolObject.h"
-#include "interface/IObject.h"
-#include "../Subject/Subject.h"
-#include "implements/MapController.h"
-#include "coord/Position.h"
-#include "../Carrier/ServiceLocator.h"
+#include "interface/IObserver.h"
 
+class IPoolObject;
+class IMapController;
+class ICarrierClass;
+class IObject;
 
 class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
         public IObserver
@@ -34,7 +25,7 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
 
     ///< обновление сцены
     QTimer _timer;
-    uint32_t TIMEOUT = 25;
+    int32_t TIMEOUT = 25;
 
     QGraphicsScene * _scene = nullptr;
     QConicalGradient gradient;
@@ -56,7 +47,7 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
     uint16_t _sectorSize = 45;
     bool _updateInSector = true;
 
-    const double _textBorder = 28;
+    const int _textBorder = 28;
 
     ///< константы для палитры
     const QColor _clrTron       = QColor(0xAA,0xCF,0xD1);
@@ -236,6 +227,8 @@ protected:
      * \return QStringList параметров для вывода в таблицу
      */
     virtual QStringList getDataForTable(IObject *object);
+
+    void drawCursorText(QPainter *p);
 
 private slots:
     /*!

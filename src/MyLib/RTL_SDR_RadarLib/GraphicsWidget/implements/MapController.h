@@ -15,14 +15,35 @@ class MapController : public IMapController
 
     //карта
     std::unique_ptr<OSMTileSource> _tileSource = nullptr;
-    int _zoom = 8;
+
+    Position _centralGeoPosition;
+
+    uint8_t _zoom = 8;
     /*!
      * \brief addFilterImage - наложение фильтра на изображение
      * \param pxm - QPixmap растрового изображения карты
      * \param type - тип фильтра
+     * \param radius - радиус изображения в режиме круга
      * \return растровое изображение карты
      */
-    QImage addFilterImage(const QPixmap &pxm,  FilterType type);
+    QImage addFilterImage(const QPixmap &pxm,
+                          const QSizeF &size,
+                          FILTER_TYPE type,
+                          double radius = 0);
+    /*!
+     * \brief createRadarImage - преобразование изображение в форму радара
+     * \param img - исходное изображение QImage
+     * \param size - размер области отрисовки
+     * \param radius - радиус радара в пикселях
+     */
+    void createRadarImage(QImage & img,
+                          const QSizeF &size,
+                          double radius);
+    /*!
+     * \brief createGrayImage - преобразование изображения в ночной режим
+     * \param img - исходное изображение для изменения
+     */
+    void createGrayImage(QImage &img);
 
 public:
     explicit MapController();
@@ -32,12 +53,15 @@ public:
      * \brief getImageMap - получение картографической основы в растровом формате
      * \param size - размер изображения
      * \param center - центральная точка карты (широта и долгота)
+     * \param radius - радиус круга для режима локатора, учитывается только при
+     * FILTER_TYPE  - NIGHT_AND_CIRCLE, CIRCLE
      * \param type - тип изображения (цветоное или наложение фильтра)
      * \return растровое изображение карты
      */
     QImage getImageMap( const QSizeF &size,
                         const Position &center,
-                        FilterType filterType = FilterType::No) override;
+                        double radius = 0,
+                        FILTER_TYPE filterType = FILTER_TYPE::NO) override;
 
     /*!
      * \brief getCenterGeoPoint центральная точка в географических координатах
@@ -114,7 +138,7 @@ public:
 
     //масштаб
     int getScale() override;
-    void setScale(int scale) override;
+    void setScale(uint8_t scale) override;
     int incScale() override;
     int decScale() override;
 
@@ -126,6 +150,9 @@ public:
 
     double getDistanceObject_M(const Position &centerCoord,
                              const Position &dot) override;
+
+
+
 signals:
     void updateTileGride();
 

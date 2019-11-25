@@ -7,10 +7,12 @@
 #include "coord/Conversions.h"
 #include "coord/ScreenConversions.h"
 
-enum class FilterType
+enum class FILTER_TYPE
 {
-    No = 0,
-    Night
+    NO = 0,
+    NIGHT,
+    NIGHT_AND_CIRCLE,
+    CIRCLE
 };
 
 class IMapController : public QObject
@@ -23,12 +25,15 @@ public:
      * \brief getImageMap - получение картографической основы в растровом формате
      * \param size - размер изображения
      * \param center - центральная точка карты (широта и долгота)
+     * \param radius - радиус круга для режима локатора, учитывается только при
+     * FILTER_TYPE  - NIGHT_AND_CIRCLE, CIRCLE
      * \param type - тип изображения (цветоное или наложение фильтра)
-     * \return
+     * \return растровое изображение карты
      */
     virtual QImage getImageMap( const QSizeF &size,
                                 const Position &center,
-                                FilterType type = FilterType::No) = 0;
+                                double radius = 0,
+                                FILTER_TYPE filterType = FILTER_TYPE::NO) = 0;
 
     /*!
      * \brief getCenterGeoPoint центральная точка в географических координатах
@@ -94,14 +99,18 @@ public:
     virtual double getDistanceRadarScale_KM(const QSizeF &size,
                                             const Position &centerCoordinate,
                                             const QPointF mapBorderCordinate) = 0;
-
+    /*!
+     * \brief getDistanceRadarScale_M - дистанция в метрах от края до края карты
+     * в текущем масштабе
+     * \return дистанция в километрах
+     */
     virtual double getDistanceRadarScale_M(const QSizeF &size,
                                            const Position &centerCoordinate,
                                            const QPointF mapBorderCordinate) = 0;
 
     //масштаб
     virtual int getScale() = 0;
-    virtual void setScale(int scale) = 0;
+    virtual void setScale(uint8_t scale) = 0;
     virtual int incScale() = 0;
     virtual int decScale() = 0;
 
@@ -112,7 +121,7 @@ public:
                                         const Position &dot) = 0;
 
     virtual double getDistanceObject_M(const Position &centerCoord,
-                                        const Position &dot) = 0;
+                                       const Position &dot) = 0;
 signals:
 
 };
