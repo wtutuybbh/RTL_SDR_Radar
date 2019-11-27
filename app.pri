@@ -3,3 +3,6 @@ DESTDIR = $${BIN_PATH}/
 #определяется путь поиска динамических библиотек по умолчанию
 QMAKE_LFLAGS += -Wl,--rpath=\\\$\$ORIGIN/../../lib.$${OS_SUFFIX}/
 QMAKE_LFLAGS_RPATH=
+
+HEADERS += \
+    $$PWD/src/include/interface/ISubject.h

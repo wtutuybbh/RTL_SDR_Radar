@@ -15,7 +15,7 @@
 #include "../MyLib/RTL_SDR_RadarLib/DataController/DataController.h"
 #include "../MyLib/RTL_SDR_RadarLib/RTL_SDR_Reciver/RTL_SDR_Reciver.h"
 #include "../MyLib/RTL_SDR_RadarLib/Demodulator/Demodulator.h"
-#include "MainWindow.h"
+#include "gui/MainWindow.h"
 
 
 class Core : public QObject

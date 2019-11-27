@@ -26,7 +26,8 @@ HEADERS += GraphicsWidget.h\
     ../../../../import/osm/MapGraphicsNetwork.h \
     ../../../../import/osm/MapTileSource.h \
     ../../../../import/osm/OSMTileSource.h \
-    ../../../include/interface/IObserver.h
+    ../../../include/interface/IObserver.h \
+    ../../../include/interface/ISubject.h
 
 unix {
     target.path = /usr/lib

@@ -13,11 +13,11 @@ class ICarrierClass;
 class IObject;
 
 class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
-        public IObserver
+        public IObserver,  public QEnableSharedFromThis<GraphicsWidget>
 {
     Q_OBJECT
-    ///< пул РТО объектов
-    QSharedPointer<IPoolObject> _ptrPoolObject = nullptr;
+    ///< объект на которого подписываемся
+    QSharedPointer<ISubject> _subject = nullptr;
     ///< контроллер карты
     QSharedPointer<IMapController> _ptrMapController = nullptr;
     ///< класс носителя приемниак rtl-sdr
@@ -110,12 +110,10 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
 public:
     /*!
      * \brief GraphicsWidget конструктор класса для отображения карты и объектов
-     * \param widthRect - размер квадрата виджета
-     * \param poolObject - указатель на пул объектов, которые необходимо отображать
+     * \param widthRect - размер  виджета
      * \param parent - родительский класс
      */
     explicit GraphicsWidget(uint32_t widthRect = 600,
-                            QSharedPointer<IPoolObject> poolObject = QSharedPointer<IPoolObject>(),
                             QWidget *parent = 0);
     ~GraphicsWidget() override;
 
@@ -133,7 +131,7 @@ public:
      * \brief subscribe - подписка на события обновления пула объектов
      * \param poolObject - указатель на пул объектов
      */
-    void subscribe(QSharedPointer<IPoolObject> poolObject);
+    void subscribe(QSharedPointer<ISubject> subject) override;
     /*!
      * \brief unsubscribe - отписаться от событий обновления пула объектов
      */
@@ -141,7 +139,7 @@ public:
     /*!
      * \brief update - событие обновления пула объектов
      */
-    void update(Subject* sub) override;
+    void update(QSharedPointer<IPoolObject> pool) override;
 
 protected:
     /*!
@@ -250,7 +248,7 @@ public slots:
      * \brief slotUpdateData - слот обновления данных
      * с захватом блокировки на пуле объектов
      */
-    void slotUpdateData();
+    void slotUpdateData(QSharedPointer<IPoolObject> pool);
 signals:
     /*!
      * \brief signalDataToTable - сигнал передачи параметров текущего,

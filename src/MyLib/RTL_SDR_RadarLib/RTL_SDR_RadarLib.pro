@@ -3,7 +3,6 @@ TEMPLATE = subdirs
 SUBDIRS += \
     Logger \
     Demodulator \
-    Subject \
     Carrier \
     PoolObject \
     GraphicsWidget \

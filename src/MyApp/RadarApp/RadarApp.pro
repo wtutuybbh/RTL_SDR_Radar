@@ -27,15 +27,17 @@ include( ../../../app.pri )
 
 SOURCES += \
         main.cpp \
-        MainWindow.cpp \
-    Core.cpp
+        gui/MainWindow.cpp \
+    core/Core.cpp \
+    core/publisher/Subject.cpp
 
 HEADERS += \
-        MainWindow.h \
-    Core.h
+        gui/MainWindow.h \
+    core/Core.h \
+    core/publisher/Subject.h
 
 FORMS += \
-        MainWindow.ui
+        gui/MainWindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -50,7 +52,6 @@ DISTFILES += \
 
 LIBS += -lLogger \
         -lPoolObject \
-        -lSubject \
         -lGraphicsWidget \
         -lCarrier \
         -lDataController \

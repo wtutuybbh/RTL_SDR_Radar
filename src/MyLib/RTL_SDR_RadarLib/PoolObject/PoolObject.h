@@ -9,9 +9,8 @@
 
 #include "interface/IPoolObject.h"
 #include "AirObject.h"
-#include "../Subject/Subject.h"
 
-class POOLOBJECTSHARED_EXPORT PoolObject : public IPoolObject, public Subject
+class POOLOBJECTSHARED_EXPORT PoolObject : public IPoolObject
 {
     pHash _container;
     int32_t _timeActualData = 12000;

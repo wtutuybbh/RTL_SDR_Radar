@@ -16,7 +16,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void subscribe(QSharedPointer<IPoolObject> poolObject);
 private:
     Ui::MainWindow *ui;
     GraphicsWidget* _graphicsWidget = nullptr;

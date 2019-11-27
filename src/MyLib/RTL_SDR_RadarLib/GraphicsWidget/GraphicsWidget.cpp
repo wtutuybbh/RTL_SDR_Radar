@@ -8,19 +8,16 @@
 
 #include "GraphicsWidget.h"
 #include "interface/IPoolObject.h"
-
-#include "../Subject/Subject.h"
+#include "interface/ISubject.h"
 #include "implements/MapController.h"
 #include "coord/Position.h"
 #include "../Carrier/ServiceLocator.h"
 
 
 GraphicsWidget::GraphicsWidget(uint32_t widthRect,
-                               QSharedPointer<IPoolObject> poolObject,
                                QWidget *parent):
     QGraphicsView(parent)
 {
-    subscribe(poolObject);
 
     initWidget(QRect(0,0,widthRect,widthRect),true);
     initCursors();
@@ -53,30 +50,26 @@ GraphicsWidget::~GraphicsWidget()
     unsubscribe();
 }
 
-void GraphicsWidget::subscribe(QSharedPointer<IPoolObject> poolObject)
+void GraphicsWidget::subscribe(QSharedPointer<ISubject> subject)
 {
-    if(poolObject.isNull())
+    if(subject.isNull())
     {
-        qDebug()<<" MainWindow::setPoolObjectAndSubscribe -> try subscribe nullptr";
+        qDebug()<<"[GraphicsWidget::subscribe] : try subscribe nullptr";
         return;
     }
 
-    _ptrPoolObject = poolObject;
-
-    Subject* sbj = dynamic_cast<Subject*>(_ptrPoolObject.data());
-
-    if(sbj)
-        sbj->Attach(this);
+    _subject = subject;
+    _subject->Attach(sharedFromThis());
 }
 
 void GraphicsWidget::unsubscribe()
 {
     qDebug()<<"unsubscribe GraphicsWidget";
-    Subject* sbj = dynamic_cast<Subject*>(_ptrPoolObject.data());
-    if(sbj)
-        sbj->Deatach(this);
-    sbj = nullptr;
-    _ptrPoolObject.clear();
+
+    if(!_subject.isNull())
+        _subject->Deatach(sharedFromThis());
+
+    _subject.clear();
 }
 
 
@@ -149,18 +142,15 @@ void GraphicsWidget::changeCursorType(bool enableSystem)
 }
 
 
-void GraphicsWidget::update(Subject *sub)
+void GraphicsWidget::update(QSharedPointer<IPoolObject> pool)
 {
-    if((sub == nullptr) || (_ptrPoolObject == nullptr))
+    if((_subject.isNull()) || (pool.isNull()))
     {
-        qDebug()<<"GraphicsWidget::update() :: nullptr detect" << sub << _ptrPoolObject;
+        qDebug()<<"GraphicsWidget::update() :: nullptr";
         return;
     }
-    IPoolObject* sbj = dynamic_cast<IPoolObject*>(sub);
 
-    //надо убедится что указатель что у нас установлен равен указателю который пришел, вдруг это не то объект
-    if(sbj == _ptrPoolObject)
-        slotUpdateData();
+    slotUpdateData(pool);
 }
 
 void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
@@ -222,10 +212,10 @@ void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
 
 void GraphicsWidget::recalculateCoordObjects()
 {
-    _vHiddenObject.clear();
-    if(_ptrPoolObject)
-        for (auto &iter:_ptrPoolObject->values())
-            updateObjectOnScene(iter);
+//    _vHiddenObject.clear();
+//    if(_ptrPoolObject)
+//        for (auto &iter:_ptrPoolObject->values())
+//            updateObjectOnScene(iter);
 
     updateScene();
 }
@@ -640,18 +630,13 @@ void GraphicsWidget::timeout()
     _scene->update();
 }
 
-void GraphicsWidget::slotUpdateData()
+void GraphicsWidget::slotUpdateData(QSharedPointer<IPoolObject> pool)
 {
-    if(!_ptrPoolObject->tryLockPool())
-        return;
-
-    for (auto &iter: _ptrPoolObject->values())
+    for (auto &iter: pool->values())
     {
-        if(iter.isNull())
-            continue;
-        updateObjectOnScene(iter);
+        if(!iter.isNull())
+            updateObjectOnScene(iter);
     }
-    _ptrPoolObject->unlockPool();
 
     qDebug()<<"GraphicsWidget::update()->slotUpdateData();" <<
               _scene->items().count();

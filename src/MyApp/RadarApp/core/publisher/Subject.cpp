@@ -2,17 +2,16 @@
 
 Subject::Subject()
 {
-    _observers  = QSharedPointer<QVector<IObserver*>> (new QVector<IObserver*>);
 }
 
 
 Subject::~Subject()
 {
-    qDebug()<<"~Subject" << _observers->size();
+    qDebug()<<"~Subject" << _observers.size();
     _observers.clear();
 }
 
-void Subject::Attach(IObserver* o)
+void Subject::Attach(QSharedPointer<IObserver> o)
 {
     QMutexLocker _lock(&_mutex);
     if(o == nullptr)
@@ -21,7 +20,7 @@ void Subject::Attach(IObserver* o)
         return;
     }
 
-    for(auto & iter: *_observers)
+    for(auto & iter: _observers)
     {
         if(iter->getObserverId() == o->getObserverId())
         {
@@ -30,35 +29,35 @@ void Subject::Attach(IObserver* o)
         }
     }
     //Add new subscriber to new subscriber list
-    _observers->push_back(o);
-    qDebug()<<"sibscribe to pool"<< _observers->size();
+    _observers.push_back(o);
+    qDebug()<<"[Attach] : number of observers ="<< _observers.size();
 }
 
-void Subject::Deatach(IObserver* o)
+void Subject::Deatach(QSharedPointer<IObserver> o)
 {
     //Enter to locked section
     QMutexLocker _lock(&_mutex);
-    if(_observers.isNull() || _observers->isEmpty())
+    if(_observers.isEmpty())
     {
         qDebug()<<"no subscribers";
         return;
     }
 
-    _observers->remove(_observers->indexOf(o));
-    qDebug()<<"remove this subscribe in vector" << _observers->size();
+    _observers.remove(_observers.indexOf(o));
+    qDebug()<<"[Deatach] : number of observers =" << _observers.size();
 }
 
-void Subject::Notify()
+void Subject::Notify(QSharedPointer<IPoolObject> pool)
 {
     QMutexLocker _lock(&_mutex);
-    if(_observers.isNull() || _observers->isEmpty())
+    if(pool.isNull() || _observers.isEmpty())
     {
         qDebug()<<"Subject::Notify() -> No subscribers";
         return;
     }
 
-    for(auto & iter: *_observers)
+    for(auto & iter: _observers)
     {
-        iter->update(this);
+        iter->update(pool);
     }
 }

@@ -26,9 +26,6 @@ Core::Core(QObject *parent) : QObject(parent)
 
     _poolObjects = QSharedPointer<IPoolObject>(new PoolObject());
 
-    if(_mainWindow)
-        _mainWindow->subscribe(_poolObjects);
-
     QObject::connect(&_timer,SIGNAL(timeout()),this,SLOT(slotTimeout()));
     _timer.start(500);
 

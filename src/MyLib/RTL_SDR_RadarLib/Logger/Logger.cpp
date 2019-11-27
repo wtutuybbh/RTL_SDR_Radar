@@ -12,6 +12,7 @@ Logger::~Logger()
 
 void Logger::push(const QString &text, TypeLog type)
 {
+    Q_UNUSED(type);
     QMutexLocker locker(&_mutex);
     if(_stack.size() < _size)
         _stack.push(text);
