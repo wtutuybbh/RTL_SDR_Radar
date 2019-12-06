@@ -5,7 +5,7 @@ PoolObject::PoolObject():
     _container(pHash(new QHash<uint64_t,
                      QSharedPointer<IObject>> ()))
 {
-
+    qDebug()<<"PoolObject() -> create";
 }
 
 PoolObject::~PoolObject()

@@ -28,13 +28,13 @@ include( ../../../app.pri )
 SOURCES += \
         main.cpp \
         gui/MainWindow.cpp \
-    core/Core.cpp \
-    core/publisher/Subject.cpp
+    AppCore/Core.cpp \
+    AppCore/publisher/Subject.cpp
 
 HEADERS += \
         gui/MainWindow.h \
-    core/Core.h \
-    core/publisher/Subject.h
+    AppCore/Core.h \
+    AppCore/publisher/Subject.h
 
 FORMS += \
         gui/MainWindow.ui

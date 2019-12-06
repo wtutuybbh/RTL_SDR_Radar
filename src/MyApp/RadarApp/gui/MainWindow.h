@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-#include "../MyLib/RTL_SDR_RadarLib/GraphicsWidget/GraphicsWidget.h"
+class GraphicsWidget;
 
 namespace Ui {
 class MainWindow;
@@ -16,6 +16,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void addGraphicsWidget(GraphicsWidget* widget);
 private:
     Ui::MainWindow *ui;
     GraphicsWidget* _graphicsWidget = nullptr;

@@ -1,6 +1,6 @@
 #include <QApplication>
 
-#include "core/Core.h"
+#include "AppCore/Core.h"
 
 int main(int argc, char *argv[])
 {

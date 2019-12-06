@@ -38,5 +38,4 @@ include( ../../../../common.pri )
 include( ../../../../lib.pri )
 
 
-LIBS += -lSubject \
-        -lCarrier
+LIBS += -lCarrier

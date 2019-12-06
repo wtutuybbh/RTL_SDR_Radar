@@ -35,7 +35,6 @@ DISTFILES += \
 
 LIBS += -lLogger \
         -lPoolObject \
-        -lSubject \
         -lCarrier \
         -lDataController \
         -lRTL_SDR_Reciver \

@@ -13,7 +13,7 @@ public:
     virtual ~IObserver(){}
     virtual void subscribe(QSharedPointer<ISubject> subject ) = 0;
     virtual void update(QSharedPointer<IPoolObject> pool ) = 0;
-    virtual void unsubscribe() = 0;
+    virtual void unsubscribe(QSharedPointer<ISubject> subject) = 0;
     u_int64_t getObserverId() { return u_int64_t(this); }
 protected:
     IObserver(){}

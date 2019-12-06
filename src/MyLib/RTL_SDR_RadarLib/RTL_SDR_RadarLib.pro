@@ -7,7 +7,6 @@ SUBDIRS += \
     PoolObject \
     GraphicsWidget \
     RTL_SDR_Reciver \
-    DataController \
-    DSPLib
+    DataController
 
 CONFIG += ordered

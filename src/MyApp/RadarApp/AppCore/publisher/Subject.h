@@ -11,18 +11,24 @@
 
 class Subject: public ISubject
 {
-    QMutex _mutex;
+    QMutex _mutexSmartPtr;
+    QMutex _mutexRawPtr;
 public:
+    Subject();
     virtual ~Subject();
 
     void Attach(QSharedPointer<IObserver> o) override;
     void Deatach(QSharedPointer<IObserver> o) override;
+
+    void Attach(IObserver* o) override;
+    void Deatach(IObserver* o) override;
+
     void Notify(QSharedPointer<IPoolObject> pool) override;
-protected:
-    Subject();
+
 
 private:
     QVector<QSharedPointer<IObserver>> _observers;
+    QVector<IObserver*> _rawObservers;
 };
 
 #endif // SUBJECT_H

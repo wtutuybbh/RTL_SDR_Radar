@@ -13,6 +13,8 @@ public:
 
     virtual void Attach(QSharedPointer<IObserver> o) = 0;
     virtual void Deatach(QSharedPointer<IObserver> o) = 0;
+    virtual void Attach(IObserver* o) = 0;
+    virtual void Deatach(IObserver* o) = 0;
     virtual void Notify(QSharedPointer<IPoolObject> pool) = 0;
 };
 

@@ -30,7 +30,7 @@ GraphicsWidget::GraphicsWidget(uint32_t widthRect,
     _ptrCarrier = ServiceLocator::getCarrier();
 
     //обновление сектора
-    connect(&_timer,&QTimer::timeout,this,&GraphicsWidget::timeout);
+    connect(&_timer, &QTimer::timeout, this, &GraphicsWidget::timeout);
     _timer.start(TIMEOUT);
 }
 
@@ -46,8 +46,6 @@ GraphicsWidget::~GraphicsWidget()
     delete _scene;
     _scene = nullptr;
     qDebug()<<"~GraphicsWidget() -> clear and delete scene";
-
-    unsubscribe();
 }
 
 void GraphicsWidget::subscribe(QSharedPointer<ISubject> subject)
@@ -58,18 +56,19 @@ void GraphicsWidget::subscribe(QSharedPointer<ISubject> subject)
         return;
     }
 
-    _subject = subject;
-    _subject->Attach(sharedFromThis());
+    subject->Attach(this);
 }
 
-void GraphicsWidget::unsubscribe()
+
+
+void GraphicsWidget::unsubscribe(QSharedPointer<ISubject> subject)
 {
     qDebug()<<"unsubscribe GraphicsWidget";
 
-    if(!_subject.isNull())
-        _subject->Deatach(sharedFromThis());
+    if(!subject.isNull())
+        subject->Deatach(this);
 
-    _subject.clear();
+    subject.clear();
 }
 
 
@@ -144,7 +143,7 @@ void GraphicsWidget::changeCursorType(bool enableSystem)
 
 void GraphicsWidget::update(QSharedPointer<IPoolObject> pool)
 {
-    if((_subject.isNull()) || (pool.isNull()))
+    if( pool.isNull() )
     {
         qDebug()<<"GraphicsWidget::update() :: nullptr";
         return;

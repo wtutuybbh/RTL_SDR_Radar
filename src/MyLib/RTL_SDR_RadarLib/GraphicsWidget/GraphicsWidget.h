@@ -4,7 +4,7 @@
 #include "graphicswidget_global.h"
 #include <QGraphicsView>
 #include <QTimer>
-
+#include <QEnableSharedFromThis>
 #include "interface/IObserver.h"
 
 class IPoolObject;
@@ -13,11 +13,10 @@ class ICarrierClass;
 class IObject;
 
 class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
-        public IObserver,  public QEnableSharedFromThis<GraphicsWidget>
+        public IObserver
 {
     Q_OBJECT
-    ///< объект на которого подписываемся
-    QSharedPointer<ISubject> _subject = nullptr;
+
     ///< контроллер карты
     QSharedPointer<IMapController> _ptrMapController = nullptr;
     ///< класс носителя приемниак rtl-sdr
@@ -113,7 +112,7 @@ public:
      * \param widthRect - размер  виджета
      * \param parent - родительский класс
      */
-    explicit GraphicsWidget(uint32_t widthRect = 600,
+    explicit GraphicsWidget(uint32_t widgetRectSize = 600,
                             QWidget *parent = 0);
     ~GraphicsWidget() override;
 
@@ -128,14 +127,16 @@ public:
 
     /*! \brief поддержка паттерна Observer */
     /*!
-     * \brief subscribe - подписка на события обновления пула объектов
+     * \brief subscribe - подписка на события обновления
      * \param poolObject - указатель на пул объектов
      */
     void subscribe(QSharedPointer<ISubject> subject) override;
+
     /*!
      * \brief unsubscribe - отписаться от событий обновления пула объектов
      */
-    void unsubscribe() override;
+     void unsubscribe(QSharedPointer<ISubject>)override;
+
     /*!
      * \brief update - событие обновления пула объектов
      */
