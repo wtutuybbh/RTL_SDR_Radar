@@ -36,6 +36,7 @@
 
 #include "demodulator_global.h"
 #include "interface/IDemodulator.h"
+#include "interface/IPoolObject.h"
 #include "interface/ILogger.h"
 
 #include "sdr_dev/include/constant.h"
@@ -94,7 +95,6 @@ class DEMODULATORSHARED_EXPORT Demodulator : public IDemodulator
     QVector<uint16_t> _magnitude;
     QVector<uint32_t> icao_cache;
 
-    QHash<uint32_t,QSharedPointer<Aircraft>> _hashAircrafts;
     QSharedPointer<IPoolObject> _pool;
     QSharedPointer<ILogger> _log;
 
@@ -132,7 +132,7 @@ public:
     QByteArray getRawDump() override;
     bool demodulate() override;
 
-    int32_t getCountObject() override { return _hashAircrafts.count(); }
+    int32_t getCountObject() override;
 
 private:
     void computeMagnitudeVector(const QVector<uint8_t> &vector,

@@ -2,7 +2,8 @@
 #define IOBJECT
 
 #include "coord/Position.h"
-
+#include "objects/base/GraphicsObject.h"
+#include <QObject>
 
 enum class OBJECT_STATE
 {
@@ -12,14 +13,21 @@ enum class OBJECT_STATE
     NOT_UPDATE_OBJECT,
 };
 
-class IObject
+enum class OBJECT_TYPE
 {
+    air = 0,
+    surface,
+};
+
+class IObject : public GraphicsObject
+{
+    Q_OBJECT
 public:
     virtual ~IObject() {}
 
     //id
     virtual void setId(uint64_t) = 0 ;
-    virtual uint64_t getId() = 0;
+    virtual uint64_t getId() const = 0;
 
     //set/get время регистрации
     virtual void setDateTimeStart(const QDateTime &dt) = 0;
@@ -51,14 +59,14 @@ public:
 
     //угол места
     virtual void setElevation(double elev) = 0;
-    virtual double getElevation() = 0;
+    virtual double getElevation() const = 0;
 
     //set/get дистанции
-    virtual void setDistance_KM(const qreal dist) = 0;
+    virtual void setDistance_KM(double dist) = 0;
     virtual double getDistance_KM() = 0;
 
-    virtual void setDistance_M(const qreal dist) = 0;
-    virtual double getDistance_M() = 0;
+    virtual void setDistance_M(double dist) = 0;
+    virtual double getDistance_M() const = 0;
 
     //set/get гео координаты
     virtual void setGeoCoord(const Position &gp) = 0;
@@ -67,12 +75,16 @@ public:
     virtual bool isValidGeoCoord() = 0;
 
     //set/get скорость
-    virtual void setSpeed(const double value) = 0;
-    virtual double getSpeed() const = 0;
+    virtual void setSpeed(float value) = 0;
+    virtual float getSpeed() const = 0;
 
     //курс
-    virtual void setCourse(double crs) = 0;
-    virtual double getCourse() = 0;
+    virtual void setCourse(float crs) = 0;
+    virtual float getCourse() = 0;
+
+    //высота
+    virtual void setAltitude(float altitude) = 0 ;
+    virtual float getAltitude() const = 0;
 
     //установить объект текущим или нет
     virtual void setSelectObject(bool value) = 0;

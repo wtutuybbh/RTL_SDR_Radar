@@ -7,8 +7,6 @@
 #include <QString>
 #include <QFile>
 
-#include "interface/IObject.h"
-
 class GraphicsObject : public QGraphicsObject
 {
     Q_OBJECT
@@ -26,7 +24,7 @@ public:
     explicit GraphicsObject();
     virtual ~GraphicsObject() override;
 
-    void setRotateAngle(double rta);
+    void setRotateAngle(float rta);
 
  protected:
 

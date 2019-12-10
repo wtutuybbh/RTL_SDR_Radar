@@ -8,23 +8,22 @@
 #include <QMutex>
 
 #include "interface/IPoolObject.h"
-#include "AirObject.h"
+#include "factory/FactoryObjects.h"
+
 
 class POOLOBJECTSHARED_EXPORT PoolObject : public IPoolObject
 {
     pHash _container;
     int32_t _timeActualData = 12000;
     QMutex _mutex;
-
+    FactoryObjects _factory;
 public:
     explicit PoolObject();
     ~PoolObject() override;
     QSharedPointer<IObject> createNewObject(OBJECT_TYPE type,
                                             uint64_t id,
-                                            QDateTime tstart,
-                                            QDateTime tstop,
-                                            double azimuth,
-                                            double elevation) override;
+                                            QDateTime reg_time,
+                                            Position geoPosition = Position()) override;
 
     QList<QSharedPointer<IObject> > values() override;
 
@@ -37,7 +36,7 @@ public:
     void deleteObject(uint64_t id) override;
 
     void lockPool() override { _mutex.lock(); }
-    bool tryLockPool() override { return _mutex.tryLock(2);}
+    bool tryLockPool() override { return _mutex.tryLock(5);}
     void unlockPool() override { _mutex.unlock(); }
 };
 

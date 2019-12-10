@@ -1,205 +1,223 @@
-#include "AirObject.h"
+#include "BaseObject.h"
 
 
-AirObject::AirObject(uint64_t id,
-                     QDateTime tstart,
-                     QDateTime tstop,
-                     double azimuth,
-                     double elevation):
-    GraphicsObject(),
+float BaseObject::getAltitude() const
+{
+    return _altitude;
+}
+
+void BaseObject::setAltitude(float altitude)
+{
+    _altitude = altitude;
+}
+
+BaseObject::BaseObject(uint64_t id,
+                       QDateTime tstart,
+                       double azimuth,
+                       double elevation):
     _id(id),
     _ms_tstart(tstart.toUTC().toMSecsSinceEpoch()),
     _tstart(tstart),
     _ms_tstop(tstart.toUTC().toMSecsSinceEpoch()),
-    _tstop(tstop),
+    _tstop(tstart),
     _azimuth(azimuth),
     _elevation(elevation)
 {
 
 }
 
-AirObject::~AirObject()
+BaseObject::BaseObject(uint64_t id, QDateTime tstart, Position geoPosition) :
+    _id(id),
+    _ms_tstart(tstart.toUTC().toMSecsSinceEpoch()),
+    _tstart(tstart),
+    _ms_tstop(tstart.toUTC().toMSecsSinceEpoch()),
+    _tstop(tstart),
+    _geoCoord(geoPosition)
 {
 }
 
-void AirObject::setId(uint64_t id)
+BaseObject::~BaseObject()
+{
+}
+
+void BaseObject::setId(uint64_t id)
 {
     _id = id;
 }
 
-uint64_t AirObject::getId()
+uint64_t BaseObject::getId() const
 {
     return _id;
 }
 
-void AirObject::setDateTimeStart(const QDateTime &dt)
+void BaseObject::setDateTimeStart(const QDateTime &dt)
 {
     _tstart = dt;
     _ms_tstart = _tstart.toUTC().toMSecsSinceEpoch();
 }
 
-QDateTime AirObject::getDateTimeStart() const
+QDateTime BaseObject::getDateTimeStart() const
 {
     return _tstart;
 }
 
-void AirObject::setDateTimeStop(const QDateTime &dt)
+void BaseObject::setDateTimeStop(const QDateTime &dt)
 {
     _tstop = dt;
     _ms_tstop = _tstop.toUTC().toMSecsSinceEpoch();
 }
 
-QDateTime AirObject::getDateTimeStop() const
+QDateTime BaseObject::getDateTimeStop() const
 {
     return _tstop;
 }
 
-void AirObject::setMSecStart(const qint64 dt)
+void BaseObject::setMSecStart(const qint64 dt)
 {
     _ms_tstart = dt;
     _tstart = QDateTime::fromMSecsSinceEpoch(dt).toUTC();
 }
 
-qint64 AirObject::getMSecStart() const
+qint64 BaseObject::getMSecStart() const
 {
     return _ms_tstart;
 }
 
-void AirObject::setMSecStop(const qint64 dt)
+void BaseObject::setMSecStop(const qint64 dt)
 {
     _ms_tstop = dt;
     _tstop = QDateTime::fromMSecsSinceEpoch(dt).toUTC();
 }
 
-qint64 AirObject::getMSecStop() const
+qint64 BaseObject::getMSecStop() const
 {
     return _ms_tstop;
 }
 
-void AirObject::setObjectState(OBJECT_STATE state)
+void BaseObject::setObjectState(OBJECT_STATE state)
 {
     _state = state;
 }
 
-OBJECT_STATE AirObject::getObjectState()
+OBJECT_STATE BaseObject::getObjectState()
 {
     return _state;
 }
 
-void AirObject::setObjectName(const QString &str)
+void BaseObject::setObjectName(const QString &str)
 {
     _nameObject = str;
 }
 
-QString AirObject::getObjectName()
+QString BaseObject::getObjectName()
 {
     return _nameObject;
 }
 
-void AirObject::setAzimuth(double azim)
+void BaseObject::setAzimuth(double azim)
 {
     _azimuth = azim;
 }
 
-double AirObject::getAzimuth() const
+double BaseObject::getAzimuth() const
 {
     return _azimuth;
 }
 
 //установить угол места
-void AirObject::setElevation(double elev)
+void BaseObject::setElevation(double elev)
 {
     _elevation = elev;
 }
 
 //получить занчение угла места
-double AirObject::getElevation()
+double BaseObject::getElevation() const
 {
     return _elevation;
 }
 
-void AirObject::setDistance_M(double dist)
+void BaseObject::setDistance_M(double dist)
 {
     _distance = dist;
 }
 
-double AirObject::getDistance_M()
+double BaseObject::getDistance_M() const
 {
     return _distance;
 }
 
-void AirObject::setDistance_KM(double dist)
+void BaseObject::setDistance_KM(double dist)
 {
     _distance = dist * 1.0e3;
 }
 
-double AirObject::getDistance_KM()
+double BaseObject::getDistance_KM()
 {
     return _distance / 1.0e3;
 }
 
-void AirObject::setGeoCoord(const Position &gp)
+void BaseObject::setGeoCoord(const Position &gp)
 {
     _geoCoord = gp;
 }
 
-Position AirObject::getGeoCoord() const
+Position BaseObject::getGeoCoord() const
 {
     return _geoCoord;
 }
 
-bool AirObject::isValidGeoCoord()
+bool BaseObject::isValidGeoCoord()
 {
 
     if((_geoCoord.latitude() > -90.0 && _geoCoord.latitude() < 90.0) &&
-       (_geoCoord.longitude() > -180.0 && _geoCoord.longitude() < 180.0))
+            (_geoCoord.longitude() > -180.0 && _geoCoord.longitude() < 180.0))
         return true;
     return false;
 }
 
-void AirObject::setSpeed(double value)
+void BaseObject::setSpeed(float value)
 {
     _speed = value;
 }
 
-double AirObject::getSpeed() const
+float BaseObject::getSpeed() const
 {
     return _speed;
 }
 
-void AirObject::setCourse(double crs)
+void BaseObject::setCourse(float crs)
 {
     _course = crs;
     setRotateAngle(_course);
 }
 
-double AirObject::getCourse()
+float BaseObject::getCourse()
 {
     return _course;
 }
 
-void AirObject::setSelectObject(bool value)
+void BaseObject::setSelectObject(bool value)
 {
     _isSelect = value;
 }
 
-bool AirObject::isSelectedObject() const
+bool BaseObject::isSelectedObject() const
 {
     return _isSelect;
 }
 
 
-void AirObject::setInUse(bool value)
+void BaseObject::setInUse(bool value)
 {
     _inUse = value;
 }
 
-bool AirObject::getInUse()
+bool BaseObject::getInUse()
 {
     return _inUse;
 }
 
-void AirObject::resetObjectData()
+void BaseObject::resetObjectData()
 {
     //нумерация в БД
     _id = 0;

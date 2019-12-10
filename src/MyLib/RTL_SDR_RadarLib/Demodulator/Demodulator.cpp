@@ -33,7 +33,7 @@
 #include <QDebug>
 
 #include "Demodulator.h"
-#include "Aircraft.h"
+#include "objects/air/Aircraft.h"
 
 /* Capability table. */
 static const char *ca_str[8] = {
@@ -78,21 +78,21 @@ static const char *fs_str[8] = {
  * but a casual listener can't split the address from the checksum.
  */
 static uint32_t modes_checksum_table[112] =
-    {
-        0x3935ea, 0x1c9af5, 0xf1b77e, 0x78dbbf, 0xc397db, 0x9e31e9, 0xb0e2f0, 0x587178,
-        0x2c38bc, 0x161c5e, 0x0b0e2f, 0xfa7d13, 0x82c48d, 0xbe9842, 0x5f4c21, 0xd05c14,
-        0x682e0a, 0x341705, 0xe5f186, 0x72f8c3, 0xc68665, 0x9cb936, 0x4e5c9b, 0xd8d449,
-        0x939020, 0x49c810, 0x24e408, 0x127204, 0x093902, 0x049c81, 0xfdb444, 0x7eda22,
-        0x3f6d11, 0xe04c8c, 0x702646, 0x381323, 0xe3f395, 0x8e03ce, 0x4701e7, 0xdc7af7,
-        0x91c77f, 0xb719bb, 0xa476d9, 0xadc168, 0x56e0b4, 0x2b705a, 0x15b82d, 0xf52612,
-        0x7a9309, 0xc2b380, 0x6159c0, 0x30ace0, 0x185670, 0x0c2b38, 0x06159c, 0x030ace,
-        0x018567, 0xff38b7, 0x80665f, 0xbfc92b, 0xa01e91, 0xaff54c, 0x57faa6, 0x2bfd53,
-        0xea04ad, 0x8af852, 0x457c29, 0xdd4410, 0x6ea208, 0x375104, 0x1ba882, 0x0dd441,
-        0xf91024, 0x7c8812, 0x3e4409, 0xe0d800, 0x706c00, 0x383600, 0x1c1b00, 0x0e0d80,
-        0x0706c0, 0x038360, 0x01c1b0, 0x00e0d8, 0x00706c, 0x003836, 0x001c1b, 0xfff409,
-        0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000,
-        0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000,
-        0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
+{
+    0x3935ea, 0x1c9af5, 0xf1b77e, 0x78dbbf, 0xc397db, 0x9e31e9, 0xb0e2f0, 0x587178,
+    0x2c38bc, 0x161c5e, 0x0b0e2f, 0xfa7d13, 0x82c48d, 0xbe9842, 0x5f4c21, 0xd05c14,
+    0x682e0a, 0x341705, 0xe5f186, 0x72f8c3, 0xc68665, 0x9cb936, 0x4e5c9b, 0xd8d449,
+    0x939020, 0x49c810, 0x24e408, 0x127204, 0x093902, 0x049c81, 0xfdb444, 0x7eda22,
+    0x3f6d11, 0xe04c8c, 0x702646, 0x381323, 0xe3f395, 0x8e03ce, 0x4701e7, 0xdc7af7,
+    0x91c77f, 0xb719bb, 0xa476d9, 0xadc168, 0x56e0b4, 0x2b705a, 0x15b82d, 0xf52612,
+    0x7a9309, 0xc2b380, 0x6159c0, 0x30ace0, 0x185670, 0x0c2b38, 0x06159c, 0x030ace,
+    0x018567, 0xff38b7, 0x80665f, 0xbfc92b, 0xa01e91, 0xaff54c, 0x57faa6, 0x2bfd53,
+    0xea04ad, 0x8af852, 0x457c29, 0xdd4410, 0x6ea208, 0x375104, 0x1ba882, 0x0dd441,
+    0xf91024, 0x7c8812, 0x3e4409, 0xe0d800, 0x706c00, 0x383600, 0x1c1b00, 0x0e0d80,
+    0x0706c0, 0x038360, 0x01c1b0, 0x00e0d8, 0x00706c, 0x003836, 0x001c1b, 0xfff409,
+    0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000,
+    0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000,
+    0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000, 0x000000
 };
 
 
@@ -132,19 +132,25 @@ void Demodulator::run()
 
 QByteArray Demodulator::getRawDump()
 {
-    if(_hashAircrafts.isEmpty())
-        return QByteArray();
-
     QByteArray array;
-    uint32_t frameSize = Aircraft::serializedFrameSize();
-    uint32_t countFrame = _hashAircrafts.count();
-    array.append((char*)(&frameSize),sizeof(uint32_t));
-    array.append((char*)(&countFrame),sizeof(uint32_t));
 
-    for(auto &a: _hashAircrafts.values())
+    if(_pool.isNull())
+        return array;
+
+
+    uint32_t frameSize = Aircraft::serializedFrameSize();
+    int32_t countFrame = getCountObject();
+    array.append((char*)(&frameSize),sizeof(int32_t));
+    array.append((char*)(&countFrame),sizeof(int32_t));
+
+    for(auto &a: _pool->values())
     {
-        array.append(a->serialize());
-        qDebug()<< a->toString();
+        QSharedPointer<Aircraft> air = qSharedPointerCast<Aircraft>(a);
+        if(!air.isNull())
+        {
+            array.append(air->serialize());
+            qDebug()<< air->toString();
+        }
     }
 
     return array;
@@ -152,7 +158,25 @@ QByteArray Demodulator::getRawDump()
 
 bool Demodulator::demodulate()
 {
+    if(_pool.isNull())
+        return  false;
+
+    _pool->lockPool();
     detectModeS(_magnitude.data(),_magnitude.size());
+    _pool->unlockPool();
+    if(getCountObject() > 0)
+    {
+        qDebug()<<"[Demodulator::demodulate] :: count object = "<< getCountObject();
+    }
+    return true;
+}
+
+int32_t Demodulator::getCountObject()
+{
+    if(_pool.isNull())
+        return -1;
+
+    return _pool->values().count();
 }
 
 
@@ -240,7 +264,7 @@ void Demodulator::detectModeS(uint16_t *m, uint32_t mlen)
               m[j+9] > m[j+6]))
         {
             if (debug & MODES_DEBUG_NOPREAMBLE &&
-                m[j] > MODES_DEBUG_NOPREAMBLE_LEVEL)
+                    m[j] > MODES_DEBUG_NOPREAMBLE_LEVEL)
                 dumpRawMessage("Unexpected ratio among first 10 samples",
                                msg, m, j);
             continue;
@@ -252,13 +276,13 @@ void Demodulator::detectModeS(uint16_t *m, uint32_t mlen)
          * energy can be in the near samples. */
         high = (m[j]+m[j+2]+m[j+7]+m[j+9])/6;
         if (m[j+4] >= high ||
-            m[j+5] >= high)
+                m[j+5] >= high)
         {
             if (debug & MODES_DEBUG_NOPREAMBLE &&
-                m[j] > MODES_DEBUG_NOPREAMBLE_LEVEL)
+                    m[j] > MODES_DEBUG_NOPREAMBLE_LEVEL)
                 dumpRawMessage(
-                    "Too high level in samples between 3 and 6",
-                    msg, m, j);
+                            "Too high level in samples between 3 and 6",
+                            msg, m, j);
             continue;
         }
 
@@ -266,20 +290,20 @@ void Demodulator::detectModeS(uint16_t *m, uint32_t mlen)
          * space between the preamble and real data. Again we don't test
          * bits too near to high levels, see above. */
         if (m[j+11] >= high ||
-            m[j+12] >= high ||
-            m[j+13] >= high ||
-            m[j+14] >= high)
+                m[j+12] >= high ||
+                m[j+13] >= high ||
+                m[j+14] >= high)
         {
             if (debug & MODES_DEBUG_NOPREAMBLE &&
-                m[j] > MODES_DEBUG_NOPREAMBLE_LEVEL)
+                    m[j] > MODES_DEBUG_NOPREAMBLE_LEVEL)
                 dumpRawMessage(
-                    "Too high level in samples between 10 and 15",
-                    msg, m, j);
+                            "Too high level in samples between 10 and 15",
+                            msg, m, j);
             continue;
         }
         stat_valid_preamble++;
 
-    good_preamble:
+good_preamble:
         /* If the previous attempt with this message failed, retry using
          * magnitude correction. */
         if (use_correction)
@@ -335,14 +359,14 @@ void Demodulator::detectModeS(uint16_t *m, uint32_t mlen)
         for (uint32_t i = 0; i < MODES_LONG_MSG_BITS; i += 8)
         {
             msg[i/8] =
-                bits[i]<<7 |
-                bits[i+1]<<6 |
-                bits[i+2]<<5 |
-                bits[i+3]<<4 |
-                bits[i+4]<<3 |
-                bits[i+5]<<2 |
-                bits[i+6]<<1 |
-                bits[i+7];
+                    bits[i]<<7 |
+                             bits[i+1]<<6 |
+                                        bits[i+2]<<5 |
+                                                   bits[i+3]<<4 |
+                                                              bits[i+4]<<3 |
+                                                                         bits[i+5]<<2 |
+                                                                                    bits[i+6]<<1 |
+                                                                                               bits[i+7];
         }
 
         int msgtype = msg[0]>>3;
@@ -470,8 +494,8 @@ int Demodulator::fixSingleBitErrors(unsigned char *msg, int bits)
         aux[byte] ^= bitmask; /* Flip j-th bit. */
 
         crc1 = ((uint32_t)aux[(bits/8)-3] << 16) |
-            ((uint32_t)aux[(bits/8)-2] << 8) |
-            (uint32_t)aux[(bits/8)-1];
+                ((uint32_t)aux[(bits/8)-2] << 8) |
+                (uint32_t)aux[(bits/8)-1];
         crc2 = modesChecksum(aux,bits);
 
         if (crc1 == crc2)
@@ -512,8 +536,8 @@ int Demodulator::fixTwoBitsErrors(unsigned char *msg, int bits)
             aux[byte2] ^= bitmask2; /* Flip i-th bit. */
 
             crc1 = ((uint32_t)aux[(bits/8)-3] << 16) |
-                ((uint32_t)aux[(bits/8)-2] << 8) |
-                (uint32_t)aux[(bits/8)-1];
+                    ((uint32_t)aux[(bits/8)-2] << 8) |
+                    (uint32_t)aux[(bits/8)-1];
             crc2 = modesChecksum(aux,bits);
 
             if (crc1 == crc2) {
@@ -570,8 +594,8 @@ void Demodulator::applyPhaseCorrection(uint16_t *m)
 int Demodulator::modesMessageLenByType(int type)
 {
     if (type == 16 || type == 17 ||
-        type == 19 || type == 20 ||
-        type == 21)
+            type == 19 || type == 20 ||
+            type == 21)
         return MODES_LONG_MSG_BITS;
     else
         return MODES_SHORT_MSG_BITS;
@@ -595,8 +619,8 @@ void Demodulator::decodeModesMessage(struct modesMessage *mm, unsigned char *msg
 
     /* CRC is always the last three bytes. */
     mm->crc = ((uint32_t)msg[(mm->msgbits/8)-3] << 16) |
-        ((uint32_t)msg[(mm->msgbits/8)-2] << 8) |
-        (uint32_t)msg[(mm->msgbits/8)-1];
+            ((uint32_t)msg[(mm->msgbits/8)-2] << 8) |
+            (uint32_t)msg[(mm->msgbits/8)-1];
     crc2 = modesChecksum(msg,mm->msgbits);
 
     /* Check CRC and fix single bit errors using the CRC when
@@ -605,7 +629,7 @@ void Demodulator::decodeModesMessage(struct modesMessage *mm, unsigned char *msg
     mm->crcok = (mm->crc == crc2);
 
     if (!mm->crcok && fix_errors &&
-        (mm->msgtype == 11 || mm->msgtype == 17))
+            (mm->msgtype == 11 || mm->msgtype == 17))
     {
         if ((mm->errorbit = fixSingleBitErrors(msg,mm->msgbits)) != -1)
         {
@@ -613,11 +637,11 @@ void Demodulator::decodeModesMessage(struct modesMessage *mm, unsigned char *msg
             mm->crcok = 1;
         } else
             if (aggressive && mm->msgtype == 17 &&
-                (mm->errorbit = fixTwoBitsErrors(msg,mm->msgbits)) != -1)
-        {
-            mm->crc = modesChecksum(msg,mm->msgbits);
-            mm->crcok = 1;
-        }
+                    (mm->errorbit = fixTwoBitsErrors(msg,mm->msgbits)) != -1)
+            {
+                mm->crc = modesChecksum(msg,mm->msgbits);
+                mm->crcok = 1;
+            }
     }
 
     /* Note that most of the other computation happens *after* we fix
@@ -638,7 +662,7 @@ void Demodulator::decodeModesMessage(struct modesMessage *mm, unsigned char *msg
     mm->fs = msg[0] & 7;        /* Flight status for DF4,5,20,21 */
     mm->dr = msg[1] >> 3 & 31;  /* Request extraction of downlink request. */
     mm->um = ((msg[1] & 7)<<3)| /* Request extraction of downlink request. */
-        msg[2]>>5;
+            msg[2]>>5;
 
     /* In the squawk (identity) field bits are interleaved like that
      * (message bit 20 to bit 32):
@@ -657,17 +681,17 @@ void Demodulator::decodeModesMessage(struct modesMessage *mm, unsigned char *msg
         int a,b,c,d;
 
         a = ((msg[3] & 0x80) >> 5) |
-            ((msg[2] & 0x02) >> 0) |
-            ((msg[2] & 0x08) >> 3);
+                ((msg[2] & 0x02) >> 0) |
+                ((msg[2] & 0x08) >> 3);
         b = ((msg[3] & 0x02) << 1) |
-            ((msg[3] & 0x08) >> 2) |
-            ((msg[3] & 0x20) >> 5);
+                ((msg[3] & 0x08) >> 2) |
+                ((msg[3] & 0x20) >> 5);
         c = ((msg[2] & 0x01) << 2) |
-            ((msg[2] & 0x04) >> 1) |
-            ((msg[2] & 0x10) >> 4);
+                ((msg[2] & 0x04) >> 1) |
+                ((msg[2] & 0x10) >> 4);
         d = ((msg[3] & 0x01) << 2) |
-            ((msg[3] & 0x04) >> 1) |
-            ((msg[3] & 0x10) >> 4);
+                ((msg[3] & 0x04) >> 1) |
+                ((msg[3] & 0x10) >> 4);
         mm->identity = a*1000 + b*100 + c*10 + d;
     }
 
@@ -701,7 +725,7 @@ void Demodulator::decodeModesMessage(struct modesMessage *mm, unsigned char *msg
 
     /* Decode 13 bit altitude for DF0, DF4, DF16, DF20 */
     if (mm->msgtype == 0 || mm->msgtype == 4 ||
-        mm->msgtype == 16 || mm->msgtype == 20)
+            mm->msgtype == 16 || mm->msgtype == 20)
     {
         mm->altitude = decodeAC13Field(msg, &mm->unit);
     }
@@ -732,11 +756,11 @@ void Demodulator::decodeModesMessage(struct modesMessage *mm, unsigned char *msg
             mm->tflag = msg[6] & (1<<3);
             mm->altitude = decodeAC12Field(msg,&mm->unit);
             mm->raw_latitude = ((msg[6] & 3) << 15) |
-                (msg[7] << 7) |
-                (msg[8] >> 1);
+                    (msg[7] << 7) |
+                    (msg[8] >> 1);
             mm->raw_longitude = ((msg[8]&1) << 16) |
-                (msg[9] << 8) |
-                msg[10];
+                    (msg[9] << 8) |
+                    msg[10];
         }
         else if (mm->metype == 19 && mm->mesub >= 1 && mm->mesub <= 4)
         {
@@ -778,7 +802,7 @@ void Demodulator::decodeModesMessage(struct modesMessage *mm, unsigned char *msg
             {
                 mm->heading_is_valid = msg[5] & (1<<2);
                 mm->heading = (360.0/128) * (((msg[5] & 3) << 5) |
-                                               (msg[6] >> 3));
+                        (msg[6] >> 3));
             }
         }
     }
@@ -843,12 +867,12 @@ int Demodulator::bruteForceAP(unsigned char *msg, struct modesMessage *mm)
     int msgbits = mm->msgbits;
 
     if (msgtype == 0 ||         /* Short air surveillance */
-        msgtype == 4 ||         /* Surveillance, altitude reply */
-        msgtype == 5 ||         /* Surveillance, identity reply */
-        msgtype == 16 ||        /* Long Air-Air survillance */
-        msgtype == 20 ||        /* Comm-A, altitude request */
-        msgtype == 21 ||        /* Comm-A, identity request */
-        msgtype == 24)          /* Comm-C ELM */
+            msgtype == 4 ||         /* Surveillance, altitude reply */
+            msgtype == 5 ||         /* Surveillance, identity reply */
+            msgtype == 16 ||        /* Long Air-Air survillance */
+            msgtype == 20 ||        /* Comm-A, altitude request */
+            msgtype == 21 ||        /* Comm-A, identity request */
+            msgtype == 24)          /* Comm-C ELM */
     {
         uint32_t addr;
         uint32_t crc;
@@ -919,9 +943,9 @@ int Demodulator::decodeAC13Field(unsigned char *msg, int *unit)
             /* N is the 11 bit integer resulting from the removal of bit
              * Q and M */
             int n = ((msg[2] & 31) << 6) |
-                ((msg[3] & 0x80) >> 2) |
-                ((msg[3] & 0x20) >> 1) |
-                (msg[3] & 15);
+                    ((msg[3] & 0x80) >> 2) |
+                    ((msg[3] & 0x20) >> 1) |
+                    (msg[3] & 15);
             /* The final altitude is due to the resulting number multiplied
              * by 25, minus 1000. */
             return n * 25 - 1000;
@@ -967,61 +991,72 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
         return;
     /* Loookup our aircraft or create a new one. */
 
-    QSharedPointer<Aircraft> a;
+    QSharedPointer<Aircraft> air = nullptr;
 
-    if (!_hashAircrafts.contains(addr))
+    if (!_pool->isExistsObject(addr))
     {
-        a = QSharedPointer<Aircraft>(new Aircraft(addr));
-        _hashAircrafts.insert(addr,a);
-        addDebugMsg(QString("Add new aircraft with ICAO : %1\nCount aircraft = %2")
-                        .arg(addr,16,16)
-                        .arg(_hashAircrafts.count()));
+        air = qSharedPointerCast<Aircraft>(_pool->createNewObject(OBJECT_TYPE::air,
+                                                                  addr,
+                                                                  QDateTime::currentDateTime(),
+                                                                  Position()));
+        addDebugMsg(QString("Add new aircraft with ICAO : %1\n")
+                    .arg(addr,16,16));
     }
     else
     {
-        a = _hashAircrafts.value(addr);
-        addDebugMsg(QString("Update info aircraft with ICAO : %1\nCount aircraft = %2")
-                        .arg(addr,16,16)
-                        .arg(_hashAircrafts.count()));
-        a->incNumberMsg();
+        air = qSharedPointerCast<Aircraft>(_pool->getObjectByID(addr));
+        addDebugMsg(QString("Update info aircraft with ICAO : %1\n")
+                    .arg(addr,16,16));
+        if(air.isNull())
+        {
+            qDebug()<<"[interactiveReceiveData] : Aircraft == nulltpr ";
+            return;
+        }
+
+        air->incNumberMsg();
+    }
+    if(air.isNull())
+    {
+        qDebug()<<"[interactiveReceiveData] : Aircraft == nulltpr ";
+        return;
     }
 
-    a->setSeenTime(QDateTime::currentMSecsSinceEpoch());
+    air->setDateTimeStop(QDateTime::currentDateTime());
 
 
     if (mm->msgtype == 0 || mm->msgtype == 4 || mm->msgtype == 20)
-        a->setAltitude( mm->altitude / CONVERT_FT_TO_METERS);
+        air->setAltitude( mm->altitude / CONVERT_FT_TO_METERS);
     if(mm->msgtype == 17)
     {
         if (mm->metype >= 1 && mm->metype <= 4)
-            a->setFlightInfo(mm->flight);
+            air->setFlightInfo(mm->flight);
         else if (mm->metype >= 9 && mm->metype <= 18)
         {
-            a->setAltitude( mm->altitude / CONVERT_FT_TO_METERS);
+            air->setAltitude( mm->altitude / CONVERT_FT_TO_METERS);
 
             if (mm->fflag)
             {
-                a->setOddCprLat( mm->raw_latitude);
-                a->setOddCprLon(mm->raw_longitude);
-                a->setOddCprTime(QDateTime::currentMSecsSinceEpoch());
+                air->setOddCprLat( mm->raw_latitude);
+                air->setOddCprLon(mm->raw_longitude);
+                air->setOddCprTime(QDateTime::currentMSecsSinceEpoch());
             }
             else
             {
-                a->setEvenCprLat(mm->raw_latitude);
-                a->setEvenCprLon(mm->raw_longitude);
-                a->setEvenCprTime(QDateTime::currentMSecsSinceEpoch());
+                air->setEvenCprLat(mm->raw_latitude);
+                air->setEvenCprLon(mm->raw_longitude);
+                air->setEvenCprTime(QDateTime::currentMSecsSinceEpoch());
             }
             /* If the two data is less than 10 seconds apart, compute
              * the position. */
-            if (abs(a->getEvenCprTime() - a->getOddCprTime()) <= 10000)
-                decodeCPR(a);
+            if (abs(air->getEvenCprTime() - air->getOddCprTime()) <= 10000)
+                decodeCPR(air);
         }
         else if (mm->metype == 19)
         {
             if (mm->mesub == 1 || mm->mesub == 2)
             {
-                a->setSpeed( mm->velocity * CONVERT_KN_TO_KM_P_H);
-                a->setCourse(mm->heading);
+                air->setSpeed( mm->velocity * CONVERT_KN_TO_KM_P_H);
+                air->setCourse(mm->heading);
             }
         }
     }
@@ -1246,7 +1281,7 @@ void Demodulator::dumpRawMessage(const QString &descr,
     if (msgtype == 11 || msgtype == 17)
     {
         int msgbits = (msgtype == 11) ? MODES_SHORT_MSG_BITS :
-                                      MODES_LONG_MSG_BITS;
+                                        MODES_LONG_MSG_BITS;
         fixable = fixSingleBitErrors(msg,msgbits);
         if (fixable == -1)
             fixable = fixTwoBitsErrors(msg,msgbits);
@@ -1277,9 +1312,9 @@ void Demodulator::displayModesMessage(struct modesMessage *mm)
         return;
     }
     QString strLog = QString("ICAO Address   : %1%2%3\n")
-                         .arg(mm->aa1,2,16)
-                         .arg(mm->aa2,2,16)
-                         .arg(mm->aa3,2,16);
+            .arg(mm->aa1,2,16)
+            .arg(mm->aa2,2,16)
+            .arg(mm->aa3,2,16);
 
     strLog.append(QString("CRC: %1 (%2)\n").arg(mm->crc,6,16).arg(mm->crcok ? "ok" : "wrong"));
 
@@ -1292,30 +1327,30 @@ void Demodulator::displayModesMessage(struct modesMessage *mm)
         /* DF 0 */
         strLog.append("DF 0: Short Air-Air Surveillance.\n");
         strLog.append(QString("  Altitude       : %1 %2\n")
-                          .arg(mm->altitude)
-                          .arg((mm->unit == MODES_UNIT_METERS) ? "meters" : "feet"));
+                      .arg(mm->altitude)
+                      .arg((mm->unit == MODES_UNIT_METERS) ? "meters" : "feet"));
         strLog.append(QString("ICAO Address   : %1%2%3\n")
-                          .arg(mm->aa1,2,16)
-                          .arg(mm->aa2,2,16)
-                          .arg(mm->aa3,2,16));
+                      .arg(mm->aa1,2,16)
+                      .arg(mm->aa2,2,16)
+                      .arg(mm->aa3,2,16));
     }
 
     else if (mm->msgtype == 4 || mm->msgtype == 20)
     {
         strLog.append(QString("DF %1: %2, Altitude Reply.\n")
-                          .arg(mm->msgtype)
-                          .arg((mm->msgtype == 4) ? "Surveillance" : "Comm-B"));
+                      .arg(mm->msgtype)
+                      .arg((mm->msgtype == 4) ? "Surveillance" : "Comm-B"));
 
         strLog.append(QString("  Flight Status  : %1\n").arg(fs_str[mm->fs]));
         strLog.append(QString("  DR             : %1\n").arg(mm->dr));
         strLog.append(QString("  UM             : %1\n").arg(mm->um));
         strLog.append(QString("  Altitude       : %1 %2\n")
-                          .arg( mm->altitude)
-                          .arg((mm->unit == MODES_UNIT_METERS) ? "meters" : "feet"));
+                      .arg( mm->altitude)
+                      .arg((mm->unit == MODES_UNIT_METERS) ? "meters" : "feet"));
         strLog.append(QString("  ICAO Address   : %1%2%3\n")
-                          .arg(mm->aa1,2,16)
-                          .arg(mm->aa2,2,16)
-                          .arg(mm->aa3,2,16));
+                      .arg(mm->aa1,2,16)
+                      .arg(mm->aa2,2,16)
+                      .arg(mm->aa3,2,16));
 
         if (mm->msgtype == 20)
         {
@@ -1325,17 +1360,17 @@ void Demodulator::displayModesMessage(struct modesMessage *mm)
     else if (mm->msgtype == 5 || mm->msgtype == 21)
     {
         strLog.append(QString("DF %1: %2, Identity Reply.\n")
-                          .arg(mm->msgtype)
-                          .arg((mm->msgtype == 5) ? "Surveillance" : "Comm-B"));
+                      .arg(mm->msgtype)
+                      .arg((mm->msgtype == 5) ? "Surveillance" : "Comm-B"));
 
         strLog.append(QString("  Flight Status  : %1\n").arg(fs_str[mm->fs]));
         strLog.append(QString("  DR             : %1\n").arg(mm->dr));
         strLog.append(QString("  UM             : %1\n").arg(mm->um));
         strLog.append(QString("  Squawk         : %1\n").arg(mm->identity));
         strLog.append(QString("  ICAO Address   : %1%2%3\n")
-                          .arg(mm->aa1,2,16)
-                          .arg(mm->aa2,2,16)
-                          .arg(mm->aa3,2,16));
+                      .arg(mm->aa1,2,16)
+                      .arg(mm->aa2,2,16)
+                      .arg(mm->aa3,2,16));
         if (mm->msgtype == 21)
         {
             /* TODO: 56 bits DF21 MB additional field. */
@@ -1347,9 +1382,9 @@ void Demodulator::displayModesMessage(struct modesMessage *mm)
         strLog.append(QString("DF 11: All Call Reply.\n"));
         strLog.append(QString("  Capability  : %1\n").arg(ca_str[mm->ca]));
         strLog.append(QString("  ICAO Address   : %1%2%3\n")
-                          .arg(mm->aa1,2,16)
-                          .arg(mm->aa2,2,16)
-                          .arg(mm->aa3,2,16));
+                      .arg(mm->aa1,2,16)
+                      .arg(mm->aa2,2,16)
+                      .arg(mm->aa3,2,16));
     }
     else if (mm->msgtype == 17)
     {
@@ -1357,25 +1392,25 @@ void Demodulator::displayModesMessage(struct modesMessage *mm)
         strLog.append(QString("DF 17: ADS-B message.\n"));
         strLog.append(QString("  Capability     : %1 (%2)\n").arg(mm->ca).arg(ca_str[mm->ca]));
         strLog.append(QString("  ICAO Address   : %1%2%3\n")
-                          .arg(mm->aa1,2,16)
-                          .arg(mm->aa2,2,16)
-                          .arg(mm->aa3,2,16));
+                      .arg(mm->aa1,2,16)
+                      .arg(mm->aa2,2,16)
+                      .arg(mm->aa3,2,16));
         strLog.append(QString("  Extended Squitter  Type: %1\n").arg(mm->metype));
         strLog.append(QString("  Extended Squitter  Sub : %1\n").arg(mm->mesub));
         strLog.append(QString("  Extended Squitter  Name: %1\n")
-                          .arg(getMEDescription(mm->metype,mm->mesub)));
+                      .arg(getMEDescription(mm->metype,mm->mesub)));
 
         /* Decode the extended squitter message. */
         if (mm->metype >= 1 && mm->metype <= 4)
         {
             /* Aircraft identification. */
             const char *ac_type_str[4] =
-                {
-                    "Aircraft Type D",
-                    "Aircraft Type C",
-                    "Aircraft Type B",
-                    "Aircraft Type A"
-                };
+            {
+                "Aircraft Type D",
+                "Aircraft Type C",
+                "Aircraft Type B",
+                "Aircraft Type A"
+            };
 
             strLog.append(QString("    Aircraft Type  : %1\n").arg(ac_type_str[mm->aircraft_type]));
             strLog.append(QString("    Identification : %1\n").arg(mm->flight));
@@ -1410,8 +1445,8 @@ void Demodulator::displayModesMessage(struct modesMessage *mm)
         else
         {
             strLog.append(QString("    Unrecognized ME type: %1 subtype: %2\n")
-                              .arg(mm->metype)
-                              .arg(mm->mesub));
+                          .arg(mm->metype)
+                          .arg(mm->mesub));
         }
     }
     else
@@ -1420,7 +1455,7 @@ void Demodulator::displayModesMessage(struct modesMessage *mm)
             strLog.append(QString("DF %1 with good CRC received "
                                   "(decoding still not implemented).\n").arg(mm->msgtype));
     }
-    strLog.append("=========================================================\n");
+    strLog.append("======================================================\n");
     addDebugMsg(strLog);
 }
 
@@ -1472,18 +1507,16 @@ void Demodulator::interactiveRemoveStaleAircrafts()
 {
     int64_t now = QDateTime::currentMSecsSinceEpoch();
 
-    for(auto &a: _hashAircrafts.values())
+    for(auto &a: _pool->values())
     {
-        if ((now - a->getSeenTime()) > MODES_INTERACTIVE_TTL)
+        if ((now - a->getMSecStop()) > MODES_INTERACTIVE_TTL)
         {
-            _hashAircrafts.remove(a->getICAO());
+            _pool->deleteObject(a->getId());
 
             addDebugMsg(QString("Remove aircraft with ICAO : %1 last update : %2\nCount aircraft = %3\n")
-                            .arg(a->getICAO(),16,16)
-                            .arg(QDateTime::fromMSecsSinceEpoch(a->getSeenTime()).toString("hh:mm:ss.zzz"))
-                            .arg(_hashAircrafts.count()));
+                        .arg(a->getId(),16,16)
+                        .arg(QDateTime::fromMSecsSinceEpoch(a->getMSecStop()).toString("hh:mm:ss.zzz")));
             a.clear();
-
         }
     }
 }

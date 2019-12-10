@@ -1,28 +1,61 @@
-#ifndef RTOBJECT_H
-#define RTOBJECT_H
+#ifndef BASEOBJECT_H
+#define BASEOBJECT_H
 
-#include <QObject>
-#include <QGraphicsItem>
 #include <QDateTime>
 
 #include "interface/IObject.h"
-#include "GraphicsObject.h"
 
-class AirObject : public GraphicsObject, public IObject
+class BaseObject :  public IObject
 {
-   Q_OBJECT
-public:
-    explicit AirObject(uint64_t id,
-                      QDateTime tstart,
-                      QDateTime tstop,
-                      double azimuth,
-                      double elevation);
+    Q_OBJECT
 
-    ~AirObject() override;
+    uint64_t _id = 0;
+
+    QString _nameObject;
+
+    //состояние объекта
+    OBJECT_STATE _state = OBJECT_STATE::NEW_OBJECT;
+    //
+    bool _inUse = true;
+
+protected:
+    //время когда был зарегестрирован объект
+    int64_t _ms_tstart = 0;
+    QDateTime  _tstart;
+
+    //время когда последний раз были обновлены данные
+    int64_t _ms_tstop = 0;
+    QDateTime  _tstop;
+
+    Position _geoCoord;
+    //скорость
+    float _speed = 0.0;
+    //курс
+    float _course = 0.0;
+    //пеленг
+    double _azimuth = 0.0;
+    //угол места
+    double _elevation = 0.0;
+    //дальность
+    double _distance = 0.0;
+    // высота
+    float _altitude = 0.0;
+
+public:
+    BaseObject(uint64_t id,
+               QDateTime tstart,
+               double azimuth,
+               double elevation);
+
+    BaseObject(uint64_t id,
+               QDateTime tstart,
+               Position geoPosition = Position());
+
+    ~BaseObject() override;
 
     void setId(uint64_t id) override;
-    //id из БД
-    uint64_t getId() override;
+    //id из
+    uint64_t getId() const override;
 
     //set/get время регистрации
     void setDateTimeStart(const QDateTime &dt) override;
@@ -54,14 +87,14 @@ public:
 
     //угол места
     void setElevation(double elev) override;
-    double getElevation() override;
+    double getElevation() const override;
 
     //set/get дистанции
     void setDistance_KM(double dist) override;
     double getDistance_KM() override;
 
     void setDistance_M(double dist) override;
-    double getDistance_M() override;
+    double getDistance_M() const  override;
 
     //set/get гео координаты
     void setGeoCoord(const Position &gp) override;
@@ -69,12 +102,12 @@ public:
     bool isValidGeoCoord() override;
 
     //set/get скорость
-    void setSpeed(double value) override;
-    double getSpeed() const override;
+    void setSpeed(float value) override;
+    float getSpeed() const override;
 
     //курс
-    void setCourse(double crs) override;
-    double getCourse() override;
+    void setCourse(float crs) override;
+    float getCourse() override;
 
     //установить объект текущим или нет
     void setSelectObject(bool value) override;
@@ -85,38 +118,8 @@ public:
 
     void resetObjectData() override;
 
-
-private:
-
-    uint64_t _id = 0;
-
-    QString _nameObject;
-
-    //состояние объекта
-    OBJECT_STATE _state = OBJECT_STATE::NEW_OBJECT;
-    //
-    bool _inUse = true;
-
-    //время когда был зарегестрирован объект
-    int64_t _ms_tstart = 0;
-    QDateTime  _tstart;
-
-    //время когда последний раз были обновлены данные
-    int64_t _ms_tstop = 0;
-    QDateTime  _tstop;
-
-    Position _geoCoord;
-    //скорость
-    double _speed = -1;
-    //курс
-    double _course = -1;
-    //пеленг
-    double _azimuth = -1;
-    //угол места
-    double _elevation = -1;
-    //дальность
-    double _distance = -1;
-
+    float getAltitude() const override;
+    void setAltitude(float altitude) override;
 
 signals:
 

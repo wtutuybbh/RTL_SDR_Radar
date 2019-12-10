@@ -17,21 +17,23 @@ class DataWorker : public IWorker
 {
     Q_OBJECT
 
-    QSharedPointer<IReciverDevice> _device;
-
-    size_t _dataVectorSize = MODES_DATA_LEN + MODES_FULL_LEN_OFFS;
-    QVector<uint8_t> _dataVector;
-
 protected:
+
     std::atomic<bool> _abort;
     QMutex _mutex;
 
     std::chrono::steady_clock::time_point _firstTimeBreakpoint;
     std::chrono::steady_clock::time_point _secondTimeBreakpoint;
 
+    QSharedPointer<IReciverDevice> _device;
     QSharedPointer<IDemodulator> _demod;
     QSharedPointer<IDSP> _dsp;
+
+    size_t _dataVectorSize = MODES_DATA_LEN + MODES_FULL_LEN_OFFS;
+    QVector<uint8_t> _dataVector;
+
     ILogger* _log = nullptr;
+
     bool processData();
 
 public:
@@ -48,6 +50,7 @@ public:
 
     void abortExec() override { _abort = true; }
     void setTimeout(uint64_t) override {}
+
 public slots:
     void exec() override;
 };

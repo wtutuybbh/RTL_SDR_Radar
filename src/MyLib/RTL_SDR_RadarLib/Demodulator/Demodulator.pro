@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       -= gui
+QT       += gui widgets
 
 TARGET = Demodulator
 TEMPLATE = lib
@@ -23,15 +23,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        Aircraft.cpp \
-        Demodulator.cpp
+        Demodulator.cpp \
+    ../../../include/objects/base/BaseObject.cpp \
+    ../../../include/objects/base/GraphicsObject.cpp \
+    ../../../include/objects/air/Aircraft.cpp
 
 HEADERS += \
         ../../../include/interface/IDemodulator.h \
-        Aircraft.h \
         Demodulator.h \
-        StructAircraft.h \
-        demodulator_global.h 
+        demodulator_global.h \ 
+    ../../../include/objects/base/BaseObject.h \
+    ../../../include/objects/base/GraphicsObject.h \
+    ../../../include/objects/air/Aircraft.h \
+    ../../../include/objects/air/StructAircraft.h
 
 unix {
     target.path = /usr/lib

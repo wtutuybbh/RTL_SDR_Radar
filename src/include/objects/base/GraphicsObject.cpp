@@ -13,7 +13,7 @@ GraphicsObject::~GraphicsObject()
 
 }
 
-void GraphicsObject::setRotateAngle(double rta)
+void GraphicsObject::setRotateAngle(float rta)
 {
     _rtAngle = rta;
 }

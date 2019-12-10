@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += gui network
+QT       += gui network widgets
 
 TARGET = DataController
 TEMPLATE = lib
