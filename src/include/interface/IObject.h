@@ -15,7 +15,8 @@ enum class OBJECT_STATE
 
 enum class OBJECT_TYPE
 {
-    air = 0,
+    base = 0,
+    air,
     surface,
 };
 

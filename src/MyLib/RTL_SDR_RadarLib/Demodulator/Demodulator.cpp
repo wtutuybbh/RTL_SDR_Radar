@@ -995,18 +995,21 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
 
     if (!_pool->isExistsObject(addr))
     {
-        air = qSharedPointerCast<Aircraft>(_pool->createNewObject(OBJECT_TYPE::air,
-                                                                  addr,
+        air = qSharedPointerCast<Aircraft>(_pool->createNewObject(addr,
                                                                   QDateTime::currentDateTime(),
                                                                   Position()));
         addDebugMsg(QString("Add new aircraft with ICAO : %1\n")
                     .arg(addr,16,16));
+       qDebug()<<QString("Add new aircraft with ICAO : %1\n")
+                 .arg(addr,16,16);
     }
     else
     {
         air = qSharedPointerCast<Aircraft>(_pool->getObjectByID(addr));
         addDebugMsg(QString("Update info aircraft with ICAO : %1\n")
                     .arg(addr,16,16));
+        qDebug()<<QString("Update info aircraft with ICAO : %1\n")
+                  .arg(addr,16,16);
         if(air.isNull())
         {
             qDebug()<<"[interactiveReceiveData] : Aircraft == nulltpr ";
@@ -1020,9 +1023,9 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
         qDebug()<<"[interactiveReceiveData] : Aircraft == nulltpr ";
         return;
     }
-
     air->setDateTimeStop(QDateTime::currentDateTime());
-
+    //снимаем флаг удаления
+    air->setObjectState(OBJECT_STATE::UPDATE_OBJECT);
 
     if (mm->msgtype == 0 || mm->msgtype == 4 || mm->msgtype == 20)
         air->setAltitude( mm->altitude / CONVERT_FT_TO_METERS);
@@ -1509,13 +1512,17 @@ void Demodulator::interactiveRemoveStaleAircrafts()
 
     for(auto &a: _pool->values())
     {
-        if ((now - a->getMSecStop()) > MODES_INTERACTIVE_TTL)
+        if((now - a->getMSecStop()) > MODES_INTERACTIVE_TTL)
         {
             _pool->deleteObject(a->getId());
 
-            addDebugMsg(QString("Remove aircraft with ICAO : %1 last update : %2\nCount aircraft = %3\n")
+            addDebugMsg(QString("Remove aircraft with ICAO : %1 last update : %2\n")
                         .arg(a->getId(),16,16)
                         .arg(QDateTime::fromMSecsSinceEpoch(a->getMSecStop()).toString("hh:mm:ss.zzz")));
+
+            qDebug()<<QString("Remove aircraft with ICAO : %1 last update : %2\n")
+                      .arg(a->getId(),16,16)
+                      .arg(QDateTime::fromMSecsSinceEpoch(a->getMSecStop()).toString("hh:mm:ss.zzz"));
             a.clear();
         }
     }

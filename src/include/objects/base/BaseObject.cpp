@@ -97,6 +97,13 @@ qint64 BaseObject::getMSecStop() const
 void BaseObject::setObjectState(OBJECT_STATE state)
 {
     _state = state;
+
+    if((state == OBJECT_STATE::UPDATE_OBJECT) ||
+       (state == OBJECT_STATE::NEW_OBJECT))
+        setInUse(true);
+
+    if(state == OBJECT_STATE::DELETE_OBJECT)
+        setInUse(false);
 }
 
 OBJECT_STATE BaseObject::getObjectState()
@@ -168,11 +175,8 @@ Position BaseObject::getGeoCoord() const
 
 bool BaseObject::isValidGeoCoord()
 {
-
-    if((_geoCoord.latitude() > -90.0 && _geoCoord.latitude() < 90.0) &&
-            (_geoCoord.longitude() > -180.0 && _geoCoord.longitude() < 180.0))
-        return true;
-    return false;
+    return ((_geoCoord.latitude() > -90.0 && _geoCoord.latitude() < 90.0) &&
+            (_geoCoord.longitude() > -180.0 && _geoCoord.longitude() < 180.0));
 }
 
 void BaseObject::setSpeed(float value)

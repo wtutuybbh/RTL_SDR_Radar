@@ -85,24 +85,19 @@ void Subject::Deatach(IObserver *o)
 
 void Subject::Notify(QSharedPointer<IPoolObject> pool)
 {
-    QMutexLocker lock(&_mutexSmartPtr);
-    if(pool.isNull() || _observers.isEmpty())
+    if(pool.isNull())
     {
-        qDebug()<<"Subject::Notify() -> No subscribers";
+        qDebug()<<"[Notify()] :  pool == nullptr";
         return;
     }
+
+    QMutexLocker lock(&_mutexSmartPtr);
 
     for(auto & iter: _observers)
         iter->update(pool);
     lock.unlock();
 
     QMutexLocker lockRaw(&_mutexRawPtr);
-
-    if(pool.isNull() || _rawObservers.isEmpty())
-    {
-        qDebug()<<"Subject::Notify() -> No subscribers";
-        return;
-    }
 
     for(auto & iter: _rawObservers)
         iter->update(pool);

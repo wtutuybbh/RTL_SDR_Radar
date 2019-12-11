@@ -160,7 +160,10 @@ void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
     QGraphicsItem* graphItem = dynamic_cast<QGraphicsItem*>(object.data());
 
     if(graphItem == nullptr)
+    {
+        qDebug()<<"[updateObjectOnScene] : graphItem == nullptr";
         return;
+    }
 
     if( object->getObjectState() == OBJECT_STATE::DELETE_OBJECT ||
             (!object->getInUse()))
@@ -184,21 +187,28 @@ void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
 
     QPointF dot = {-10.0,-10.0};
 
-    //    if(object->getDistance_KM() < (_ptrMapController->getDistanceRadarScale_KM()))
-    //    {
-    //        //dot = _ptrMapController->geoToScreenCoordinates(object->getGeoCoord());
+    double dist = _ptrMapController->getDistanceRadarScale_KM(_scene->sceneRect().size(),
+                                                              _ptrCarrier->getGeoCoord(),
+                                                              QPointF(_scene->width()/2 + _distToBorderMap,
+                                                                      _scene->width()/2 ));
 
-    //        graphItem->setPos(dot);
-    //        graphItem->setOpacity(1);
+    if(object->getDistance_KM() < dist )
+    {
+        dot = _ptrMapController->geoToScreenCoordinates( scene()->sceneRect().size(),
+                                                         _ptrCarrier->getGeoCoord(),
+                                                         object->getGeoCoord());
 
-    //        if(!graphItem->isVisible())
-    //            graphItem->show();
-    //    }
-    //    else
-    //    {
-    //        _vHiddenObject.append(object->getAzimuth());
-    //        graphItem->hide();
-    //    }
+        graphItem->setPos(dot);
+        graphItem->setOpacity(1);
+
+        if(!graphItem->isVisible())
+            graphItem->show();
+    }
+    else
+    {
+        _vHiddenObject.append(object->getAzimuth());
+        graphItem->hide();
+    }
 
     //если графический объект выбран текущим
     if(object->isSelectedObject() && _fixCursor)
@@ -211,10 +221,10 @@ void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
 
 void GraphicsWidget::recalculateCoordObjects()
 {
-//    _vHiddenObject.clear();
-//    if(_ptrPoolObject)
-//        for (auto &iter:_ptrPoolObject->values())
-//            updateObjectOnScene(iter);
+    //    _vHiddenObject.clear();
+    //    if(_ptrPoolObject)
+    //        for (auto &iter:_ptrPoolObject->values())
+    //            updateObjectOnScene(iter);
 
     updateScene();
 }
@@ -307,7 +317,7 @@ void GraphicsWidget::wheelEvent(QWheelEvent * event)
 QPointF GraphicsWidget::getSceneCenterPont()
 {
     return QPointF(_scene->width()/2.0,
-                  _scene->height()/2.0);
+                   _scene->height()/2.0);
 }
 
 void GraphicsWidget::drawMap(QPainter* painter,bool isDraw)
@@ -372,9 +382,9 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
     QPointF dot = getSceneCenterPont();
 
     QRectF drawingRect(dot.x() - _distToBorderMap,
-                      dot.y() - _distToBorderMap,
-                      _distToBorderMap * 2,
-                      _distToBorderMap * 2);
+                       dot.y() - _distToBorderMap,
+                       _distToBorderMap * 2,
+                       _distToBorderMap * 2);
 
 
     gradient.setCenter(drawingRect.center());
@@ -631,14 +641,12 @@ void GraphicsWidget::timeout()
 
 void GraphicsWidget::slotUpdateData(QSharedPointer<IPoolObject> pool)
 {
-    for (auto &iter: pool->values())
+    for (auto &iter: pool->allValues())
     {
         if(!iter.isNull())
             updateObjectOnScene(iter);
     }
 
-    qDebug()<<"GraphicsWidget::update()->slotUpdateData();" <<
-              _scene->items().count();
     _scene->update();
 }
 

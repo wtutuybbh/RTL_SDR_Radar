@@ -15,21 +15,34 @@ public:
     virtual ~IPoolObject(){}
     /*!
      * \brief createNewObject функция создания нового объекта в пуле
-     * \param type - тип объекта
      * \param id - уникальный id
      * \param reg_time - время регистрации
      * \param geoPosition - геокоординаты если есть
      * \return указатель на новый объект
      */
-    virtual QSharedPointer<IObject> createNewObject(OBJECT_TYPE type,
-                                                    uint64_t id,
+    virtual QSharedPointer<IObject> createNewObject(uint64_t id,
                                                     QDateTime reg_time,
                                                     Position geoPosition = Position()) = 0;
     /*!
-     * \brief values получение списка указателей на существующие объекты
+     * \brief values получение списка указателей на существующие объекты.
+     * Объекты которые помечены, как неактулаьные выведены не будут.
      * \return список умных указателей на объекты
      */
     virtual QList<QSharedPointer<IObject>> values() = 0;
+
+    /*!
+     * \brief values получение списка указателей на все объекты
+     * в пуле. Будут выведены все актуальные + объекты,помеченные удалёнными
+     * \return список умных указателей на объекты
+     */
+    virtual QList<QSharedPointer<IObject>> allValues() = 0;
+
+    /*!
+     * \brief getObjectsCount -возвращает количество объектов,
+     * которые находятся в актуальном состоянии (используются)
+     * \return
+     */
+    virtual int getObjectsCount() = 0;
 
     /*!
      * \brief isExistsObject проверка существования объякта в пуле

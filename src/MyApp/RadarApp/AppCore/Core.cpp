@@ -53,7 +53,7 @@ void Core::init()
 
     ServiceLocator::provide(QSharedPointer<ICarrierClass>( new NullCarrier()) );
 
-    _poolObjects = QSharedPointer<IPoolObject>(new PoolObject());
+    _poolObjects = QSharedPointer<IPoolObject>(new PoolObject(OBJECT_TYPE::air));
     _demodulator = QSharedPointer<IDemodulator>(new Demodulator(_poolObjects));
 
     _dataController = QSharedPointer<IDataController>(new DataController(_device,
@@ -72,12 +72,28 @@ void Core::init()
 
     QObject::connect(&_timer, &QTimer::timeout, this, &Core::slotTimeout);
     _timer.start(TIMEOUT);
+
+    QObject::connect(&_timerUpdateWidgets, &QTimer::timeout,
+                     this, &Core::slotUpdateWidgets);
+    _timerUpdateWidgets.start(TIMEOUT_UPDATE);
 }
 
 void Core::slotTimeout()
 {
     if(_device && !_device->isOpenDevice())
         _device->openDevice();
+}
+
+void Core::slotUpdateWidgets()
+{
+    if(_poolObjects.isNull())
+        return;
+
+    if(_poolObjects->tryLockPool())
+    {
+        _subject->Notify(_poolObjects);
+        _poolObjects->unlockPool();
+    }
 }
 
 

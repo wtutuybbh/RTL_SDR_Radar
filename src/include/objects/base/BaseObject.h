@@ -41,6 +41,7 @@ protected:
     // высота
     float _altitude = 0.0;
 
+    void setInUse(bool value) override;
 public:
     BaseObject(uint64_t id,
                QDateTime tstart,
@@ -113,7 +114,6 @@ public:
     void setSelectObject(bool value) override;
     bool isSelectedObject() const override;
 
-    void setInUse(bool value) override;
     bool getInUse() override;
 
     void resetObjectData() override;

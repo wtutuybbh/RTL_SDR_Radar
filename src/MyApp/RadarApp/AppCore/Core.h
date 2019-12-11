@@ -22,8 +22,11 @@ class Core : public QObject
     Q_OBJECT
 
     int32_t TIMEOUT = 1000;
+    int32_t TIMEOUT_UPDATE = 250;
+
     uint32_t SIZE_WIDGET = 600;
     QTimer _timer;
+    QTimer _timerUpdateWidgets;
 
     MainWindow* _mainWindow = nullptr;
     GraphicsWidget* _graphicsWidget = nullptr;
@@ -43,6 +46,7 @@ signals:
 
 public slots:
     void slotTimeout();
+    void slotUpdateWidgets();
 
 };
 
