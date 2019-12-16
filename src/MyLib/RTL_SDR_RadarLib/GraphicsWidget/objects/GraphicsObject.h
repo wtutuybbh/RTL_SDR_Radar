@@ -7,14 +7,18 @@
 #include <QString>
 #include <QFile>
 
+#include "interface/IObject.h"
+
 class GraphicsObject : public QGraphicsObject
 {
     Q_OBJECT
 
+    QSharedPointer<IObject> _prtObject;
     double _rtAngle = 0;
     bool _isExistIcon = false;
 
     virtual void drawObjectIcon();
+
     //загрузка иконки объекта
     void loadPixmap();
 
@@ -25,6 +29,9 @@ public:
     virtual ~GraphicsObject() override;
 
     void setRotateAngle(float rta);
+    //установить объект текущим или нет
+    void setSelectObject(bool value);
+    bool isSelectedObject() const;
 
  protected:
 
@@ -40,8 +47,6 @@ public:
     QRectF boundingRect() const override;
     //метод рисования
     void paint(QPainter *painter, const QStyleOptionGraphicsItem* option, QWidget *widget = 0) override;
-
-    void checkIconState();
 
     void resetIconState();
 };

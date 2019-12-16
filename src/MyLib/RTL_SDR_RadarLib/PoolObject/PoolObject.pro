@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += gui widgets
+QT       += gui
 
 TARGET = PoolObject
 TEMPLATE = lib
@@ -16,7 +16,6 @@ SOURCES += PoolObject.cpp \
     ../../../include/coord/Conversions.cpp \
     factory/FactoryObjects.cpp \
     ../../../include/objects/base/BaseObject.cpp \
-    ../../../include/objects/base/GraphicsObject.cpp \
     ../../../include/objects/air/Aircraft.cpp
 
 HEADERS += PoolObject.h\
@@ -28,7 +27,6 @@ HEADERS += PoolObject.h\
     ../../../include/coord/Conversions.h \
     factory/FactoryObjects.h \
     ../../../include/objects/base/BaseObject.h \
-    ../../../include/objects/base/GraphicsObject.h \
     ../../../include/objects/air/Aircraft.h \
     ../../../include/objects/air/StructAircraft.h
 unix {

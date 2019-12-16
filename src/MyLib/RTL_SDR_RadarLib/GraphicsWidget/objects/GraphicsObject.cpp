@@ -18,6 +18,16 @@ void GraphicsObject::setRotateAngle(float rta)
     _rtAngle = rta;
 }
 
+void GraphicsObject::setSelectObject(bool value)
+{
+
+}
+
+bool GraphicsObject::isSelectedObject() const
+{
+
+}
+
 QRectF GraphicsObject::boundingRect() const
 {
     return QRectF( - _sizeIcon/2, - _sizeIcon/2,_sizeIcon,_sizeIcon);

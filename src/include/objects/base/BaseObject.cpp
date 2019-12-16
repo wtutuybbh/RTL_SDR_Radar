@@ -23,7 +23,7 @@ BaseObject::BaseObject(uint64_t id,
     _azimuth(azimuth),
     _elevation(elevation)
 {
-
+    _uuid = QUuid::createUuid();
 }
 
 BaseObject::BaseObject(uint64_t id, QDateTime tstart, Position geoPosition) :
@@ -34,10 +34,16 @@ BaseObject::BaseObject(uint64_t id, QDateTime tstart, Position geoPosition) :
     _tstop(tstart),
     _geoCoord(geoPosition)
 {
+    _uuid = QUuid::createUuid();
 }
 
 BaseObject::~BaseObject()
 {
+}
+
+QUuid BaseObject::getUuid()
+{
+
 }
 
 void BaseObject::setId(uint64_t id)
@@ -99,7 +105,7 @@ void BaseObject::setObjectState(OBJECT_STATE state)
     _state = state;
 
     if((state == OBJECT_STATE::UPDATE_OBJECT) ||
-       (state == OBJECT_STATE::NEW_OBJECT))
+            (state == OBJECT_STATE::NEW_OBJECT))
         setInUse(true);
 
     if(state == OBJECT_STATE::DELETE_OBJECT)
@@ -192,22 +198,11 @@ float BaseObject::getSpeed() const
 void BaseObject::setCourse(float crs)
 {
     _course = crs;
-    setRotateAngle(_course);
 }
 
 float BaseObject::getCourse()
 {
     return _course;
-}
-
-void BaseObject::setSelectObject(bool value)
-{
-    _isSelect = value;
-}
-
-bool BaseObject::isSelectedObject() const
-{
-    return _isSelect;
 }
 
 
@@ -229,18 +224,6 @@ void BaseObject::resetObjectData()
     _nameObject = QString("--");
     //состояние объекта
     _state = OBJECT_STATE::DELETE_OBJECT;
-    //экранные координаты
-    _screenPos = QPointF(-10,-10);
-    //цвет
-    _colorIcon = QColor(0,250,0);
-    //размер значка
-    _sizeIcon = 20;
-    //значек объекта
-    img.fill(0x0);
-    //рисовать id или нет
-    _drawId = false;
-    //флаг текущего выбранного объекта
-    _isSelect = false;
     //
     _inUse = false;
 

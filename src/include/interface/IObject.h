@@ -1,9 +1,10 @@
 #ifndef IOBJECT
 #define IOBJECT
 
-#include "coord/Position.h"
-#include "objects/base/GraphicsObject.h"
 #include <QObject>
+#include <QUuid>
+
+#include "coord/Position.h"
 
 enum class OBJECT_STATE
 {
@@ -20,12 +21,13 @@ enum class OBJECT_TYPE
     surface,
 };
 
-class IObject : public GraphicsObject
+class IObject : public QObject
 {
     Q_OBJECT
 public:
     virtual ~IObject() {}
 
+    virtual QUuid getUuid() = 0;
     //id
     virtual void setId(uint64_t) = 0 ;
     virtual uint64_t getId() const = 0;
@@ -86,10 +88,6 @@ public:
     //высота
     virtual void setAltitude(float altitude) = 0 ;
     virtual float getAltitude() const = 0;
-
-    //установить объект текущим или нет
-    virtual void setSelectObject(bool value) = 0;
-    virtual bool isSelectedObject() const = 0;
 
     virtual void setInUse(bool value) = 0;
     virtual bool getInUse() = 0;

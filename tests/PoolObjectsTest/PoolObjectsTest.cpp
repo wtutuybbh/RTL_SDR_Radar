@@ -1,4 +1,4 @@
-#include "tst_PoolObjectsTestTest.h"
+#include "PoolObjectsTest.h"
 
 #include "../MyLib/RTL_SDR_RadarLib/PoolObject/PoolObject.h"
 
@@ -143,8 +143,10 @@ void PoolObjectsTestTest::updateObjectTest()
     {
         QSharedPointer<IObject> ptrObject = _pool->getObjectByID(i);
         QVERIFY(ptrObject.isNull() != true);
+
         ptrObject->setAzimuth(i);
         ptrObject->setObjectState(OBJECT_STATE::UPDATE_OBJECT);
+
         QCOMPARE(ptrObject->getAzimuth(),double(i));
         QCOMPARE(ptrObject->getObjectState(),OBJECT_STATE::UPDATE_OBJECT);
     }

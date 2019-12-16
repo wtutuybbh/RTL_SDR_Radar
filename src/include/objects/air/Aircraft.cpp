@@ -46,18 +46,18 @@ void Aircraft::setLatitude(double lat)
 QString Aircraft::toString()
 {
     QString str;
-//    str.append( QString("+++++++++++++++++++++++++++++++++++++\n"));
-//    str.append( QString("ICAO: %1\n").arg(_icao,6,16));
-//    str.append( QString("Flight number: %1\n").arg(QString(_flight)));
-//    str.append( QString("Altitude: %1\n").arg(_altitude));
-//    str.append( QString("Speed: %1\n").arg(_speed));
-//    str.append( QString("Course: %1\n").arg(_course));
-//    str.append( QString("Longitude: %1\n").arg(_lon));
-//    str.append( QString("Latitude: %1\n").arg(_lat));
-//    str.append( QString("Time last update: %1\n")
-//                   .arg(QDateTime::fromMSecsSinceEpoch(_seen).toString("hh:mm:ss.zzz")));
-//    str.append( QString("Number of Mode S messages received: %1\n").arg(_messages));
-//    str.append( QString("+++++++++++++++++++++++++++++++++++++\n"));
+    str.append( QString("+++++++++++++++++++++++++++++++++++++\n"));
+    str.append( QString("ICAO: %1\n").arg(getId(),6,16));
+    str.append( QString("Flight number: %1\n").arg(QString(_flight)));
+    str.append( QString("Altitude: %1\n").arg(_altitude));
+    str.append( QString("Speed: %1\n").arg(_speed));
+    str.append( QString("Course: %1\n").arg(_course));
+    str.append( QString("Longitude: %1\n").arg(_geoCoord.longitude()));
+    str.append( QString("Latitude: %1\n").arg(_geoCoord.latitude()));
+    str.append( QString("Time last update: %1\n")
+                   .arg(getDateTimeStop().toString("hh:mm:ss.zzz")));
+    str.append( QString("Number of Mode S messages received: %1\n").arg(_messages));
+    str.append( QString("+++++++++++++++++++++++++++++++++++++\n"));
 
     return  str;
 }

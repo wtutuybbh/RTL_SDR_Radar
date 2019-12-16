@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += gui widgets
+QT       += gui
 
 TARGET = Demodulator
 TEMPLATE = lib
@@ -25,7 +25,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         Demodulator.cpp \
     ../../../include/objects/base/BaseObject.cpp \
-    ../../../include/objects/base/GraphicsObject.cpp \
     ../../../include/objects/air/Aircraft.cpp
 
 HEADERS += \
@@ -33,9 +32,9 @@ HEADERS += \
         Demodulator.h \
         demodulator_global.h \ 
     ../../../include/objects/base/BaseObject.h \
-    ../../../include/objects/base/GraphicsObject.h \
     ../../../include/objects/air/Aircraft.h \
-    ../../../include/objects/air/StructAircraft.h
+    ../../../include/objects/air/StructAircraft.h \
+    ../../../include/interface/IObject.h
 
 unix {
     target.path = /usr/lib

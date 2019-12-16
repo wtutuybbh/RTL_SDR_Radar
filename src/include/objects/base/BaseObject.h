@@ -2,7 +2,7 @@
 #define BASEOBJECT_H
 
 #include <QDateTime>
-
+#include <QObject>
 #include "interface/IObject.h"
 
 class BaseObject :  public IObject
@@ -17,6 +17,8 @@ class BaseObject :  public IObject
     OBJECT_STATE _state = OBJECT_STATE::NEW_OBJECT;
     //
     bool _inUse = true;
+
+    QUuid _uuid;
 
 protected:
     //время когда был зарегестрирован объект
@@ -53,6 +55,9 @@ public:
                Position geoPosition = Position());
 
     ~BaseObject() override;
+
+
+    QUuid getUuid() override;
 
     void setId(uint64_t id) override;
     //id из
@@ -109,10 +114,6 @@ public:
     //курс
     void setCourse(float crs) override;
     float getCourse() override;
-
-    //установить объект текущим или нет
-    void setSelectObject(bool value) override;
-    bool isSelectedObject() const override;
 
     bool getInUse() override;
 

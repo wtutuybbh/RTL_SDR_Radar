@@ -10,6 +10,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->teTerminal->setTextColor(QColor(0xAA,0xCF,0xD1));
     ui->teTerminal->insertPlainText("test....");
+    setReciverDeviceState(false);
+    setDBState(false);
+    setGPSState(false);
 }
 
 MainWindow::~MainWindow()
@@ -21,4 +24,29 @@ MainWindow::~MainWindow()
 void MainWindow::addGraphicsWidget(GraphicsWidget* widget)
 {
     ui->vrlRadar->addWidget(widget);
+}
+
+void MainWindow::setReciverDeviceState(bool state)
+{
+     ui->lRtlSdrStatus->setStyleSheet(takeColorStrByState(state));
+}
+
+void MainWindow::setDBState(bool state)
+{
+    ui->lDBStatus->setStyleSheet(takeColorStrByState(state));
+}
+
+void MainWindow::setGPSState(bool state)
+{
+    ui->lGPSStatus->setStyleSheet(takeColorStrByState(state));
+}
+
+
+QString MainWindow::takeColorStrByState(bool state)
+{
+    QString color{"background-color: grey"};
+    if(state)
+        color = QString("background-color: green");
+
+    return color;
 }

@@ -27,8 +27,6 @@ Core::Core(QObject *parent) : QObject(parent)
 
 Core::~Core()
 {
-    _timer.stop();
-
     _dataController->stop();
     _dataController.clear();
 
@@ -70,19 +68,11 @@ void Core::init()
     _mainWindow->adjustSize();
     _mainWindow->show();
 
-    QObject::connect(&_timer, &QTimer::timeout, this, &Core::slotTimeout);
-    _timer.start(TIMEOUT);
-
     QObject::connect(&_timerUpdateWidgets, &QTimer::timeout,
                      this, &Core::slotUpdateWidgets);
     _timerUpdateWidgets.start(TIMEOUT_UPDATE);
 }
 
-void Core::slotTimeout()
-{
-    if(_device && !_device->isOpenDevice())
-        _device->openDevice();
-}
 
 void Core::slotUpdateWidgets()
 {
@@ -93,6 +83,14 @@ void Core::slotUpdateWidgets()
     {
         _subject->Notify(_poolObjects);
         _poolObjects->unlockPool();
+    }
+
+    if(!_device.isNull() && (_mainWindow != nullptr))
+    {
+         if((_ticks % 10) == 0)
+            _mainWindow->setReciverDeviceState(_device->isOpenDevice());
+
+        ++_ticks;
     }
 }
 

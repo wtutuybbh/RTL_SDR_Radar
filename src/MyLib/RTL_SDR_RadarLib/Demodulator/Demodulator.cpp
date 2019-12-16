@@ -164,10 +164,6 @@ bool Demodulator::demodulate()
     _pool->lockPool();
     detectModeS(_magnitude.data(),_magnitude.size());
     _pool->unlockPool();
-    if(getCountObject() > 0)
-    {
-        qDebug()<<"[Demodulator::demodulate] :: count object = "<< getCountObject();
-    }
     return true;
 }
 
@@ -1008,14 +1004,15 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
         air = qSharedPointerCast<Aircraft>(_pool->getObjectByID(addr));
         addDebugMsg(QString("Update info aircraft with ICAO : %1\n")
                     .arg(addr,16,16));
-        qDebug()<<QString("Update info aircraft with ICAO : %1\n")
-                  .arg(addr,16,16);
+
         if(air.isNull())
         {
             qDebug()<<"[interactiveReceiveData] : Aircraft == nulltpr ";
             return;
         }
 
+        //снимаем флаг удаления
+        air->setObjectState(OBJECT_STATE::UPDATE_OBJECT);
         air->incNumberMsg();
     }
     if(air.isNull())
@@ -1023,12 +1020,12 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
         qDebug()<<"[interactiveReceiveData] : Aircraft == nulltpr ";
         return;
     }
+
     air->setDateTimeStop(QDateTime::currentDateTime());
-    //снимаем флаг удаления
-    air->setObjectState(OBJECT_STATE::UPDATE_OBJECT);
 
     if (mm->msgtype == 0 || mm->msgtype == 4 || mm->msgtype == 20)
         air->setAltitude( mm->altitude / CONVERT_FT_TO_METERS);
+
     if(mm->msgtype == 17)
     {
         if (mm->metype >= 1 && mm->metype <= 4)
@@ -1063,6 +1060,9 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
             }
         }
     }
+    qDebug()<<QString("Update info aircraft with ICAO : %1\n")
+              .arg(addr,16,16)
+           << air->toString();
 }
 
 /* This algorithm comes from:

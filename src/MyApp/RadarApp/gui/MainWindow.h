@@ -17,10 +17,14 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void addGraphicsWidget(GraphicsWidget* widget);
+    void setReciverDeviceState(bool state);
+    void setDBState(bool state);
+    void setGPSState(bool state);
 private:
     Ui::MainWindow *ui;
     GraphicsWidget* _graphicsWidget = nullptr;
 
+    QString takeColorStrByState(bool state);
 };
 
 #endif // MAINWINDOW_H

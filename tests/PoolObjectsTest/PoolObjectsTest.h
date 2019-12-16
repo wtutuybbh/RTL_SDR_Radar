@@ -1,5 +1,5 @@
-#ifndef TST_POOLOBJECTSTESTTEST_H
-#define TST_POOLOBJECTSTESTTEST_H
+#ifndef TST_POOLOBJECTSTEST_H
+#define TST_POOLOBJECTSTEST_H
 
 #include <QString>
 #include <QtTest>

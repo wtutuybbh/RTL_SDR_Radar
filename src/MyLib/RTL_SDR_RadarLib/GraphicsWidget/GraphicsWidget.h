@@ -4,13 +4,15 @@
 #include "graphicswidget_global.h"
 #include <QGraphicsView>
 #include <QTimer>
-#include <QEnableSharedFromThis>
+#include <QUuid>
+
 #include "interface/IObserver.h"
 
 class IPoolObject;
 class IMapController;
 class ICarrierClass;
 class IObject;
+class QGraphicsObject;
 
 class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
         public IObserver
@@ -60,7 +62,7 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
 
     ///< вектор для хранения пеленгов объектов,которые не попадают в масштаб карты
     QVector<double > _vHiddenObject;
-
+    QHash<QUuid,QGraphicsObject* > _hashTable;
     /*!
      * \brief initWidget инициализация виджета для отображения карты и РТО объектов
      * \param size - размер сцены. \warning ширина == высоте
@@ -106,6 +108,21 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
      * \return координаты центра сцены
      */
     QPointF getSceneCenterPont();
+
+    /*!
+     * \brief getGraphicsItem получение графического элемента сцены,
+     * связанного с объектом из пула
+     * \param object
+     * \return
+     */
+    QGraphicsObject* getGraphicsItem(QSharedPointer<IObject> &object);
+
+    bool needUpdateGraphicsObject(QSharedPointer<IObject> &object,
+                                  QGraphicsObject *graphItem);
+
+    void updatePositionOnScene(QSharedPointer<IObject> &object,
+                               QGraphicsObject* graphItem);
+
 public:
     /*!
      * \brief GraphicsWidget конструктор класса для отображения карты и объектов

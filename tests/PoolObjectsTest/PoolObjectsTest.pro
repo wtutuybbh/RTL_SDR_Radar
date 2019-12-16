@@ -25,7 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-        tst_PoolObjectsTestTest.cpp 
+    PoolObjectsTest.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
@@ -35,4 +35,4 @@ include( ../../app.pri )
 LIBS += -lPoolObject
 
 HEADERS += \
-    tst_PoolObjectsTestTest.h
+    PoolObjectsTest.h

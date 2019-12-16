@@ -15,18 +15,20 @@ RTL_SDR_Reciver::~RTL_SDR_Reciver()
 
 bool RTL_SDR_Reciver::openDevice()
 {
+    QMutexLocker lock(&_mutex);
     _isOpen = initDevice();
     return _isOpen;
 }
 
 bool RTL_SDR_Reciver::isOpenDevice()
 {
+    QMutexLocker lock(&_mutex);
     return _isOpen;
 }
 
 void RTL_SDR_Reciver::closeDevice()
 {
-    if(!_isOpen)
+    if(!isOpenDevice())
         return;
 
     QString str = QString("%1: %2, %3, SN: %4 ").arg(_dev_index)
@@ -44,6 +46,9 @@ void RTL_SDR_Reciver::closeDevice()
 
 QVector<uint8_t> RTL_SDR_Reciver::getDataBlock(size_t size)
 {
+    if(!isOpenDevice())
+        QVector<uint8_t>();
+
     if ((size_t)_data.size() < size)
         _data.resize(size);
 
@@ -56,6 +61,9 @@ QVector<uint8_t> RTL_SDR_Reciver::getDataBlock(size_t size)
 
 const uint8_t *RTL_SDR_Reciver::getDataBlockPtr(size_t size)
 {
+    if(!isOpenDevice())
+        return nullptr;
+
     if ((size_t)_data.size() < size)
         _data.resize(size);
 
@@ -74,6 +82,9 @@ const uint8_t *RTL_SDR_Reciver::getDataBlockPtr(size_t size)
 
 bool RTL_SDR_Reciver::readDataBlock(QVector<uint8_t> &vector, size_t size)
 {
+    if(!isOpenDevice())
+        return false;
+
     if((size_t) vector.size() < size)
         vector.resize(size);
 

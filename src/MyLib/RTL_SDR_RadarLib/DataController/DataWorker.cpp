@@ -46,11 +46,15 @@ void DataWorker::exec()
 
 bool DataWorker::processData()
 {
-    if(_device.isNull() || !_device->isOpenDevice())
+    if(_device.isNull())
     {
         usleep(1000);
         return false;
     }
+
+    if(!_device->isOpenDevice())
+        return  _device->openDevice();
+
     const uint8_t* ptrData = _device->getDataBlockPtr(size_t(MODES_DATA_LEN));
 
     if(ptrData == nullptr)

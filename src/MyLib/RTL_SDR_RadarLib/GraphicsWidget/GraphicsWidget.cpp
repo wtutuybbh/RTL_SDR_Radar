@@ -12,7 +12,7 @@
 #include "implements/MapController.h"
 #include "coord/Position.h"
 #include "../Carrier/ServiceLocator.h"
-
+#include "objects/GraphicsObject.h"
 
 GraphicsWidget::GraphicsWidget(uint32_t widthRect,
                                QWidget *parent):
@@ -152,40 +152,56 @@ void GraphicsWidget::update(QSharedPointer<IPoolObject> pool)
     slotUpdateData(pool);
 }
 
-void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
+QGraphicsObject* GraphicsWidget::getGraphicsItem(QSharedPointer<IObject> &object)
 {
-    if(_ptrMapController.isNull() || object.isNull())
-        return;
-
-    QGraphicsItem* graphItem = dynamic_cast<QGraphicsItem*>(object.data());
-
-    if(graphItem == nullptr)
+    QGraphicsObject* graphItem = nullptr;
+    if(!_hashTable.contains(object->getUuid()) && object->getInUse())
     {
-        qDebug()<<"[updateObjectOnScene] : graphItem == nullptr";
-        return;
+        graphItem = new GraphicsObject();
+        graphItem->setFlag(QGraphicsItem::ItemIsSelectable);
+
+        _hashTable.insert(object->getUuid(),graphItem);
+
+        if(object->isValidGeoCoord())
+            scene()->addItem(graphItem);
+        qDebug()<<"[updateObjectOnScene] : add graphItem " <<graphItem;
     }
+    else
+        graphItem = _hashTable.value(object->getUuid());
+
+    return graphItem;
+}
+
+bool GraphicsWidget::needUpdateGraphicsObject(QSharedPointer<IObject> &object,
+                                              QGraphicsObject* graphItem)
+{
+    if(object.isNull() || graphItem == nullptr)
+        return false;
 
     if( object->getObjectState() == OBJECT_STATE::DELETE_OBJECT ||
             (!object->getInUse()))
     {
         if(scene()->items().contains(graphItem))
             _scene->removeItem(graphItem);
-        return;
+        return false;
     }
 
-    if(!object->isValidGeoCoord())
+    if(!object->isValidGeoCoord() && scene()->items().contains(graphItem))
     {
         _scene->removeItem(graphItem);
-        return;
+        return false;
     }
 
-    if(!scene()->items().contains(graphItem))
-    {
-        graphItem->setFlag(QGraphicsItem::ItemIsSelectable);
-        scene()->addItem(graphItem);
-    }
+    if(object->isValidGeoCoord() && !scene()->items().contains(graphItem))
+        _scene->addItem(graphItem);
 
-    QPointF dot = {-10.0,-10.0};
+    return true;
+}
+
+void GraphicsWidget::updatePositionOnScene(QSharedPointer<IObject> &object,
+                                           QGraphicsObject* graphItem)
+{
+    QPointF dot = { -10.0, -10.0 };
 
     double dist = _ptrMapController->getDistanceRadarScale_KM(_scene->sceneRect().size(),
                                                               _ptrCarrier->getGeoCoord(),
@@ -211,12 +227,26 @@ void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
     }
 
     //если графический объект выбран текущим
-    if(object->isSelectedObject() && _fixCursor)
-    {
+    if(graphItem->isSelected() && _fixCursor)
         _fixCursorCoord = dot;
-        QStringList list = getDataForTable(dynamic_cast<IObject*>(object.data()));
-        emit signalDataToTable(list);
-    }
+
+}
+
+void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
+{
+    if(_ptrMapController.isNull() || object.isNull())
+        return;
+
+    QGraphicsObject* graphItem = getGraphicsItem(object);
+
+    if(graphItem == nullptr)
+        return;
+
+    if(!needUpdateGraphicsObject(object,graphItem))
+        return;
+
+    updatePositionOnScene(object,graphItem);
+
 }
 
 void GraphicsWidget::recalculateCoordObjects()
