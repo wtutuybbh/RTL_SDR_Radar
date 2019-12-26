@@ -29,15 +29,20 @@ SOURCES += \
         main.cpp \
         gui/MainWindow.cpp \
     AppCore/Core.cpp \
-    AppCore/publisher/Subject.cpp
+    AppCore/publisher/Subject.cpp \
+    gui/TableForm.cpp \
+    ../../include/coord/Conversions.cpp
 
 HEADERS += \
         gui/MainWindow.h \
     AppCore/Core.h \
-    AppCore/publisher/Subject.h
+    AppCore/publisher/Subject.h \
+    gui/TableForm.h \
+    ../../include/coord/Conversions.h
 
 FORMS += \
-        gui/MainWindow.ui
+        gui/MainWindow.ui \
+    gui/TableForm.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -56,4 +61,5 @@ LIBS += -lLogger \
         -lCarrier \
         -lDataController \
         -lRTL_SDR_Reciver \
-        -lDemodulator
+        -lDemodulator \
+        -lModelTable

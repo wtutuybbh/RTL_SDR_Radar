@@ -3,21 +3,13 @@
 
 #include <QGraphicsItem>
 #include <QPainter>
-#include <QDebug>
+#include <QPixmap>
 #include <QString>
-#include <QFile>
-
-#include "interface/IObject.h"
 
 class GraphicsObject : public QGraphicsObject
 {
     Q_OBJECT
-
-    QSharedPointer<IObject> _prtObject;
-    double _rtAngle = 0;
-    bool _isExistIcon = false;
-
-    virtual void drawObjectIcon();
+    float _rtAngle = 0;
 
     //загрузка иконки объекта
     void loadPixmap();
@@ -29,15 +21,11 @@ public:
     virtual ~GraphicsObject() override;
 
     void setRotateAngle(float rta);
-    //установить объект текущим или нет
-    void setSelectObject(bool value);
-    bool isSelectedObject() const;
 
  protected:
 
-    QImage img;
-    int _sizeIcon = 20;
-    QColor _colorIcon =  QColor(0,250,0);
+    QPixmap _pixmapIcon;
+    const QSize _sizeIcon = QSize(30,30);
     bool _drawId = false;
     bool _drawName = false;
     bool _isSelect = false;
@@ -48,7 +36,6 @@ public:
     //метод рисования
     void paint(QPainter *painter, const QStyleOptionGraphicsItem* option, QWidget *widget = 0) override;
 
-    void resetIconState();
 };
 
 #endif // GRAPHICSOBJECT_H

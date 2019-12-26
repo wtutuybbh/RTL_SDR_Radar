@@ -70,6 +70,8 @@ public:
     bool unserialize(QByteArray array);
 
     static uint32_t  serializedFrameSize();
+
+    void resetObjectData() override;
 };
 
 #endif // AIRCRAFT_H

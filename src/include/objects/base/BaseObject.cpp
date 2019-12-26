@@ -218,31 +218,20 @@ bool BaseObject::getInUse()
 
 void BaseObject::resetObjectData()
 {
-    //нумерация в БД
     _id = 0;
-    // носитель которому может принадлежать источник
     _nameObject = QString("--");
-    //состояние объекта
     _state = OBJECT_STATE::DELETE_OBJECT;
-    //
     _inUse = false;
-
-    //время когда запеленговали в первый раз
     _tstart = QDateTime();
-    //время когда последний раз были обновлены данные
     _tstop = QDateTime();
     _ms_tstart = 0;
     _ms_tstop = 0;
 
-    _geoCoord = Position(-200,-200);
-    //скорость
-    _speed = -1;
-    //курс
-    _course = -1;
-    //пеленг
-    _azimuth = -1;
-    //угол места
-    _elevation = -1;
-    //дальность
-    _distance = -1;
+    _geoCoord = Position(-200.0,-200.0);
+    _speed = 0.0;
+    _course = 0.0;
+    _azimuth = 0.0;
+    _elevation = 0.0;
+    _distance = 0.0;
+    _altitude = 0.0;
 }

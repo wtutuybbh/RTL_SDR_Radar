@@ -7,6 +7,7 @@ SUBDIRS += \
     PoolObject \
     GraphicsWidget \
     RTL_SDR_Reciver \
-    DataController
+    DataController \
+    ModelTable
 
 CONFIG += ordered

@@ -10,17 +10,15 @@ class BaseObject :  public IObject
     Q_OBJECT
 
     uint64_t _id = 0;
-
-    QString _nameObject;
-
     //состояние объекта
     OBJECT_STATE _state = OBJECT_STATE::NEW_OBJECT;
     //
     bool _inUse = true;
-
     QUuid _uuid;
 
 protected:
+    QString _nameObject;
+
     //время когда был зарегестрирован объект
     int64_t _ms_tstart = 0;
     QDateTime  _tstart;

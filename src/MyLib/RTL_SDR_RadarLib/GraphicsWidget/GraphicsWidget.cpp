@@ -436,26 +436,26 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
 
 }
 
-void GraphicsWidget::resizeEvent(QResizeEvent *event)
-{
-    int h = event->size().height();
-    int w = event->size().width();
+//void GraphicsWidget::resizeEvent(QResizeEvent *event)
+//{
+//    int h = event->size().height();
+//    int w = event->size().width();
 
-    if( w < 400 || h < 400 )
-        return;
+//    if( w < 400 || h < 400 )
+//        return;
 
-    if(w > h)
-        w = h;
-    else
-        h = w;
+//    if(w > h)
+//        w = h;
+//    else
+//        h = w;
 
-    const uint64_t dimension = static_cast<uint64_t>(sqrt(w * h));
-    _scene->setSceneRect(0, 0, dimension, dimension);
+//    const uint64_t dimension = static_cast<uint64_t>(sqrt(w * h));
+//    _scene->setSceneRect(0, 0, dimension, dimension);
 
-    _distToBorderMap = _scene->sceneRect().width()/2.0 - _textBorder ;
+//    _distToBorderMap = _scene->sceneRect().width()/2.0 - _textBorder ;
 
-    recalculateCoordObjects();
-}
+//    recalculateCoordObjects();
+//}
 
 
 void GraphicsWidget::drawCarrier(QPainter *p)

@@ -79,7 +79,6 @@ void Core::slotTimeout()
 
     }
     _mainWindow.setOpenDevState((_device != nullptr) ? _device->isOpenDevice() : false);
-
 }
 
 

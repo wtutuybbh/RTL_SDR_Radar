@@ -26,6 +26,7 @@ void Aircraft::setFlightInfo(char *val)
         return;
 
     memcpy(_flight, val, sizeof(_flight));
+    setObjectName(QString(_flight));
 }
 
 QString Aircraft::getFlightInfo() const
@@ -95,5 +96,19 @@ bool Aircraft::unserialize(QByteArray array)
 uint32_t Aircraft::serializedFrameSize()
 {
     return sizeof(StructAircraft);
+}
+
+void Aircraft::resetObjectData()
+{
+    BaseObject::resetObjectData();
+
+    memset((char*)_flight, 0, SIZE_TEXT);
+   _odd_cprlat = 0;
+   _odd_cprlon = 0;
+   _odd_cprtime = 0;
+   _even_cprlat = 0;
+   _even_cprlon = 0;
+   _even_cprtime = 0;
+   _messages = 0;
 }
 

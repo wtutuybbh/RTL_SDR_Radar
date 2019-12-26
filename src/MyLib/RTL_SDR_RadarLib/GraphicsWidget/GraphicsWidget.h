@@ -167,11 +167,11 @@ protected:
      * \param isDraw - true - рисовать карту, false - черный квадрат
      */
     virtual void drawMap(QPainter *painter, bool isDraw = true);
-    /*!
-     * \brief resizeEvent - изменнение размера виджета
-     * \param event - событие изменение размера
-     */
-    void resizeEvent(QResizeEvent *event) override;
+//    /*!
+//     * \brief resizeEvent - изменнение размера виджета
+//     * \param event - событие изменение размера
+//     */
+//    void resizeEvent(QResizeEvent *event) override;
     /*!
      * \brief drawDotCicleWithLabel - отрисовка лимба с метками
      * \param p - указатель на класс для отрисовки
