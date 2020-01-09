@@ -38,14 +38,11 @@ class Core : public QObject
     ModelTable* _modelTable = nullptr;
 
     QSharedPointer<IPoolObject> _poolObjects = nullptr;
-    QSharedPointer<IDataController> _dataController = nullptr;
-    QSharedPointer<IReciverDevice> _device = nullptr;
-    QSharedPointer<IDemodulator> _demodulator = nullptr;
     QSharedPointer<ISubject> _subject = nullptr;
-    QSharedPointer<ILogger> _logger = nullptr;
 
     void updateGeoPositionInfo();
 
+    void addImitObject();
 public:
     explicit Core(QObject *parent = nullptr);
     ~Core();

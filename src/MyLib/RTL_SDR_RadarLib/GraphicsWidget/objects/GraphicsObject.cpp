@@ -40,22 +40,31 @@ void GraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     painter->save();
 
     QFont font = painter->font();
-    int captionWidth = QFontMetrics(font.family()).width(_text);
-    int captionHeight = QFontMetrics(font.family()).height() + 2;
+    int captionWidth = QFontMetrics(font.family()).width(_text) / 2 + 20;
+    int captionHeight = QFontMetrics(font.family()).height() * 1.5 ;
+    painter->setPen(QPen(QBrush(_colorIcon), 2));
 
 
-    QRectF rect(boundingRect().width()/2 - captionWidth/2,
-                boundingRect().top() - QFontMetrics(font.family()).height(),
+    QRectF rect(boundingRect().right() ,
+                boundingRect().top() - captionHeight ,
                 captionWidth,
                 captionHeight);
 
     painter->drawText(rect, Qt::AlignCenter, _text);
 
+    painter->drawLine(QPointF(boundingRect().center()),
+                QPointF(rect.topLeft().x(),
+                              rect.topLeft().y() + rect.height()/2));
+
+    painter->drawLine(QPointF(rect.topLeft().x(),
+                              rect.topLeft().y() + rect.height()/2) ,
+                      QPointF(rect.topRight().x(),
+                              rect.topRight().y() + rect.height()/2));
+
     if(!_isImit)
         painter->rotate(_rtAngle - 90);
 
     painter->drawPixmap(boundingRect().x(),boundingRect().y(),_pixmapIcon);
-
 
     painter->restore();
 }
@@ -85,6 +94,7 @@ void GraphicsObject::setAzimuth(double azim)
 void GraphicsObject::setText(const QString &text)
 {
     _text = text;
+    _text.replace("/","\n");
 }
 
 void GraphicsObject::loadPixmap(OBJECT_TYPE type, bool isImit)
@@ -112,7 +122,7 @@ QVariant GraphicsObject::itemChange(GraphicsItemChange change, const QVariant &v
         if(_isSelect)
         {
             setZValue(1);
-            setScale(1.2);
+            setScale(1.1);
         }
         else
         {

@@ -18,6 +18,7 @@ TableForm::TableForm(QWidget *parent) :
     _view->verticalHeader()->hide();
     _view->horizontalHeader()->setStretchLastSection(true);
     _view->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
+
     ui->vltTableView->addWidget(_view);
 
 }
