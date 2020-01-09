@@ -1,8 +1,9 @@
+#include <QAbstractItemView>
+#include <QHeaderView>
+
 #include "TableForm.h"
 #include "ui_TableForm.h"
 #include "../MyLib/RTL_SDR_RadarLib/ModelTable/ModelTable.h"
-
-#include <QAbstractItemView>
 
 TableForm::TableForm(QWidget *parent) :
     QWidget(parent),
