@@ -28,7 +28,7 @@ class Aircraft : public BaseObject
     int64_t _even_cprtime;
 
 public:
-    Aircraft(uint32_t icao);
+    Aircraft(uint32_t icao, bool isImit = false);
     ~Aircraft() = default;
 
     uint32_t getICAO() const { return getId() & 0xffffffff; }

@@ -14,16 +14,17 @@
 class POOLOBJECTSHARED_EXPORT PoolObject : public IPoolObject
 {
     pHash _container;
-    int32_t _timeActualData = 12000;
     QMutex _mutex;
     FactoryObjects _factory;
     OBJECT_TYPE _type = OBJECT_TYPE::base;
 public:
     explicit PoolObject(OBJECT_TYPE type);
     ~PoolObject() override;
+
     QSharedPointer<IObject> createNewObject(uint64_t id,
                                             QDateTime reg_time,
-                                            Position geoPosition = Position()) override;
+                                            Position geoPosition = Position(),
+                                            bool isImit = false) override;
 
     QList<QSharedPointer<IObject> > values() override;
 

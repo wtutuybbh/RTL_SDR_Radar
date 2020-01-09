@@ -9,15 +9,25 @@ class BaseObject :  public IObject
 {
     Q_OBJECT
 
+    ///< внешний идентификатор  - icao,id DB,hash и тд.
     uint64_t _id = 0;
-    //состояние объекта
+    ///< состояние объекта
     OBJECT_STATE _state = OBJECT_STATE::NEW_OBJECT;
-    //
+    ///< флаг использования объекта
+    /// true - испозьзуется
+    /// false - можно перезаписывать параметры и использовать
+    /// повторно
     bool _inUse = true;
+    ///< уникальный идентификатор объекта
+    /// никогда не изменяется
     QUuid _uuid;
-
+    ///< тип объекта
+    OBJECT_TYPE _typeObject;
+    ///< флаг имитированного объекта
+    bool _isImitate = false;
 protected:
-    QString _nameObject;
+
+    QString _nameObject = QString("--");
 
     //время когда был зарегестрирован объект
     int64_t _ms_tstart = 0;
@@ -46,10 +56,14 @@ public:
     BaseObject(uint64_t id,
                QDateTime tstart,
                double azimuth,
-               double elevation);
+               double elevation,
+               OBJECT_TYPE type = OBJECT_TYPE::base,
+               bool isImit = false);
 
     BaseObject(uint64_t id,
                QDateTime tstart,
+               OBJECT_TYPE type = OBJECT_TYPE::base,
+               bool isImit = false,
                Position geoPosition = Position());
 
     ~BaseObject() override;
@@ -119,6 +133,10 @@ public:
 
     float getAltitude() const override;
     void setAltitude(float altitude) override;
+
+    bool isImitated() override;
+
+    OBJECT_TYPE getTypeObject() override;
 
 signals:
 

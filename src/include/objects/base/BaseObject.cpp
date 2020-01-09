@@ -1,21 +1,14 @@
 #include "BaseObject.h"
 
-
-float BaseObject::getAltitude() const
-{
-    return _altitude;
-}
-
-void BaseObject::setAltitude(float altitude)
-{
-    _altitude = altitude;
-}
-
 BaseObject::BaseObject(uint64_t id,
                        QDateTime tstart,
                        double azimuth,
-                       double elevation):
+                       double elevation,
+                       OBJECT_TYPE type,
+                       bool isImit):
     _id(id),
+    _typeObject(type),
+    _isImitate(isImit),
     _ms_tstart(tstart.toUTC().toMSecsSinceEpoch()),
     _tstart(tstart),
     _ms_tstop(tstart.toUTC().toMSecsSinceEpoch()),
@@ -26,8 +19,14 @@ BaseObject::BaseObject(uint64_t id,
     _uuid = QUuid::createUuid();
 }
 
-BaseObject::BaseObject(uint64_t id, QDateTime tstart, Position geoPosition) :
+BaseObject::BaseObject(uint64_t id,
+                       QDateTime tstart,
+                       OBJECT_TYPE type,
+                       bool isImit,
+                       Position geoPosition) :
     _id(id),
+    _typeObject(type),
+    _isImitate(isImit),
     _ms_tstart(tstart.toUTC().toMSecsSinceEpoch()),
     _tstart(tstart),
     _ms_tstop(tstart.toUTC().toMSecsSinceEpoch()),
@@ -43,7 +42,7 @@ BaseObject::~BaseObject()
 
 QUuid BaseObject::getUuid()
 {
-
+    return  _uuid;
 }
 
 void BaseObject::setId(uint64_t id)
@@ -137,13 +136,11 @@ double BaseObject::getAzimuth() const
     return _azimuth;
 }
 
-//установить угол места
 void BaseObject::setElevation(double elev)
 {
     _elevation = elev;
 }
 
-//получить занчение угла места
 double BaseObject::getElevation() const
 {
     return _elevation;
@@ -234,4 +231,26 @@ void BaseObject::resetObjectData()
     _elevation = 0.0;
     _distance = 0.0;
     _altitude = 0.0;
+    _isImitate = false;
+    _typeObject = OBJECT_TYPE::base;
+}
+
+float BaseObject::getAltitude() const
+{
+    return _altitude;
+}
+
+void BaseObject::setAltitude(float altitude)
+{
+    _altitude = altitude;
+}
+
+bool BaseObject::isImitated()
+{
+    return _isImitate;
+}
+
+OBJECT_TYPE BaseObject::getTypeObject()
+{
+    return  _typeObject;
 }

@@ -996,8 +996,8 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
                                                                   Position()));
         addDebugMsg(QString("Add new aircraft with ICAO : %1\n")
                     .arg(addr,16,16));
-       qDebug()<<QString("Add new aircraft with ICAO : %1\n")
-                 .arg(addr,16,16);
+        qDebug()<<QString("Add new aircraft with ICAO : %1\n")
+                  .arg(addr,16,16);
     }
     else
     {
@@ -1514,15 +1514,12 @@ void Demodulator::interactiveRemoveStaleAircrafts()
     {
         if((now - a->getMSecStop()) > MODES_INTERACTIVE_TTL)
         {
-            _pool->deleteObject(a->getId());
 
-            addDebugMsg(QString("Remove aircraft with ICAO : %1 last update : %2\n")
+            addDebugMsg(QString("Remove aircraft with ICAO : %1 \n last update : %2\n")
                         .arg(a->getId(),16,16)
-                        .arg(QDateTime::fromMSecsSinceEpoch(a->getMSecStop()).toString("hh:mm:ss.zzz")));
+                        .arg(a->getDateTimeStop().toString("hh:mm:ss.zzz")));
 
-            qDebug()<<QString("Remove aircraft with ICAO : %1 last update : %2\n")
-                      .arg(a->getId(),16,16)
-                      .arg(QDateTime::fromMSecsSinceEpoch(a->getMSecStop()).toString("hh:mm:ss.zzz"));
+            _pool->deleteObject(a->getId());
             a.clear();
         }
     }

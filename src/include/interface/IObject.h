@@ -93,6 +93,10 @@ public:
     virtual bool getInUse() = 0;
 
     virtual void resetObjectData() = 0;
+
+    virtual bool isImitated() = 0;
+
+    virtual OBJECT_TYPE getTypeObject() = 0;
 };
 #endif // IOBJECT
 

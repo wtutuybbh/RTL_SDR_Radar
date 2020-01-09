@@ -12,7 +12,7 @@ class IPoolObject;
 class IMapController;
 class ICarrierClass;
 class IObject;
-class QGraphicsObject;
+class GraphicsObject;
 
 class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
         public IObserver
@@ -62,7 +62,7 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
 
     ///< вектор для хранения пеленгов объектов,которые не попадают в масштаб карты
     QVector<double > _vHiddenObject;
-    QHash<QUuid,QGraphicsObject* > _hashTable;
+    QHash<QUuid,GraphicsObject* > _hashTable;
     /*!
      * \brief initWidget инициализация виджета для отображения карты и РТО объектов
      * \param size - размер сцены. \warning ширина == высоте
@@ -115,13 +115,14 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
      * \param object
      * \return
      */
-    QGraphicsObject* getGraphicsItem(QSharedPointer<IObject> &object);
+    GraphicsObject *getGraphicsItem(QSharedPointer<IObject> &object);
 
     bool needUpdateGraphicsObject(QSharedPointer<IObject> &object,
-                                  QGraphicsObject *graphItem);
+                                  GraphicsObject *graphItem);
 
-    void updatePositionOnScene(QSharedPointer<IObject> &object,
-                               QGraphicsObject* graphItem);
+    void updatePositionOnScene(GraphicsObject* graphItem);
+
+    void drawRadarSector(QPainter *painter);
 
 public:
     /*!
@@ -167,11 +168,11 @@ protected:
      * \param isDraw - true - рисовать карту, false - черный квадрат
      */
     virtual void drawMap(QPainter *painter, bool isDraw = true);
-//    /*!
-//     * \brief resizeEvent - изменнение размера виджета
-//     * \param event - событие изменение размера
-//     */
-//    void resizeEvent(QResizeEvent *event) override;
+    /*!
+     * \brief resizeEvent - изменнение размера виджета
+     * \param event - событие изменение размера
+     */
+    void resizeEvent(QResizeEvent *event) override;
     /*!
      * \brief drawDotCicleWithLabel - отрисовка лимба с метками
      * \param p - указатель на класс для отрисовки
@@ -229,6 +230,8 @@ protected:
      */
 
     virtual void printMapScale(QPainter *p);
+
+    virtual void printCountObject(QPainter *p);
 
     virtual void updateObjectOnScene(QSharedPointer<IObject> &object);
     /*!

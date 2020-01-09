@@ -1,22 +1,25 @@
 #include "GraphicsObject.h"
 
-GraphicsObject::GraphicsObject()
+GraphicsObject::GraphicsObject(OBJECT_TYPE type, bool imit) :
+    _isImit(imit)
 {
     //перемещаем в необходимую точку
     setPos(_screenPos);
+
     //загружаем иконку
-    loadPixmap();
+    loadPixmap(type,imit);
 }
 
 GraphicsObject::~GraphicsObject()
 {
-
+    qDebug()<<"GraphicsObject delete";
 }
 
 void GraphicsObject::setRotateAngle(float rta)
 {
     _rtAngle = rta;
 }
+
 
 
 QRectF GraphicsObject::boundingRect() const
@@ -36,32 +39,68 @@ void GraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
     painter->save();
 
-    painter->rotate(_rtAngle + 90);
+    QFont font = painter->font();
+    int captionWidth = QFontMetrics(font.family()).width(_text);
+    int captionHeight = QFontMetrics(font.family()).height() + 2;
+
+
+    QRectF rect(boundingRect().width()/2 - captionWidth/2,
+                boundingRect().top() - QFontMetrics(font.family()).height(),
+                captionWidth,
+                captionHeight);
+
+    painter->drawText(rect, Qt::AlignCenter, _text);
+
+    if(!_isImit)
+        painter->rotate(_rtAngle - 90);
 
     painter->drawPixmap(boundingRect().x(),boundingRect().y(),_pixmapIcon);
+
+
     painter->restore();
-
-    //    //выбран
-    //    if(_isSelect)
-    //    {
-    //        painter->setPen(QPen(QBrush(QColor(250,0,0)),
-    //                             2,
-    //                             Qt::DashDotLine));
-
-    //        painter->drawEllipse(boundingRect().center(),
-    //                             boundingRect().left()-1,
-    //                             boundingRect().top()-1);
-    //    }
 }
 
 
 
-void GraphicsObject::loadPixmap()
+bool GraphicsObject::getNeedDelete() const
+{
+    return needDelete;
+}
+
+void GraphicsObject::setNeedDelete(bool value)
+{
+    needDelete = value;
+}
+
+float GraphicsObject::getAzimuth() const
+{
+    return _azim;
+}
+
+void GraphicsObject::setAzimuth(double azim)
+{
+    _azim = azim;
+}
+
+void GraphicsObject::setText(const QString &text)
+{
+    _text = text;
+}
+
+void GraphicsObject::loadPixmap(OBJECT_TYPE type, bool isImit)
 {
     _pixmapIcon = QPixmap(_sizeIcon);
     _pixmapIcon.fill(Qt::transparent);
-    _pixmapIcon.load(QString(":/icon/target/air.png"));
-    _pixmapIcon = _pixmapIcon.scaled(_sizeIcon);
+
+    if(type == OBJECT_TYPE::air && !isImit )
+    {
+        _pixmapIcon.load(QString(":/icon/target/air.png"));
+    }
+    if(type == OBJECT_TYPE::base || isImit)
+    {
+        drawObjectIcon(isImit);
+    }
+    _sizeIcon = _pixmapIcon.size();
 }
 
 
@@ -82,4 +121,38 @@ QVariant GraphicsObject::itemChange(GraphicsItemChange change, const QVariant &v
         }
     }
     return QGraphicsItem::itemChange(change, value);
+}
+
+
+void GraphicsObject::drawObjectIcon(bool imit)
+{
+    //qDebug()<<"GraphicsObject::drawObjectIcon()";
+
+    QPainter p(&_pixmapIcon);
+    p.setRenderHint(QPainter::Antialiasing);
+
+    qreal cX = _pixmapIcon.width() / 2;
+    qreal cY = _pixmapIcon.width() / 2;
+    qreal rad = _pixmapIcon.width() / 2;
+
+    p.setPen(QPen(QBrush(_colorIcon), 2));
+
+    QVector<QPointF> ln;
+
+    ln.append(QPointF(cX, cY - rad));
+    ln.append(QPointF(cX - rad, cY));
+
+    ln.append(QPointF(cX - rad, cY));
+    ln.append(QPointF(cX , cY + rad));
+
+    ln.append(QPointF(cX ,cY + rad));
+    ln.append(QPointF(cX + rad, cY));
+
+    ln.append(QPointF(cX + rad ,cY));
+    ln.append(QPointF(cX, cY - rad));
+
+    p.drawLines(ln);
+
+    p.drawPoint(QPointF(cX, cY));
+
 }

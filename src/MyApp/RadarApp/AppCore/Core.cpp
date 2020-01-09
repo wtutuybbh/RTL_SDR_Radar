@@ -54,6 +54,8 @@ Core::~Core()
 
 void Core::init()
 {  
+    ServiceLocator::provide(QSharedPointer<ICarrierClass>( new NullCarrier()) );
+
     _logger = QSharedPointer<ILogger>(new Logger(sizeLog));
     _device = QSharedPointer<IReciverDevice>(new RTL_SDR_Reciver());
     _device->setLogger(_logger);
@@ -62,6 +64,8 @@ void Core::init()
 
     _poolObjects = QSharedPointer<IPoolObject>(new PoolObject(OBJECT_TYPE::air));
 
+    addImitObject();
+
     _demodulator = QSharedPointer<IDemodulator>(new Demodulator(_poolObjects));
     _demodulator->setLogger(_logger);
 
@@ -69,7 +73,7 @@ void Core::init()
                                                                          _demodulator));
     _dataController->run();
 
-    ServiceLocator::provide(QSharedPointer<ICarrierClass>( new NullCarrier()) );
+
     _subject = QSharedPointer<ISubject>(new Subject());
 
     _mainWindow  = new MainWindow();
@@ -103,13 +107,14 @@ void Core::slotUpdateWidgets()
 
     if(_poolObjects->tryLockPool())
     {
+        if(!_device.isNull() && (_mainWindow != nullptr))
+            _mainWindow->setReciverDeviceState(_device->isOpenDevice());
+
         updateGeoPositionInfo();
         _subject->Notify(_poolObjects);
+
         _poolObjects->unlockPool();
     }
-
-    if(!_device.isNull() && (_mainWindow != nullptr))
-        _mainWindow->setReciverDeviceState(_device->isOpenDevice());
 }
 
 
@@ -119,7 +124,14 @@ void Core::updateGeoPositionInfo()
     {
         if(!iter.isNull() && iter->isValidGeoCoord())
         {
-
+            if(iter->isImitated())
+            {
+                static uint16_t azim = 0;
+                iter->setGeoCoord(Conversions::getPlace(ServiceLocator::getCarrier()->getGeoCoord(),++azim,20000 + (qrand()%100)*10));
+                if(iter->getId() == 2 || iter->getId() == 5)
+                    iter->setDateTimeStop(QDateTime::currentDateTime());
+                azim %= 360;
+            }
             iter->setAzimuth(Conversions::LBToPeleng(ServiceLocator::getCarrier()->getGeoCoord(),
                                                      iter->getGeoCoord()));
 
@@ -128,3 +140,23 @@ void Core::updateGeoPositionInfo()
         }
     }
 }
+
+void Core::addImitObject()
+{
+    _poolObjects->lockPool();
+
+    for (int i = 1; i < 10; i++)
+    {
+        auto object = _poolObjects->createNewObject(i,
+                                                    QDateTime::currentDateTime(),
+                                                    Conversions::getPlace(ServiceLocator::getCarrier()->getGeoCoord(),
+                                                                          (qrand()*10) % 360,
+                                                                          20000 + qrand()*1000),
+                                                    true);
+        object->setObjectName("ImitObject"+i);
+    }
+    _poolObjects->unlockPool();
+
+}
+
+

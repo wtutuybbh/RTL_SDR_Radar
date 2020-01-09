@@ -18,11 +18,13 @@ public:
      * \param id - уникальный id
      * \param reg_time - время регистрации
      * \param geoPosition - геокоординаты если есть
+     * \param isImit - создание ими
      * \return указатель на новый объект
      */
     virtual QSharedPointer<IObject> createNewObject(uint64_t id,
                                                     QDateTime reg_time,
-                                                    Position geoPosition = Position()) = 0;
+                                                    Position geoPosition = Position(),
+                                                    bool isImit = false) = 0;
     /*!
      * \brief values получение списка указателей на существующие объекты.
      * Объекты которые помечены, как неактулаьные выведены не будут.

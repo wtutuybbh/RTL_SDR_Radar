@@ -22,7 +22,8 @@ PoolObject::~PoolObject()
 
 QSharedPointer<IObject> PoolObject::createNewObject(uint64_t id,
                                                     QDateTime reg_time,
-                                                    Position geoPosition)
+                                                    Position geoPosition,
+                                                    bool isImit)
 {
     if(id == 0)
         return  QSharedPointer<IObject>();
@@ -49,6 +50,7 @@ QSharedPointer<IObject> PoolObject::createNewObject(uint64_t id,
             object = QSharedPointer<IObject>(_factory.createObject(_type,
                                                                 id,
                                                                 reg_time,
+                                                                isImit,
                                                                 geoPosition));
     }
     else

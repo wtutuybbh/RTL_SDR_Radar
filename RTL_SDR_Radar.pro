@@ -6,6 +6,7 @@ SUBDIRS += \
     src/MyApp/RadarApp \
     src/MyApp/RaspberryApp \
     #tests/TestServer
-    tests/PoolObjectsTest
+    tests/PoolObjectsTest \
+    tests/ImitObjectsTest
 
 CONFIG += ordered

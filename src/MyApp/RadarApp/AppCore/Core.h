@@ -27,7 +27,7 @@ class Core : public QObject
     int32_t TIMEOUT = 1000;
     int32_t TIMEOUT_UPDATE = 1000;
 
-    uint32_t SIZE_WIDGET = 600;
+    uint32_t SIZE_WIDGET = 700;
     int sizeLog = 1000;
 
     QTimer _timerUpdateWidgets;
@@ -45,6 +45,8 @@ class Core : public QObject
     QSharedPointer<ILogger> _logger = nullptr;
 
     void updateGeoPositionInfo();
+
+    void addImitObject();
 public:
     explicit Core(QObject *parent = nullptr);
     ~Core();

@@ -27,7 +27,6 @@ MainWindow::~MainWindow()
 void MainWindow::addGraphicsWidget(GraphicsWidget* widget)
 {
     ui->vrlRadar->addWidget(widget);
-    widget->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Preferred);
 }
 
 void MainWindow::addTableWidget(QWidget *widget)

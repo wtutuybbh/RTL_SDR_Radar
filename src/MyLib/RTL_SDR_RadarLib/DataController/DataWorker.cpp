@@ -48,12 +48,15 @@ bool DataWorker::processData()
 {
     if(_device.isNull())
     {
-        usleep(1000);
+        sleep(1);
         return false;
     }
 
     if(!_device->isOpenDevice())
+    {
+        sleep(1);
         return  _device->openDevice();
+    }
 
     const uint8_t* ptrData = _device->getDataBlockPtr(size_t(MODES_DATA_LEN));
 
