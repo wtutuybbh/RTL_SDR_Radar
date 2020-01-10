@@ -46,11 +46,18 @@ void DataWorker::exec()
 
 bool DataWorker::processData()
 {
-    if(_device.isNull() || !_device->isOpenDevice())
+    if(_device.isNull())
     {
-        usleep(1000);
+        sleep(1);
         return false;
     }
+
+    if(!_device->isOpenDevice())
+    {
+        sleep(1);
+        return  _device->openDevice();
+    }
+
     const uint8_t* ptrData = _device->getDataBlockPtr(size_t(MODES_DATA_LEN));
 
     if(ptrData == nullptr)
@@ -79,7 +86,6 @@ bool DataWorker::processData()
     {
         _dsp->makeAll(_dataVector);
     }
-    _mutex.unlock();
 
     QThreadPool::globalInstance()->waitForDone();
     return true;

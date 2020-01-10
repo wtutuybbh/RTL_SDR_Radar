@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += gui network
+QT       += gui network widgets
 
 TARGET = DataController
 TEMPLATE = lib
@@ -39,7 +39,6 @@ HEADERS += \
     ../../../include/interface/IDemodulator.h \
     DataWorker.h \
     ../../../include/dsp/SrcDataAdc.h \
-    ../../../include/interface/IDataFIFO.h \
     ../../../include/dsp/IDSP.h
 
 unix {

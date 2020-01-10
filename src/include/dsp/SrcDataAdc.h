@@ -5,6 +5,12 @@
 #include <QVector>
 #include <complex.h>
 
+/*!
+ * \brief The Carrier class
+ *  Структура блока данных
+ * \author Данильченко Артём
+ */
+
 struct SrcDataAdc
 {
     QVector<std::complex<int8_t>> rawDataVector;

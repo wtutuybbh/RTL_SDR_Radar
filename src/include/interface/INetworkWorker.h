@@ -5,7 +5,11 @@
 
 class IPackageController;
 class ILogger;
-
+/*!
+ * \brief The INetworkWorker class
+ * Интерфейс класса для реализации сетевого взаимодействия
+ * \author Данильченко Артём
+ */
 class INetworkWorker: public QObject
 {
     Q_OBJECT

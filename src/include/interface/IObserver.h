@@ -1,16 +1,20 @@
 #ifndef IOBSERVER
 #define IOBSERVER
-#include <sys/types.h>
+#include <QSharedPointer>
+#include <stdint.h>
 
 class Subject;
+class IPoolObject;
+class ISubject;
 
 class  IObserver
 {
 public:
     virtual ~IObserver(){}
-    virtual void update(Subject* sub) = 0;
-    virtual void unsubscribe() = 0;
-    u_int64_t getObserverId() {return (u_int64_t)this;}
+    virtual void subscribe(QSharedPointer<ISubject> subject ) = 0;
+    virtual void update(QSharedPointer<IPoolObject> pool ) = 0;
+    virtual void unsubscribe(QSharedPointer<ISubject> subject) = 0;
+    u_int64_t getObserverId() { return u_int64_t(this); }
 protected:
     IObserver(){}
 };

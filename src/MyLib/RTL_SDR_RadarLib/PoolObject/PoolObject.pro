@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += gui sql widgets
+QT       += gui
 
 TARGET = PoolObject
 TEMPLATE = lib
@@ -12,21 +12,23 @@ TEMPLATE = lib
 DEFINES += POOLOBJECT_LIBRARY
 
 SOURCES += PoolObject.cpp \
-    GraphicsObject.cpp \
-    AirObject.cpp \
     ../../../include/coord/Position.cpp \
-    ../../../include/coord/Conversions.cpp
+    ../../../include/coord/Conversions.cpp \
+    factory/FactoryObjects.cpp \
+    ../../../include/objects/base/BaseObject.cpp \
+    ../../../include/objects/air/Aircraft.cpp
 
 HEADERS += PoolObject.h\
         poolobject_global.h \
     ../../../include/interface/IObject.h \
     ../../../include/interface/ILogger.h \
     ../../../include/interface/IPoolObject.h \
-    GraphicsObject.h \
-    AirObject.h \
     ../../../include/coord/Position.h \
-    ../../../include/coord/Conversions.h
-
+    ../../../include/coord/Conversions.h \
+    factory/FactoryObjects.h \
+    ../../../include/objects/base/BaseObject.h \
+    ../../../include/objects/air/Aircraft.h \
+    ../../../include/objects/air/StructAircraft.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

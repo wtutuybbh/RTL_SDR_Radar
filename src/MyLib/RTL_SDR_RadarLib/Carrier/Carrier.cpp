@@ -1,6 +1,10 @@
 #include "Carrier.h"
 #include <QDebug>
 
+#include "NavigationSystem.h"
+#include "NullCarrier.h"
+#include "NullNavigationSystem.h"
+
 Carrier::Carrier(bool isNavigation)
 {
     qDebug()<<"create carrier";
@@ -44,7 +48,3 @@ double Carrier::getSpeed()
     return 0.0;
 }
 
-const QSharedPointer<INavigationSystem> Carrier::getNavigationSystemMain()
-{
-    return _ptrNavigation;
-}

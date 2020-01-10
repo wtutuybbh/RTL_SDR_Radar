@@ -1,6 +1,5 @@
 #include "DataController.h"
 
-//#include "DataWorker.h"
 #include "DataWorkerNetSender.h"
 
 DataController::DataController(QSharedPointer<IReciverDevice> dev,

@@ -8,27 +8,29 @@
 #include <QMutex>
 
 #include "interface/IPoolObject.h"
-#include "AirObject.h"
-#include "../Subject/Subject.h"
+#include "factory/FactoryObjects.h"
 
-class POOLOBJECTSHARED_EXPORT PoolObject : public IPoolObject, public Subject
+
+class POOLOBJECTSHARED_EXPORT PoolObject : public IPoolObject
 {
     pHash _container;
-    int32_t _timeActualData = 12000;
     QMutex _mutex;
-
+    FactoryObjects _factory;
+    OBJECT_TYPE _type = OBJECT_TYPE::base;
 public:
-    explicit PoolObject();
+    explicit PoolObject(OBJECT_TYPE type);
     ~PoolObject() override;
-    QSharedPointer<IObject> createNewObject(OBJECT_TYPE type,
-                                            uint64_t id,
-                                            QDateTime tstart,
-                                            QDateTime tstop,
-                                            double azimuth,
-                                            double elevation) override;
+
+    QSharedPointer<IObject> createNewObject(uint64_t id,
+                                            QDateTime reg_time,
+                                            Position geoPosition = Position(),
+                                            bool isImit = false) override;
 
     QList<QSharedPointer<IObject> > values() override;
 
+    QList<QSharedPointer<IObject> > allValues() override;
+
+    int getObjectsCount()  override;
 
     bool isExistsObject(uint64_t id) override;
     QSharedPointer<IObject> getObjectByID(uint64_t id) override;
@@ -38,7 +40,7 @@ public:
     void deleteObject(uint64_t id) override;
 
     void lockPool() override { _mutex.lock(); }
-    bool tryLockPool() override { return _mutex.tryLock(2);}
+    bool tryLockPool() override { return _mutex.tryLock(5);}
     void unlockPool() override { _mutex.unlock(); }
 };
 

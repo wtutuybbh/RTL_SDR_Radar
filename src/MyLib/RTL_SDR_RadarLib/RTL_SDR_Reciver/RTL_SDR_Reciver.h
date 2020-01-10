@@ -24,12 +24,14 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/select.h>
+#include <QMutexLocker>
 
 #include "sdr_dev/include/rtl-sdr.h"
 #include "sdr_dev/include/constant.h"
 
 #include "interface/IReciverDevice.h"
 #include "interface/ILogger.h"
+
 
 class RTL_SDR_RECIVERSHARED_EXPORT RTL_SDR_Reciver : public IReciverDevice
 {
@@ -47,6 +49,7 @@ class RTL_SDR_RECIVERSHARED_EXPORT RTL_SDR_Reciver : public IReciverDevice
     rtlsdr_dev_t *_dev;
     QSharedPointer<ILogger> _loger;
 
+    QMutex _mutex;
 public:
 
     RTL_SDR_Reciver();

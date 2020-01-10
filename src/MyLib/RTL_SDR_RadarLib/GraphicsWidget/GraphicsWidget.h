@@ -2,31 +2,23 @@
 #define GRAPHICSWIDGET_H
 
 #include "graphicswidget_global.h"
-
 #include <QGraphicsView>
-#include <QGraphicsItem>
-#include <QDebug>
-#include <QThread>
-#include <QGLWidget>
-#include <QResizeEvent>
-#include <QMouseEvent>
 #include <QTimer>
-#include <math.h>
+#include <QUuid>
 
-#include "interface/IPoolObject.h"
-#include "interface/IObject.h"
-#include "../Subject/Subject.h"
-#include "implements/MapController.h"
-#include "coord/Position.h"
-#include "../Carrier/ServiceLocator.h"
+#include "interface/IObserver.h"
 
+class IPoolObject;
+class IMapController;
+class ICarrierClass;
+class IObject;
+class GraphicsObject;
 
 class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
         public IObserver
 {
     Q_OBJECT
-    ///< пул РТО объектов
-    QSharedPointer<IPoolObject> _ptrPoolObject = nullptr;
+
     ///< контроллер карты
     QSharedPointer<IMapController> _ptrMapController = nullptr;
     ///< класс носителя приемниак rtl-sdr
@@ -34,7 +26,7 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
 
     ///< обновление сцены
     QTimer _timer;
-    uint32_t TIMEOUT = 25;
+    int32_t TIMEOUT = 25;
 
     QGraphicsScene * _scene = nullptr;
     QConicalGradient gradient;
@@ -56,7 +48,7 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
     uint16_t _sectorSize = 45;
     bool _updateInSector = true;
 
-    const double _textBorder = 28;
+    const int _textBorder = 28;
 
     ///< константы для палитры
     const QColor _clrTron       = QColor(0xAA,0xCF,0xD1);
@@ -70,7 +62,7 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
 
     ///< вектор для хранения пеленгов объектов,которые не попадают в масштаб карты
     QVector<double > _vHiddenObject;
-
+    QHash<QUuid,GraphicsObject* > _hashTable;
     /*!
      * \brief initWidget инициализация виджета для отображения карты и РТО объектов
      * \param size - размер сцены. \warning ширина == высоте
@@ -116,15 +108,29 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
      * \return координаты центра сцены
      */
     QPointF getSceneCenterPont();
+
+    /*!
+     * \brief getGraphicsItem получение графического элемента сцены,
+     * связанного с объектом из пула
+     * \param object
+     * \return
+     */
+    GraphicsObject *getGraphicsItem(QSharedPointer<IObject> &object);
+
+    bool needUpdateGraphicsObject(QSharedPointer<IObject> &object,
+                                  GraphicsObject *graphItem);
+
+    void updatePositionOnScene(GraphicsObject* graphItem);
+
+    void drawRadarSector(QPainter *painter);
+
 public:
     /*!
      * \brief GraphicsWidget конструктор класса для отображения карты и объектов
-     * \param widthRect - размер квадрата виджета
-     * \param poolObject - указатель на пул объектов, которые необходимо отображать
+     * \param widthRect - размер  виджета
      * \param parent - родительский класс
      */
-    explicit GraphicsWidget(uint32_t widthRect = 600,
-                            QSharedPointer<IPoolObject> poolObject = QSharedPointer<IPoolObject>(),
+    explicit GraphicsWidget(uint32_t widgetRectSize = 600,
                             QWidget *parent = 0);
     ~GraphicsWidget() override;
 
@@ -139,18 +145,20 @@ public:
 
     /*! \brief поддержка паттерна Observer */
     /*!
-     * \brief subscribe - подписка на события обновления пула объектов
+     * \brief subscribe - подписка на события обновления
      * \param poolObject - указатель на пул объектов
      */
-    void subscribe(QSharedPointer<IPoolObject> poolObject);
+    void subscribe(QSharedPointer<ISubject> subject) override;
+
     /*!
      * \brief unsubscribe - отписаться от событий обновления пула объектов
      */
-    void unsubscribe() override;
+     void unsubscribe(QSharedPointer<ISubject>)override;
+
     /*!
      * \brief update - событие обновления пула объектов
      */
-    void update(Subject* sub) override;
+    void update(QSharedPointer<IPoolObject> pool) override;
 
 protected:
     /*!
@@ -223,6 +231,8 @@ protected:
 
     virtual void printMapScale(QPainter *p);
 
+    virtual void printCountObject(QPainter *p);
+
     virtual void updateObjectOnScene(QSharedPointer<IObject> &object);
     /*!
      * \brief recalculateCoordObjects - перерасчёт координат объекта на сцене
@@ -236,6 +246,8 @@ protected:
      * \return QStringList параметров для вывода в таблицу
      */
     virtual QStringList getDataForTable(IObject *object);
+
+    void drawCursorText(QPainter *p);
 
 private slots:
     /*!
@@ -257,7 +269,7 @@ public slots:
      * \brief slotUpdateData - слот обновления данных
      * с захватом блокировки на пуле объектов
      */
-    void slotUpdateData();
+    void slotUpdateData(QSharedPointer<IPoolObject> pool);
 signals:
     /*!
      * \brief signalDataToTable - сигнал передачи параметров текущего,

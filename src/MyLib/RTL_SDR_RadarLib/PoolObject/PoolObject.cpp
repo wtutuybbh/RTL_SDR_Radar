@@ -1,11 +1,12 @@
 #include "PoolObject.h"
 
 
-PoolObject::PoolObject():
+PoolObject::PoolObject(OBJECT_TYPE type):
     _container(pHash(new QHash<uint64_t,
-                     QSharedPointer<IObject>> ()))
+                     QSharedPointer<IObject>> ())),
+    _type(type)
 {
-
+    qDebug()<<"PoolObject() -> create";
 }
 
 PoolObject::~PoolObject()
@@ -19,64 +20,95 @@ PoolObject::~PoolObject()
 }
 
 
-QSharedPointer<IObject> PoolObject::createNewObject(OBJECT_TYPE type,
-                                                    uint64_t id,
-                                                    QDateTime tstart,
-                                                    QDateTime tstop,
-                                                    double azimuth,
-                                                    double elevation)
+QSharedPointer<IObject> PoolObject::createNewObject(uint64_t id,
+                                                    QDateTime reg_time,
+                                                    Position geoPosition,
+                                                    bool isImit)
 {
-    int64_t t_id = -1;
-    for(auto &iter:_container->values())
-        if(!iter->getInUse())
-        {
-            t_id = _container->key(iter);
-            break;
-        }
+    if(id == 0)
+        return  QSharedPointer<IObject>();
 
-    QSharedPointer<IObject> rto;
-    if(t_id == -1)
+    uint64_t t_id = 0;
+    QSharedPointer<IObject> object = {nullptr};
+    if(!_container->contains(id))
     {
-        if(type == OBJECT_TYPE::air)
-            rto = QSharedPointer<IObject>(new AirObject(
-                                              //id
-                                              id,
-                                              //время регистрации
-                                              tstart,
-                                              //время последнего обновления
-                                              tstop,
-                                              //азимут
-                                              azimuth,
-                                              //угол места
-                                              elevation
-                                            ));
+        for(auto &iter:_container->values())
+        {
+            if(!iter->getInUse())
+            {
+                t_id = _container->key(iter);
+                object = _container->take(t_id);
+                break;
+            }
+        }
+    }
+    else
+        object = _container->value(id);
+
+    if(object.isNull())
+    {
+            object = QSharedPointer<IObject>(_factory.createObject(_type,
+                                                                id,
+                                                                reg_time,
+                                                                isImit,
+                                                                geoPosition));
     }
     else
     {
-        rto = _container->take(t_id);
-        rto->setId(id);
+        if(object->getInUse())
+            object->resetObjectData();
+
+        object->setId(id);
+        object->setObjectState(OBJECT_STATE::NEW_OBJECT);
+        object->setDateTimeStart(reg_time);
+        object->setDateTimeStop(reg_time);
+        object->setGeoCoord(geoPosition);
     }
 
-    if(!rto.isNull())
-        _container->insert(id,rto);
+    if(!object.isNull())
+        _container->insert(id,object);
 
-    return rto;
+   return object;
 }
 
-
 QList<QSharedPointer<IObject> > PoolObject::values()
+{
+    QList<QSharedPointer<IObject> > list;
+    for(auto & obj : _container->values())
+    {
+        if(obj->getInUse() && (obj->getId() != 0))
+            list.append(obj);
+    }
+    return list;
+}
+
+QList<QSharedPointer<IObject> > PoolObject::allValues()
 {
     return _container->values();
 }
 
+int PoolObject::getObjectsCount()
+{
+    int counter = 0;
+    for(auto & obj : _container->values())
+    {
+        if(obj->getInUse() && (obj->getId() != 0))
+           ++counter;
+    }
+    return counter;
+}
+
 bool PoolObject::isExistsObject(uint64_t id)
 {
-    return _container->contains(id);
+    return (_container->contains(id) &&_container->value(id)->getInUse());
 }
 
 QSharedPointer<IObject> PoolObject::getObjectByID(uint64_t id)
 {
-    return _container->value(id);
+    if(_container->contains(id) && _container->value(id)->getInUse())
+        return _container->value(id);
+    else
+      return QSharedPointer<IObject>();
 }
 
 

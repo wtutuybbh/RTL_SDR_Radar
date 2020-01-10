@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QDebug>
 #include "Core.h"
+#include <QFile>
 
 #include "../MyLib/RTL_SDR_RadarLib/PoolObject/PoolObject.h"
 #include "../MyLib/RTL_SDR_RadarLib/Logger/Logger.h"
@@ -78,7 +79,6 @@ void Core::slotTimeout()
 
     }
     _mainWindow.setOpenDevState((_device != nullptr) ? _device->isOpenDevice() : false);
-
 }
 
 

@@ -6,6 +6,12 @@
 #include "interface/INetworkWorker.h"
 #include "interface/ILogger.h"
 
+/*!
+ * \brief The NetworkWorker class
+ * Реализация интерфейса сетевого взаимодействия
+ * \author Данильченко Артём
+ */
+
 class NetworkWorker : public INetworkWorker
 {
     Q_OBJECT
@@ -23,8 +29,14 @@ public:
                   uint16_t port);
 
     ~NetworkWorker() override;
-
+    /*!
+     * \brief setLogger - внедрение зависимости модуля логгирования
+     */
     void setLogger(ILogger* log) override { _log = log; }
+    /*!
+     * \brief setController - внедрение зависимости модуля
+     * формирования сетевых пакетов
+     */
     void setController(IPackageController* ctrl) override { _pkgCtrl = ctrl; }
 
 

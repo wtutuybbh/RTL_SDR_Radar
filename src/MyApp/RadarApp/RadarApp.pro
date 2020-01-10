@@ -27,15 +27,22 @@ include( ../../../app.pri )
 
 SOURCES += \
         main.cpp \
-        MainWindow.cpp \
-    Core.cpp
+        gui/MainWindow.cpp \
+    AppCore/Core.cpp \
+    AppCore/publisher/Subject.cpp \
+    gui/TableForm.cpp \
+    ../../include/coord/Conversions.cpp
 
 HEADERS += \
-        MainWindow.h \
-    Core.h
+        gui/MainWindow.h \
+    AppCore/Core.h \
+    AppCore/publisher/Subject.h \
+    gui/TableForm.h \
+    ../../include/coord/Conversions.h
 
 FORMS += \
-        MainWindow.ui
+        gui/MainWindow.ui \
+    gui/TableForm.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -50,9 +57,9 @@ DISTFILES += \
 
 LIBS += -lLogger \
         -lPoolObject \
-        -lSubject \
         -lGraphicsWidget \
         -lCarrier \
         -lDataController \
         -lRTL_SDR_Reciver \
-        -lDemodulator
+        -lDemodulator \
+        -lModelTable

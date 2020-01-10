@@ -4,6 +4,13 @@
 #include "DataWorker.h"
 #include <memory>
 
+/*!
+ * \brief The DataWorkerNetSender class
+ * Реализация интерфейса получения и обработки данных от приемника
+ * с возможностью отправки данных на сервер сбора информации
+ * \author Данильченко Артём
+ */
+
 class DataWorkerNetSender : public DataWorker
 {
     std::unique_ptr<INetworkWorker> _net;
@@ -17,6 +24,14 @@ class DataWorkerNetSender : public DataWorker
     int64_t _sendInterval = SEND_INTERVAL;
 
 public:
+    /*!
+     * \brief DataWorkerNetSender конструктор
+     * \param dev - модуль работы с приемником
+     * \param dem - модуль демодуляции
+     * \param ip - ip сервера
+     * \param port  порт сервера
+     * \param dataSize размер данных для чтения с приемника
+     */
     DataWorkerNetSender(QSharedPointer<IReciverDevice> dev,
                   QSharedPointer<IDemodulator> dem,
                   const QString& ip,
@@ -25,6 +40,9 @@ public:
     ~DataWorkerNetSender() override;
 
 public slots:
+    /*!
+    * \brief exec запуск цикла получения и обработки данных
+    */
     void exec() override;
 };
 

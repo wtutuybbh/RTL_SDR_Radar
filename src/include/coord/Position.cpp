@@ -7,7 +7,7 @@
 
 Position::Position()
 {
-    _lonLat = QPointF(0.0,0.0);
+    _lonLat = QPointF(-200.0,-200.0);
     _altitude = 0;
 }
 

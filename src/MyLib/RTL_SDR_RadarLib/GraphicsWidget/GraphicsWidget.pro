@@ -16,7 +16,8 @@ SOURCES += GraphicsWidget.cpp \
     implements/MapController.cpp \
     ../../../../import/osm/MapGraphicsNetwork.cpp \
     ../../../../import/osm/MapTileSource.cpp \
-    ../../../../import/osm/OSMTileSource.cpp
+    ../../../../import/osm/OSMTileSource.cpp \
+    objects/GraphicsObject.cpp
 
 HEADERS += GraphicsWidget.h\
         graphicswidget_global.h \
@@ -25,7 +26,11 @@ HEADERS += GraphicsWidget.h\
     implements/MapController.h \
     ../../../../import/osm/MapGraphicsNetwork.h \
     ../../../../import/osm/MapTileSource.h \
-    ../../../../import/osm/OSMTileSource.h
+    ../../../../import/osm/OSMTileSource.h \
+    ../../../include/interface/IObserver.h \
+    ../../../include/interface/ISubject.h \
+    objects/GraphicsObject.h \
+    ../../../include/interface/IObject.h
 
 unix {
     target.path = /usr/lib
@@ -36,5 +41,4 @@ include( ../../../../common.pri )
 include( ../../../../lib.pri )
 
 
-LIBS += -lSubject \
-        -lCarrier
+LIBS += -lCarrier

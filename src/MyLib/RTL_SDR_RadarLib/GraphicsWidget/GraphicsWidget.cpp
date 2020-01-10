@@ -1,12 +1,23 @@
-#include "GraphicsWidget.h"
+#include <QGraphicsItem>
+#include <QDebug>
+#include <QThread>
+#include <QGLWidget>
+#include <QResizeEvent>
+#include <QMouseEvent>
+#include <math.h>
 
+#include "GraphicsWidget.h"
+#include "interface/IPoolObject.h"
+#include "interface/ISubject.h"
+#include "implements/MapController.h"
+#include "coord/Position.h"
+#include "../Carrier/ServiceLocator.h"
+#include "objects/GraphicsObject.h"
 
 GraphicsWidget::GraphicsWidget(uint32_t widthRect,
-                               QSharedPointer<IPoolObject> poolObject,
                                QWidget *parent):
     QGraphicsView(parent)
 {
-    subscribe(poolObject);
 
     initWidget(QRect(0,0,widthRect,widthRect),true);
     initCursors();
@@ -19,8 +30,12 @@ GraphicsWidget::GraphicsWidget(uint32_t widthRect,
     _ptrCarrier = ServiceLocator::getCarrier();
 
     //обновление сектора
-    connect(&_timer,&QTimer::timeout,this,&GraphicsWidget::timeout);
-    _timer.start(TIMEOUT);
+    connect(&_timer, &QTimer::timeout, this, &GraphicsWidget::timeout);
+
+    if(_updateInSector)
+        _timer.start(TIMEOUT);
+
+    setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
 }
 
 GraphicsWidget::~GraphicsWidget()
@@ -35,34 +50,29 @@ GraphicsWidget::~GraphicsWidget()
     delete _scene;
     _scene = nullptr;
     qDebug()<<"~GraphicsWidget() -> clear and delete scene";
-
-    unsubscribe();
 }
 
-void GraphicsWidget::subscribe(QSharedPointer<IPoolObject> poolObject)
+void GraphicsWidget::subscribe(QSharedPointer<ISubject> subject)
 {
-    if(poolObject.isNull())
+    if(subject.isNull())
     {
-        qDebug()<<" MainWindow::setPoolObjectAndSubscribe -> try subscribe nullptr";
+        qDebug()<<"[GraphicsWidget::subscribe] : try subscribe nullptr";
         return;
     }
 
-    _ptrPoolObject = poolObject;
-
-    Subject* sbj = dynamic_cast<Subject*>(_ptrPoolObject.data());
-
-    if(sbj)
-        sbj->Attach(this);
+    subject->Attach(this);
 }
 
-void GraphicsWidget::unsubscribe()
+
+
+void GraphicsWidget::unsubscribe(QSharedPointer<ISubject> subject)
 {
     qDebug()<<"unsubscribe GraphicsWidget";
-    Subject* sbj = dynamic_cast<Subject*>(_ptrPoolObject.data());
-    if(sbj)
-        sbj->Deatach(this);
-    sbj = nullptr;
-    _ptrPoolObject.clear();
+
+    if(!subject.isNull())
+        subject->Deatach(this);
+
+    subject.clear();
 }
 
 
@@ -135,18 +145,100 @@ void GraphicsWidget::changeCursorType(bool enableSystem)
 }
 
 
-void GraphicsWidget::update(Subject *sub)
+void GraphicsWidget::update(QSharedPointer<IPoolObject> pool)
 {
-    if((sub == nullptr) || (_ptrPoolObject == nullptr))
+    if( pool.isNull() )
     {
-        qDebug()<<"GraphicsWidget::update() :: nullptr detect" << sub << _ptrPoolObject;
+        qDebug()<<"GraphicsWidget::update() :: nullptr";
         return;
     }
-    IPoolObject* sbj = dynamic_cast<IPoolObject*>(sub);
 
-    //надо убедится что указатель что у нас установлен равен указателю который пришел, вдруг это не то объект
-    if(sbj == _ptrPoolObject)
-        slotUpdateData();
+    slotUpdateData(pool);
+}
+
+GraphicsObject* GraphicsWidget::getGraphicsItem(QSharedPointer<IObject> &object)
+{
+    GraphicsObject* graphItem = nullptr;
+    if(!_hashTable.contains(object->getUuid()) && object->getInUse())
+    {
+        graphItem = new GraphicsObject(object->getTypeObject(),
+                                       object->isImitated());
+
+        graphItem->setFlag(QGraphicsItem::ItemIsSelectable);
+
+        _hashTable.insert(object->getUuid(),graphItem);
+    }
+    else
+    {
+        graphItem = _hashTable.value(object->getUuid());
+        if(graphItem == nullptr)
+            _hashTable.remove(object->getUuid());
+    }
+
+    return graphItem;
+}
+
+bool GraphicsWidget::needUpdateGraphicsObject(QSharedPointer<IObject> &object,
+                                              GraphicsObject* graphItem)
+{
+    if(object.isNull() || graphItem == nullptr)
+        return false;
+
+    if( object->getObjectState() == OBJECT_STATE::DELETE_OBJECT ||
+            (!object->getInUse()))
+    {
+        if(scene()->items().contains(graphItem))
+            graphItem->setNeedDelete(true);
+        return false;
+    }
+
+    if(!object->isValidGeoCoord() && scene()->items().contains(graphItem))
+    {
+        graphItem->setNeedDelete(true);
+        return false;
+    }
+
+    return true;
+}
+
+void GraphicsWidget::updatePositionOnScene(GraphicsObject *graphItem)
+{
+
+    QPointF dot = { -10.0, -10.0 };
+
+    double dist = _ptrMapController->getDistanceRadarScale_KM(_scene->sceneRect().size(),
+                                                              _ptrCarrier->getGeoCoord(),
+                                                              QPointF(_scene->width()/2 + _distToBorderMap,
+                                                                      _scene->width()/2 ));
+
+    double objectDist = _ptrMapController->getDistanceObject_KM(_ptrCarrier->getGeoCoord(),
+                                                                graphItem->getGeoPosition());
+
+    if(Conversions::isValidGeoCoord(graphItem->getGeoPosition()) && !scene()->items().contains(graphItem))
+        _scene->addItem(graphItem);
+
+
+    if( objectDist < dist / 2 )
+    {
+        dot = _ptrMapController->geoToScreenCoordinates( scene()->sceneRect().size(),
+                                                         _ptrCarrier->getGeoCoord(),
+                                                         graphItem->getGeoPosition());
+
+        graphItem->setPos(dot);
+        graphItem->setOpacity(1);
+
+        if(!graphItem->isVisible())
+            graphItem->show();
+    }
+    else
+    {
+        _vHiddenObject.append(graphItem->getAzimuth());
+        graphItem->hide();
+    }
+
+    //если графический объект выбран текущим
+    if(graphItem->isSelected() && _fixCursor)
+        _fixCursorCoord = dot;
 }
 
 void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
@@ -154,64 +246,26 @@ void GraphicsWidget::updateObjectOnScene(QSharedPointer<IObject> &object)
     if(_ptrMapController.isNull() || object.isNull())
         return;
 
-    QGraphicsItem* graphItem = dynamic_cast<QGraphicsItem*>(object.data());
+    GraphicsObject* graphItem = getGraphicsItem(object);
 
     if(graphItem == nullptr)
         return;
 
-    if( object->getObjectState() == OBJECT_STATE::DELETE_OBJECT ||
-            (!object->getInUse()))
-    {
-        if(scene()->items().contains(graphItem))
-            _scene->removeItem(graphItem);
+    if(!needUpdateGraphicsObject(object,graphItem))
         return;
-    }
 
-    if(!object->isValidGeoCoord())
-    {
-        _scene->removeItem(graphItem);
-        return;
-    }
-
-    if(!scene()->items().contains(graphItem))
-    {
-        graphItem->setFlag(QGraphicsItem::ItemIsSelectable);
-        scene()->addItem(graphItem);
-    }
-
-    QPointF dot = {-10.0,-10.0};
-
-    //    if(object->getDistance_KM() < (_ptrMapController->getDistanceRadarScale_KM()))
-    //    {
-    //        //dot = _ptrMapController->geoToScreenCoordinates(object->getGeoCoord());
-
-    //        graphItem->setPos(dot);
-    //        graphItem->setOpacity(1);
-
-    //        if(!graphItem->isVisible())
-    //            graphItem->show();
-    //    }
-    //    else
-    //    {
-    //        _vHiddenObject.append(object->getAzimuth());
-    //        graphItem->hide();
-    //    }
-
-    //если графический объект выбран текущим
-    if(object->isSelectedObject() && _fixCursor)
-    {
-        _fixCursorCoord = dot;
-        QStringList list = getDataForTable(dynamic_cast<IObject*>(object.data()));
-        emit signalDataToTable(list);
-    }
+    graphItem->setRotateAngle(object->getCourse());
+    graphItem->setGeoPosition(object->getGeoCoord());
+    graphItem->setAzimuth(object->getAzimuth());
+    graphItem->setText(QString::number(object->getId(),16) + "/" + object->getObjectName());
 }
 
 void GraphicsWidget::recalculateCoordObjects()
 {
     _vHiddenObject.clear();
-    if(_ptrPoolObject)
-        for (auto &iter:_ptrPoolObject->values())
-            updateObjectOnScene(iter);
+
+    for(auto &iter : _hashTable.values())
+        updatePositionOnScene(iter);
 
     updateScene();
 }
@@ -246,15 +300,10 @@ void GraphicsWidget::mouseMoveEvent(QMouseEvent *event)
     //получаем значение элемента над которым находится перекрестие курсора
     litem = _scene->itemAt(mapToScene(event->pos()),trans);
 
-    //установка флага текущего
-    IObject* graphObject = dynamic_cast<IObject*> (litem);
-    if(graphObject)
+    if(litem)
     {
         scene()->clearSelection();
         litem->setSelected(true);
-
-        QStringList list = getDataForTable(dynamic_cast<IObject*>(litem));
-        emit signalDataToTable(list);
     }
 }
 
@@ -288,8 +337,6 @@ void GraphicsWidget::mousePressEvent(QMouseEvent *event)
 void GraphicsWidget::mouseReleaseEvent(QMouseEvent * event)
 {
     Q_UNUSED(event);
-    //    if (event->button() == Qt::LeftButton)
-    //        _oldPos = event->pos();
 }
 
 void GraphicsWidget::wheelEvent(QWheelEvent * event)
@@ -303,8 +350,8 @@ void GraphicsWidget::wheelEvent(QWheelEvent * event)
 
 QPointF GraphicsWidget::getSceneCenterPont()
 {
-    return QPoint(_scene->width()/2.0,
-                  _scene->height()/2.0);
+    return QPointF(_scene->width()/2.0,
+                   _scene->height()/2.0);
 }
 
 void GraphicsWidget::drawMap(QPainter* painter,bool isDraw)
@@ -314,39 +361,8 @@ void GraphicsWidget::drawMap(QPainter* painter,bool isDraw)
 
     QImage img = _ptrMapController->getImageMap(_scene->sceneRect().size(),
                                                 ServiceLocator::getCarrier()->getGeoCoord(),
-                                                FilterType::Night);
-
-    if (!img.isNull())
-    {
-        QImage shapeImg(_scene->sceneRect().size().toSize(),
-                        QImage::Format_ARGB32_Premultiplied);
-
-        shapeImg.fill(QColor(0, 0, 0, 0).rgba());
-        QPainter sp(&shapeImg);
-        sp.setRenderHint(QPainter::Antialiasing);
-        sp.fillRect(_scene->sceneRect(), Qt::transparent);
-        sp.setPen(QPen(Qt::black));
-        sp.setBrush(QBrush(Qt::black));
-        sp.drawEllipse(_scene->sceneRect().center(),
-                       _distToBorderMap,
-                       _distToBorderMap);
-        sp.end();
-
-        QImage roundSquaredImage(_scene->sceneRect().size().toSize(),
-                                 QImage::Format_ARGB32_Premultiplied);
-        roundSquaredImage.fill(QColor(0, 0, 0, 0).rgba());
-
-        QPainter p(&roundSquaredImage);
-        p.fillRect(_scene->sceneRect(), Qt::transparent);
-        p.drawImage(0, 0, shapeImg);
-        p.setPen(QPen(Qt::black));
-        p.setBrush(QBrush(Qt::black));
-        p.setCompositionMode(QPainter::CompositionMode_SourceIn);
-        p.drawImage(0, 0, img);
-        p.end();
-
-        img = roundSquaredImage;
-    }
+                                                _distToBorderMap,
+                                                FILTER_TYPE::NIGHT_AND_CIRCLE);
 
     painter->drawImage(0, 0, img);
 }
@@ -361,17 +377,63 @@ void GraphicsWidget::drawBackground(QPainter *painter, const QRectF &rect)
 
     painter->setPen(QPen(QBrush(_clrTron),1));
 
-    painter->drawRect(0,
-                      0,
-                      _scene->sceneRect().width(),
-                      _scene->sceneRect().height());
+    painter->drawRect(_scene->sceneRect().toRect());
+
     //внешние точки, большие через 5 градусов
     double rad = _scene->sceneRect().width()/2 - _textBorder + 5;
 
-    //рисуем большие точки и надписи
     drawDotCicleWithLabel(painter, rad);
     initDrawText(painter);
     printMapScale(painter);
+}
+
+void GraphicsWidget::drawRadarSector(QPainter *painter)
+{
+    QPointF dot = getSceneCenterPont();
+
+    QRectF drawingRect(dot.x() - _distToBorderMap,
+                       dot.y() - _distToBorderMap,
+                       _distToBorderMap * 2,
+                       _distToBorderMap * 2);
+
+
+    gradient.setCenter(drawingRect.center());
+    gradient.setAngle(-_angleGradientSector);
+    gradient.setColorAt(0, _clrTronAlpha);
+    gradient.setColorAt(0.2, QColor(0,0,0,0));
+
+    painter->setPen(QPen(Qt::black));
+    painter->setBrush(QBrush(Qt::black));
+    painter->setBrush(QBrush(gradient));
+
+    painter->drawEllipse(drawingRect);
+    painter->setPen(_clrTron);
+
+    painter->drawLine(drawingRect.center(),
+                      QPointF(ScreenConversions::polarToScreen(getSceneCenterPont(),
+                                                               _angleGradientSector + _sectorSize * 2,
+                                                               _distToBorderMap)));
+
+    for(auto &iter : _hashTable.values())
+    {
+        if(iter == nullptr)
+            continue;
+
+        if(iter->getAzimuth() > ((_angleGradientSector + _sectorSize) % 360) &&
+                iter->getAzimuth() < ((_angleGradientSector + _sectorSize * 2) % 360))
+        {
+            if(iter->getNeedDelete())
+            {
+                _scene->removeItem(iter);
+                auto key = _hashTable.key(iter);
+                delete  iter;
+
+                _hashTable.remove(key);
+            }
+            else
+                updatePositionOnScene(iter);
+        }
+    }
 }
 
 void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
@@ -390,40 +452,18 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
     }
 
     drawCarrier(painter);
+
     initDrawText(painter);
     printScreenCoord(painter);
     printGeoCoord(painter);
+    printCountObject(painter);
+
+    drawHiddenObject(painter);
 
     if(!_updateInSector)
         return;
 
-    QPointF dot = getSceneCenterPont();
-
-    QRect drawingRect(dot.x() - _distToBorderMap,
-                      dot.y() - _distToBorderMap,
-                      _distToBorderMap * 2,
-                      _distToBorderMap * 2);
-
-    //этот вариант проще
-    //второй вариант - это один раз нарисовать градиент и вращать его
-    //по производительности одинаково, но так меньше кода
-    gradient.setCenter(drawingRect.center());
-    gradient.setAngle(-_angleGradientSector);
-    gradient.setColorAt(0, QColor(170,207,209,100));
-    gradient.setColorAt(0.2, QColor(0,0,0,0));
-
-    painter->setPen(QPen(Qt::black));
-    painter->setBrush(QBrush(Qt::black));
-    painter->setBrush(QBrush(gradient));
-
-    painter->drawEllipse(drawingRect);
-    painter->setPen(QColor(170,207,209));
-
-    painter->drawLine(drawingRect.center(),
-                      QPointF(ScreenConversions::polarToScreen(getSceneCenterPont(),
-                                                               _angleGradientSector + _sectorSize * 2,
-                                                               _distToBorderMap)));
-
+    drawRadarSector(painter);
 }
 
 void GraphicsWidget::resizeEvent(QResizeEvent *event)
@@ -431,8 +471,13 @@ void GraphicsWidget::resizeEvent(QResizeEvent *event)
     int h = event->size().height();
     int w = event->size().width();
 
-    if( w < 400 || h < 400 )
+
+    if( w < 600 || h < 600 )
+    {
+
+        QWidget::resizeEvent(event);
         return;
+    }
 
     if(w > h)
         w = h;
@@ -445,6 +490,8 @@ void GraphicsWidget::resizeEvent(QResizeEvent *event)
     _distToBorderMap = _scene->sceneRect().width()/2.0 - _textBorder ;
 
     recalculateCoordObjects();
+
+    QWidget::resizeEvent(event);
 }
 
 
@@ -567,8 +614,11 @@ void GraphicsWidget::initDrawText(QPainter *p)
 
 void GraphicsWidget::printScreenCoord(QPainter *p)
 {
-    double X = _scene->sceneRect().bottomLeft().x();
-    double Y = _scene->sceneRect().bottomLeft().y();
+    if(p == nullptr )
+        return;
+
+    int X = _scene->sceneRect().toRect().bottomLeft().x();
+    int Y = _scene->sceneRect().toRect().bottomLeft().y();
 
     QStringList list;
     list.append(QObject::tr("ЭК"));
@@ -578,21 +628,10 @@ void GraphicsWidget::printScreenCoord(QPainter *p)
     drawText(p, X, Y,list);
 }
 
-void GraphicsWidget::printGeoCoord(QPainter *p)
+void GraphicsWidget::drawCursorText(QPainter *p)
 {
-    Position ps = _ptrMapController->screenToGeoCoordinates(_scene->sceneRect().size(),
-                                                            _ptrCarrier->getGeoCoord(),
-                                                            _cursorCoord);
-
-    double X = _scene->sceneRect().bottomRight().x();
-    double Y = _scene->sceneRect().bottomRight().y();
-    QStringList list;
-    list.append(QObject::tr("ГК"));
-    list.append(QString(QObject::tr("Ш = %1").arg(ps.latitude())));
-    list.append(QString(QObject::tr("Д = %1").arg(ps.longitude())));
-
-    drawText(p, X, Y,list);
-
+    if(p == nullptr )
+        return;
 
     QPointF dot = (!_fixCursor) ? _cursorCoord : _fixCursorCoord;
 
@@ -607,22 +646,43 @@ void GraphicsWidget::printGeoCoord(QPainter *p)
                                                                 dot);
 
         plr.range = _ptrMapController->getDistanceObject_KM(_ptrCarrier->getGeoCoord(),
-                                                         sg);
+                                                            sg);
 
-        p->drawText(dot.x() - _cursorSize.width() / 2,
-                    dot.y() - _cursorSize.height() / 2 - 2,
+        p->drawText(qRound(dot.x() - _cursorSize.width() / 2),
+                    qRound(dot.y() - _cursorSize.height() / 2 - 2),
                     QString("П=%1").arg(plr.phi, 0,'f',1));
 
-        p->drawText(dot.x() - _cursorSize.width() / 2,
-                    dot.y() + _cursorSize.height() / 2 +12,
+        p->drawText(qRound(dot.x() - _cursorSize.width() / 2),
+                    qRound(dot.y() + _cursorSize.height() / 2 + 12),
                     QString("Д=%1").arg(plr.range,0,'f',2));
     }
 }
 
+void GraphicsWidget::printGeoCoord(QPainter *p)
+{
+    if(p == nullptr )
+        return;
+
+    Position ps = _ptrMapController->screenToGeoCoordinates(_scene->sceneRect().size(),
+                                                            _ptrCarrier->getGeoCoord(),
+                                                            _cursorCoord);
+
+    int X = _scene->sceneRect().toRect().bottomRight().x();
+    int Y = _scene->sceneRect().toRect().bottomRight().y();
+    QStringList list;
+    list.append(QObject::tr("ГК"));
+    list.append(QString(QObject::tr("Ш = %1").arg(ps.latitude())));
+    list.append(QString(QObject::tr("Д = %1").arg(ps.longitude())));
+
+    drawText(p, X, Y,list);
+
+    drawCursorText(p);
+}
+
 void GraphicsWidget::printMapScale(QPainter *p)
 {
-    double X = _scene->sceneRect().topLeft().x();
-    double Y = _scene->sceneRect().topLeft().y();
+    int X = _scene->sceneRect().toRect().topLeft().x();
+    int Y = _scene->sceneRect().toRect().topLeft().y();
 
     double dist = 0.0;
     if(!_ptrMapController.isNull())
@@ -634,8 +694,20 @@ void GraphicsWidget::printMapScale(QPainter *p)
     }
 
     QStringList list;
-    list.append(QObject::tr("ДЗВ"));
-    list.append(QString("М = %1").arg(dist, 0 , 'f', 2));
+    list.append(QString("М = %1 км").arg(dist, 0 , 'f', 2));
+    list.append(QObject::tr("Масштаб"));
+
+    drawText(p, X, Y,list);
+}
+
+void GraphicsWidget::printCountObject(QPainter *p)
+{
+    int X = _scene->sceneRect().toRect().topRight().x();
+    int Y = _scene->sceneRect().toRect().topRight().y();
+
+    QStringList list;
+    list.append(QString("N = %1 ").arg(_scene->items().count()));
+    list.append(QObject::tr("Отметок"));
 
     drawText(p, X, Y,list);
 }
@@ -643,25 +715,21 @@ void GraphicsWidget::printMapScale(QPainter *p)
 void GraphicsWidget::timeout()
 {
     _angleGradientSector += 2;
+
     _scene->update();
 }
 
-void GraphicsWidget::slotUpdateData()
+void GraphicsWidget::slotUpdateData(QSharedPointer<IPoolObject> pool)
 {
-    if(!_ptrPoolObject->tryLockPool())
-        return;
-
-    for (auto &iter: _ptrPoolObject->values())
+    _vHiddenObject.clear();
+    for (auto &iter: pool->allValues())
     {
-        if(iter.isNull())
-            continue;
-        updateObjectOnScene(iter);
+        if(!iter.isNull())
+            updateObjectOnScene(iter);
     }
-    _ptrPoolObject->unlockPool();
 
-    qDebug()<<"GraphicsWidget::update()->slotUpdateData();" <<
-              _scene->items().count();
-    _scene->update();
+    if(!_updateInSector)
+        _scene->update();
 }
 
 void GraphicsWidget::updateScene()
@@ -670,7 +738,6 @@ void GraphicsWidget::updateScene()
     _scene->update();
 }
 
-// функция рисования точек с надписями
 void GraphicsWidget::drawDotCicleWithLabel(QPainter *p, const qreal rad)
 {
     int w = 22 , h = 20;
@@ -687,27 +754,26 @@ void GraphicsWidget::drawDotCicleWithLabel(QPainter *p, const qreal rad)
         p->drawPoint(dot);
 
         //здесь делаем надпись каждые 10 градусов
-        if((i % 10) == 0)
-        {
-            p->setPen(QPen(QBrush(_clrWhite), 1));
+        if((i % 10) != 0)
+            continue;
 
-            if((i >= 0) && (i <= 90))
-                p->drawText(QRectF(dot.x(), dot.y() - h, w, h),
-                            Qt::AlignCenter,
-                            QString::number(i));
-            if((i > 90) && (i < 180))
-                p->drawText(QRectF(dot.x(), dot.y(), w, h),
-                            Qt::AlignCenter,
-                            QString::number(i));
-            if((i >= 180) && (i <= 270))
-                p->drawText(QRectF(dot.x() - w - 2, dot.y(), w, h),
-                            Qt::AlignCenter,
-                            QString::number(i));
-            if((i > 270))
-                p->drawText(QRectF(dot.x() - h, dot.y() - h, w , h ),
-                            Qt::AlignCenter,
-                            QString::number(i));
+        p->setPen(QPen(QBrush(_clrWhite), 1));
+
+        if((i >= 0) && (i <= 90))
+            dot.setY(dot.y() - h);
+
+        if((i >= 180) && (i <= 270))
+            dot.setX(dot.x() - w - 2);
+
+        if((i > 270))
+        {
+            dot.setX(dot.x() - h);
+            dot.setY(dot.y() - h);
         }
+
+        p->drawText(QRectF(dot.x(), dot.y(), w , h ),
+                    Qt::AlignCenter,
+                    QString::number(i));
     }
     p->restore();
 }

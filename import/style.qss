@@ -194,7 +194,7 @@ QTableView
     border-width: 2px;
     color: white;
     border-style: solid;
-    border-color: grey;
+    border-color: #aacfd1;
     gridline-color: #aacfd1;
     selection-background-color:  rgba(60, 60,60, 255);
     outline: 0px;
@@ -204,10 +204,10 @@ QHeaderView{  background-color: black; }
 
 QHeaderView::section
 {
-    background-color: rgba(0, 180,0, 80);
+    background-color: black;
     color: white;
     padding-left: 4px;
-    border: 1px solid green;
+    border: 1px solid #aacfd1;
     padding: 4px;
 }
 
@@ -224,7 +224,7 @@ QTreeWidget
     border-width: 2px;
     color: white;
     border-style: solid;
-    border-color: grey;
+    border-color: #aacfd1;
     gridline-color: #aacfd1;
     selection-background-color:  rgba(60, 60,60, 255);
     outline: 0px;
@@ -250,4 +250,16 @@ QSplitterHandle::hover{}
 QSplitter::handle:horizontal:hover
 {
     background-color:red;
+}
+
+QProgressBar {
+     border: 2px solid #aacfd1;
+     border-radius: 4px;
+     text-align: center;
+ }
+
+QProgressBar::chunk {
+    background-color: #aacfd1;
+    width: 10px;
+    margin: 0.5px;
 }

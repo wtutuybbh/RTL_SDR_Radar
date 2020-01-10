@@ -2,6 +2,10 @@
 #define NULLNAVIGATIONSYSYTEM_H
 
 #include "interface/INavigationSystem.h"
+/*!
+ * \brief The NullNavigationSystem class
+ * Реализация паттерна null-object. Класс заглушка
+ */
 
 class NullNavigationSystem final : public INavigationSystem
 {
@@ -10,7 +14,7 @@ public:
 
     // курс
     void setCourse(double)  {}
-    double getCourse()  { return 45.0; }
+    double getCourse()  { return 0.0; }
 
     //set/get координат
     void setGeoCoord(const Position &)  {}
