@@ -54,36 +54,44 @@ Core::~Core()
 
 void Core::init()
 {  
+    //носитель приемника стационарный объект
     ServiceLocator::provide(QSharedPointer<ICarrierClass>( new NullCarrier()) );
-
+    //модуль логгирования
     _logger = QSharedPointer<ILogger>(new Logger(sizeLog));
+    //модуль взаимодействия с приемником
     _device = QSharedPointer<IReciverDevice>(new RTL_SDR_Reciver());
     _device->setLogger(_logger);
     _device->openDevice();
-
-
+    //пулл объектов для хранения объектов типа самолет
     _poolObjects = QSharedPointer<IPoolObject>(new PoolObject(OBJECT_TYPE::air));
 
+    //демодулятор входного сигнала
     _demodulator = QSharedPointer<IDemodulator>(new Demodulator(_poolObjects));
     _demodulator->setLogger(_logger);
 
+    //контроллер данных
     _dataController = QSharedPointer<IDataController>(new DataController(_device,
                                                                          _demodulator));
     _dataController->run();
 
-
+    //паттерн наблюдатель наблюдатель
     _subject = QSharedPointer<ISubject>(new Subject());
-
+    //основная форма
     _mainWindow  = new MainWindow();
     _mainWindow->setLogger(_logger);
 
+    //виджет радара и вывода значков
     _graphicsWidget = new GraphicsWidget(SIZE_WIDGET, _mainWindow);
+    //подписка на события
     _graphicsWidget->subscribe(_subject);
     _mainWindow->addGraphicsWidget(_graphicsWidget);
 
+    //модель таблицы
     _modelTable = new ModelTable(_mainWindow);
+    //подписка на события
     _modelTable->subscribe(_subject);
 
+    //виджет таблицы
     _tableSrc = new TableForm(_mainWindow);
     _tableSrc->setTableModel(_modelTable);
     _mainWindow->addTableWidget(_tableSrc);
@@ -91,12 +99,10 @@ void Core::init()
     _mainWindow->adjustSize();
     _mainWindow->show();
 
-
     QObject::connect(&_timerUpdateWidgets, &QTimer::timeout,
                      this, &Core::slotUpdateWidgets);
     _timerUpdateWidgets.start(TIMEOUT_UPDATE);
 }
-
 
 void Core::slotUpdateWidgets()
 {
@@ -114,7 +120,6 @@ void Core::slotUpdateWidgets()
         _poolObjects->unlockPool();
     }
 }
-
 
 void Core::updateGeoPositionInfo()
 {

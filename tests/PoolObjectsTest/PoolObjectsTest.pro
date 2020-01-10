@@ -6,7 +6,7 @@
 
 QT       += widgets testlib
 
-TARGET = tst_PoolObjectsTestTest
+TARGET = PoolObjectsTest
 CONFIG   += console
 CONFIG   -= app_bundle
 

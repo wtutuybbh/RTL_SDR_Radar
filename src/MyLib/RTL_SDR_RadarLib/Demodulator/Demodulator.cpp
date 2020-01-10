@@ -149,7 +149,6 @@ QByteArray Demodulator::getRawDump()
         if(!air.isNull())
         {
             array.append(air->serialize());
-            qDebug()<< air->toString();
         }
     }
 
@@ -1060,9 +1059,6 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
             }
         }
     }
-    qDebug()<<QString("Update info aircraft with ICAO : %1\n")
-              .arg(addr,16,16)
-           << air->toString();
 }
 
 /* This algorithm comes from:
@@ -1267,10 +1263,6 @@ void Demodulator::dumpMagnitudeVector(uint16_t *m, uint32_t offset)
  * msg    points to the decoded message
  * m      is the original magnitude vector
  * offset is the offset where the message starts
- *
- * The function also produces the Javascript file used by debug.html to
- * display packets in a graphical format if the Javascript output was
- * enabled.
  */
 void Demodulator::dumpRawMessage(const QString &descr,
                                  unsigned char *msg,

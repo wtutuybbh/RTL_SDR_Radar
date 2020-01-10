@@ -1,13 +1,5 @@
 #ifndef ICARRIERCLASS_H
 #define ICARRIERCLASS_H
-/************************************************************
- *  Разработчик: Данильченко А.Е.
- ************************************************************/
-
-#include <QObject>
-#include <QTime>
-#include <QMutex>
-#include <memory>
 
 #include "coord/Position.h"
 #include "INavigationSystem.h"
@@ -17,22 +9,39 @@ class ICarrierClass
 
 public:
     virtual ~ICarrierClass(){}
-
-    //set/get координат
+    /*!
+     * \brief setGeoCoord установка координат носителя
+     * \param Position - геоокординаты носителя
+     */
     virtual void setGeoCoord(const Position &) = 0;
+    /*!
+     * \brief getGeoCoord - получение координат носителя
+     * \return значение геокоординат широта / долгота
+     */
     virtual Position getGeoCoord() = 0;
 
-    //set/get курс
+    /*!
+     * \brief setCourse установка курса.
+     * Если носитель имеет простарнственную ориентацию
+     */
     virtual void setCourse(double) = 0;
+    /*!
+     * \brief getCourse получить текущее значение курса
+     * Если носитель имеет пространственную ориентацию
+     * \return значение 0 - 360 градусов относительно севера
+     */
     virtual double getCourse() = 0;
 
-    //set/get скорости
+    /*!
+     * \brief setSpeed - установка скорости движения носителя
+     * Если носитель не стационарный объект
+     */
     virtual void setSpeed(double) = 0;
+    /*!
+     * \brief getSpeed получение скорости движения носителя
+     * \return ед.из определяются в наследниках
+     */
     virtual double getSpeed() = 0;
-
-    //система навигации
-    virtual const QSharedPointer<INavigationSystem> getNavigationSystemMain() = 0;
-
 };
 
 

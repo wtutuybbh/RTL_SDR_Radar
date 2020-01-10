@@ -8,7 +8,10 @@
 #include "osm/OSMTileSource.h"
 #include "coord/Position.h"
 #include "coord/Conversions.h"
-
+/*!
+ * \brief The MapController class
+ * реализация интерфеса контроллера  карты
+ */
 class MapController : public IMapController
 {
     Q_OBJECT
@@ -131,7 +134,11 @@ public:
     double getDistanceRadarScale_KM(const QSizeF &size,
                                     const Position &centerCoordinate,
                                     const QPointF mapBorderCordinate) override;
-
+    /*!
+     * \brief getDistanceRadarScale_M - дистанция в метрах от края до края карты
+     * в текущем масштабе
+     * \return дистанция в километрах
+     */
     double getDistanceRadarScale_M(const QSizeF &size,
                                    const Position &centerCoordinate,
                                    const QPointF mapBorderCordinate) override;
@@ -142,16 +149,32 @@ public:
     int incScale() override;
     int decScale() override;
 
-    //проверка попадает ли точка в область видимости
+    /*!
+     * \brief isVisibleInCurrentScale
+     *  проверка попадает ли точка в область видимости
+     * \param dist - дистанци в метрах
+     * \return true если точка попадает в зону видимости
+     */
     bool isVisibleInCurrentScale(double dist) override;
 
+    /*!
+     * \brief getDistanceObject_KM - рассчёт дистанции
+     * между точками в километрах
+     * \param centerCoord - начальная координата
+     * \param dot - конечная координата
+     * \return  дистанция в км
+     */
     double getDistanceObject_KM(const Position &centerCoord,
                              const Position &dot) override;
-
+    /*!
+     * \brief getDistanceObject_M - рассчёт дистанции
+     * между точками в метрах
+     * \param centerCoord - начальная координата
+     * \param dot - конечная координата
+     * \return  дистанция в метрах
+     */
     double getDistanceObject_M(const Position &centerCoord,
                              const Position &dot) override;
-
-
 
 signals:
     void updateTileGride();

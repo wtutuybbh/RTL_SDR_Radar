@@ -1,12 +1,4 @@
-/*!
-    \file
-    \brief Интерфейсный класс для работы с демодулятором
-    Наследуется от QRunnable, может быть запущен в отдельном потоке
 
-    \author Данильченко Артем
-    \version 0.1
-    \date декабрь 2018 г.
-*/
 #ifndef IDEMODULATOR_H
 #define IDEMODULATOR_H
 
@@ -17,7 +9,12 @@
 
 class IPoolObject;
 class ILogger;
+/*!
+    \brief Интерфейсный класс для работы с демодулятором
+    Наследуется от QRunnable, может быть запущен в отдельном потоке
 
+    \author Данильченко Артем
+*/
 class IDemodulator :  public QRunnable
 {
 public:

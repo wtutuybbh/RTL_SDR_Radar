@@ -89,7 +89,11 @@ struct modesMessage
 
 
 class Aircraft;
-
+/*!
+ * \brief The Demodulator class
+ * класс демодуляции. Реализация позаимствована у
+ * Salvatore Sanfilippo <antirez@gmail.com>
+ */
 class DEMODULATORSHARED_EXPORT Demodulator : public IDemodulator
 {
     QVector<uint16_t> _magnitude;
@@ -135,38 +139,212 @@ public:
     int32_t getCountObject() override;
 
 private:
+    /*!
+     * \brief computeMagnitudeVector
+     * Turn I/Q samples pointed by data into the magnitude vector
+     * pointed by magnitude.
+     * \param vector - исходный вестор
+     * \param magnitude - вектор огибающей
+     */
     void computeMagnitudeVector(const QVector<uint8_t> &vector,
                                 QVector<uint16_t> &magnitude);
+    /*!
+     * \brief detectModeS
+     * Detect a Mode S messages inside the magnitude buffer pointed by 'm' and of
+     * size 'mlen' bytes. Every detected Mode S message is convert it into a
+     * stream of bits and passed to the function to display it.
+     * \param m - буфер даных
+     * \param mlen - длинна буфера
+     */
     void detectModeS(uint16_t *m, uint32_t mlen);
+
+    /*!
+     * \brief dumpRawMessage
+     * This is a wrapper for dumpMagnitudeVector() that also show the message
+     * in hex format with an additional description.
+     *
+     * \param descr  is the additional message to show to describe the dump.
+     * \param msg    points to the decoded message
+     * \param m      is the original magnitude vector
+     * \param offset is the offset where the message starts
+     */
     void dumpRawMessage(const QString &descr,
                         unsigned char *msg,
                         uint16_t *m,
                         uint32_t offset);
+    /*!
+     * \brief fixTwoBitsErrors
+     * Similar to fixSingleBitErrors() but try every possible two bit combination.
+     * This is very slow and should be tried only against DF17 messages that
+     * don't pass the checksum, and only in Aggressive Mode.
+     */
     int fixTwoBitsErrors(unsigned char *msg, int bits);
+    /*!
+     * \brief fixSingleBitErrors
+     *  Try to fix single bit errors using the checksum. On success modifies
+     * the original buffer with the fixed version, and returns the position
+     * of the error bit. Otherwise if fixing failed -1 is returned.
+     */
     int fixSingleBitErrors(unsigned char *msg, int bits);
+
+    /*!
+     * \brief Helper function for dumpMagnitudeVector().
+     * It prints a single bar used to display raw signals.
+     */
     void dumpMagnitudeBar(int index, int magnitude);
+
+    /*!
+     * \brief dumpMagnitudeVector
+     * Display an ASCII-art alike graphical representation of the undecoded
+     * message as a magnitude signal.
+     *
+     * The message starts at the specified offset in the "m" buffer.
+     * The function will display enough data to cover a short 56 bit message.
+     */
     void dumpMagnitudeVector(uint16_t *m, uint32_t offset);
+
+    /*!
+     * \brief detectOutOfPhase
+     * Return -1 if the message is out of fase left-side
+     * Return  1 if the message is out of fase right-size
+     * Return  0 if the message is not particularly out of phase.
+     */
     int detectOutOfPhase(uint16_t *m);
+
+    /*!
+     * \brief applyPhaseCorrection коррекция фазы
+     * \param m буфер
+     */
     void applyPhaseCorrection(uint16_t *m);
+
+    /*!
+     * \brief modesMessageLenByType
+     * Given the Downlink Format (DF) of the message, return the message length
+     * in bits
+     */
     int modesMessageLenByType(int type);
+
+    /*!
+     * \brief decodeModesMessage
+     * Decode a raw Mode S message demodulated as a stream of bytes by
+     * detectModeS(), and split it into fields populating a modesMessage
+     * structure.
+     */
     void decodeModesMessage(modesMessage *mm, unsigned char *msg);
+
+    /*!
+     * \brief useModesMessage
+     * Basically this function passes a raw message to the upper layers for
+     * further processing and visualization.
+     */
     void useModesMessage(modesMessage *mm);
+
+    /*!
+     * \brief modesChecksum - рассчет контрольной суммы
+     */
     uint32_t modesChecksum(unsigned char *msg, int bits);
+
+    /*!
+     * \brief bruteForceAP
+     * If the message type has the checksum xored with the ICAO address, try to
+     * brute force it using a list of recently seen ICAO addresses.
+     */
     int bruteForceAP(unsigned char *msg, modesMessage *mm);
+
+    /*!
+     * \brief addRecentlySeenICAOAddr
+     *  Add the specified entry to the cache of recently seen ICAO addresses.
+     * Note that we also add a timestamp so that we can make sure that the
+     * entry is only valid for MODES_ICAO_CACHE_TTL seconds.
+     */
     void addRecentlySeenICAOAddr(uint32_t addr);
+
+    /*!
+     * \brief ICAOCacheHashAddress
+     * Hash the ICAO address to index our cache of MODES_ICAO_CACHE_LEN
+     * elements, that is assumed to be a power of two.
+     */
     uint32_t ICAOCacheHashAddress(uint32_t a);
+
+    /*!
+     * \brief decodeAC13Field
+     * Decode the 13 bit AC altitude field (in DF 20 and others).
+     * Returns the altitude, and set 'unit' to either MODES_UNIT_METERS
+     * or MDOES_UNIT_FEETS
+     */
     int decodeAC13Field(unsigned char *msg, int *unit);
+
+    /*!
+     * \brief decodeAC12Field
+     * Decode the 12 bit AC altitude field (in DF 17 and others).
+     * Returns the altitude or 0 if it can't be decoded.
+     */
     int decodeAC12Field(unsigned char *msg, int *unit);
+
+    /*!
+     * \brief interactiveReceiveData
+     * Receive new messages and populate the interactive mode with more info
+     */
     void interactiveReceiveData(modesMessage *mm);
+
+    /*!
+     * \brief displayModesMessage
+     * This function gets a decoded Mode S Message and prints it on the screen
+     * in a human readable format.
+     */
     void displayModesMessage(modesMessage *mm);
+
+    /*!
+     * \brief ICAOAddressWasRecentlySeen
+     * Returns 1 if the specified ICAO address was seen in a DF format with
+     * proper checksum (not xored with address) no more than * MODES_ICAO_CACHE_TTL
+     * seconds ago. Otherwise returns 0.
+     */
     int ICAOAddressWasRecentlySeen(uint32_t addr);
+
+    /*!
+     * \brief decodeCPR Decoding ADS-B position
+     */
     void decodeCPR(QSharedPointer<Aircraft> a);
+
+    /*!
+     * \brief cprModFunction
+     */
     int cprModFunction(int a, int b);
+
+    /*!
+     * \brief cprNLFunction
+     * The NL function uses the precomputed table from 1090-WP-9-14
+     */
     int cprNLFunction(double lat);
+
+    /*!
+     * \brief cprNFunction
+     * The NL function uses the precomputed table from 1090-WP-9-14
+     * whith odd
+     */
     int cprNFunction(double lat, int isodd);
+
+    /*!
+     * \brief cprDlonFunction
+     */
     double cprDlonFunction(double lat, int isodd);
+
+    /*!
+     * \brief getMEDescription get ME text
+     */
     QString getMEDescription(int metype, int mesub);
+
+    /*!
+     * \brief interactiveRemoveStaleAircrafts
+     * When in interactive mode If we don't receive new nessages within
+     * MODES_INTERACTIVE_TTL seconds we remove the aircraft from the list.
+     */
     void interactiveRemoveStaleAircrafts();
+
+    /*!
+     * \brief addDebugMsg add debug message in log
+     */
     void addDebugMsg(const QString &str);
 };
 

@@ -102,7 +102,7 @@ public:
     /*!
      * \brief getDistanceRadarScale_M - дистанция в метрах от края до края карты
      * в текущем масштабе
-     * \return дистанция в километрах
+     * \return дистанция в метрах
      */
     virtual double getDistanceRadarScale_M(const QSizeF &size,
                                            const Position &centerCoordinate,
@@ -114,12 +114,30 @@ public:
     virtual int incScale() = 0;
     virtual int decScale() = 0;
 
-    //проверка попадает ли точка в область видимости
+    /*!
+     * \brief isVisibleInCurrentScale
+     *  проверка попадает ли точка в область видимости
+     * \param dist - дистанци в метрах
+     * \return true если точка попадает в зону видимости
+     */
     virtual bool isVisibleInCurrentScale(double dist) = 0;
-
+    /*!
+     * \brief getDistanceObject_KM - рассчёт дистанции
+     * между точками в километрах
+     * \param centerCoord - начальная координата
+     * \param dot - конечная координата
+     * \return  дистанция в км
+     */
     virtual double getDistanceObject_KM(const Position &centerCoord,
                                         const Position &dot) = 0;
 
+    /*!
+     * \brief getDistanceObject_M - рассчёт дистанции
+     * между точками в метрах
+     * \param centerCoord - начальная координата
+     * \param dot - конечная координата
+     * \return  дистанция в метрах
+     */
     virtual double getDistanceObject_M(const Position &centerCoord,
                                        const Position &dot) = 0;
 signals:

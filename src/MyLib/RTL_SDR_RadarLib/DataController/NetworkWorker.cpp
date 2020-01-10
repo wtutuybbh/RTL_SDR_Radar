@@ -25,7 +25,7 @@ void NetworkWorker::addDebugMsg(const QString &str)
     if(_log)
         _log->push(str);
 
-    qDebug()<<str;
+   // qDebug()<<str;
 }
 
 bool NetworkWorker::connect(const QString &ip, uint16_t port, uint16_t timeout)
