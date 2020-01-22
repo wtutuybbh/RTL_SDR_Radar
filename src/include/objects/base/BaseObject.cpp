@@ -232,7 +232,6 @@ void BaseObject::resetObjectData()
     _distance = 0.0;
     _altitude = 0.0;
     _isImitate = false;
-    _typeObject = OBJECT_TYPE::base;
 }
 
 float BaseObject::getAltitude() const
