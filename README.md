@@ -8,7 +8,7 @@
   Источником данных может выступать :
   - Приемник RTL-SDR v3
   - Сервер сбора данных от raspberry pi с подключенными к ним приемниками RTL-SDR v3.
-![Peek 2019-06-20 23-23](https://user-images.githubusercontent.com/34423525/59879993-a5688e80-93b4-11e9-9faf-0700f4f57ab8.gif)
+![ezgif com-video-to-gif(1)](https://user-images.githubusercontent.com/34423525/74163125-f6beda00-4c32-11ea-9c2c-b9f83a039ed6.gif)
 
 # RaspberryApp
 Легковесное терминальное приложение для raspberry pi. Осуществляет приём, демодуляцию данных. 
