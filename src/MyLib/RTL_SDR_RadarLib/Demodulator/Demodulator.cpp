@@ -130,7 +130,7 @@ void Demodulator::run()
     demodulate();
 }
 
-QByteArray Demodulator::getRawDump()
+QByteArray Demodulator::getRawDumpOfObjectsInfo()
 {
     QByteArray array;
 

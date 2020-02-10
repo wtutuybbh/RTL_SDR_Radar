@@ -13,10 +13,15 @@
 
 class DataWorkerNetSender : public DataWorker
 {
+    ///< указатель на модуль сетевого взаимодействия
     std::unique_ptr<INetworkWorker> _net;
+    ///< ip для подключения по умолчанию
     const QString DEFAULT_IP = QString("127.0.0.1");
+    ///< порт для подключения по умолчания
     const uint16_t DEFAULT_PORT = 62000;
+    ///< интервал отправки сообщений
     const int64_t SEND_INTERVAL = 500;
+    ///< таймат ожидания подключения
     const uint16_t CONNECT_TIMEOUT = 100;
 
     QString _ip = DEFAULT_IP;
@@ -37,6 +42,7 @@ public:
                   const QString& ip,
                   uint16_t port,
                   size_t dataSize = MODES_DATA_LEN + MODES_FULL_LEN_OFFS);
+    ///< деструктор
     ~DataWorkerNetSender() override;
 
 public slots:

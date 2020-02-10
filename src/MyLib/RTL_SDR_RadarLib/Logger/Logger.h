@@ -9,8 +9,10 @@
 
 class LOGGERSHARED_EXPORT Logger: public ILogger
 {
+    ///< строк
     QStack<QString> _stack;
     QMutex _mutex;
+    ///<
     int _size = 1000;
 
 public:

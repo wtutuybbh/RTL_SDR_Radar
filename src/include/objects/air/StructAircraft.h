@@ -11,15 +11,24 @@ constexpr char SIZE_TEXT = 9;
 #pragma pack(push,1)
 struct StructAircraft
 {
-    uint32_t icao;      /* ICAO address */
-    char flight[SIZE_TEXT];     /* Flight number */
-    uint32_t altitude;       /* Altitude */
-    uint32_t speed;          /* Velocity computed from EW and NS components. */
-    uint32_t course;          /* Angle of flight. */ 
+    /* ICAO address */
+    uint32_t icao;
+    /* Flight number */
+    char flight[SIZE_TEXT];
+    /* Altitude */
+    uint32_t altitude;
+    /* Velocity computed from EW and NS components. */
+    uint32_t speed;
+    /* Angle of flight. */
+    uint32_t course;
+    /* latitude */
     int32_t lat;
+    /* longitude */
     int32_t lon;
-    int64_t seen;        /* Time at which the last packet was received. */
-    uint32_t messages;      /* Number of Mode S messages received. */
+    /* Time at which the last packet was received. */
+    int64_t seen;
+    /* Number of Mode S messages received. */
+    uint32_t messages;
 };
 #pragma pack(pop)
 

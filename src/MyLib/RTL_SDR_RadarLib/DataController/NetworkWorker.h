@@ -15,11 +15,13 @@
 class NetworkWorker : public INetworkWorker
 {
     Q_OBJECT
-
+    ///< модуль логгирования
     ILogger* _log = nullptr;
+    ///< контроллер пакетов
     IPackageController* _pkgCtrl = nullptr;
+    ///< сокет для подключения по сети
     std::unique_ptr<QTcpSocket> _socket = nullptr;
-
+    ///< добавление сообщения в модуль логгирования
     void addDebugMsg(const QString& str);
 
     bool _addLogInfo = false;

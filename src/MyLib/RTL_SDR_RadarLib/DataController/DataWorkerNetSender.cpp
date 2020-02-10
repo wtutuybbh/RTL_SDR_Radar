@@ -55,7 +55,7 @@ void DataWorkerNetSender::exec()
             if(value > _sendInterval)
             {
                 if(_net && _net->isConnected())
-                    _net->writeDatagramm(_demod->getRawDump());
+                    _net->writeDatagramm(_demod->getRawDumpOfObjectsInfo());
 
                 _firstTimeBreakpoint = steady_clock::now();
             }

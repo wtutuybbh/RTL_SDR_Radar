@@ -32,7 +32,7 @@ public:
      *         в виде байтового массива для передачи по сети
      *  \return байтовый массив сериализованных объектов
      */
-    virtual QByteArray getRawDump() = 0;
+    virtual QByteArray getRawDumpOfObjectsInfo() = 0;
     /*!
      *  \brief Функция демодуляции, на случай использования класса без QThreadPool
      *  \return результат выполнения
