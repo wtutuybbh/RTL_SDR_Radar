@@ -34,6 +34,7 @@
 
 #include "Demodulator.h"
 #include "objects/air/Aircraft.h"
+#include "../include/coord/Conversions.h"
 
 /* Capability table. */
 static const char *ca_str[8] = {
@@ -96,7 +97,7 @@ static uint32_t modes_checksum_table[112] =
 };
 
 
-Demodulator::Demodulator(QSharedPointer<IPoolObject> pool)
+Demodulator::Demodulator(QSharedPointer<IPoolObject> pool, bool withImit)
 {
     setAutoDelete(false);
 
@@ -111,6 +112,18 @@ Demodulator::Demodulator(QSharedPointer<IPoolObject> pool)
     for (int i = 0; i <= 128; i++)
         for (int q = 0; q <= 128; q++)
             maglut[i * 129 + q] = round(sqrt(i * i + q * q) * 360.0);
+
+    if(withImit)
+    {
+        _pool->createNewObject(0xABADBABE,
+                               QDateTime::currentDateTime(),
+                               Position(),true);
+
+        _pool->createNewObject(0xCAFEBABE,
+                               QDateTime::currentDateTime(),
+                               Position(),true);
+
+    }
 }
 
 
@@ -123,6 +136,7 @@ Demodulator::~Demodulator()
 bool Demodulator::setDataForDemodulate(const QVector<uint8_t> &vector)
 {
     computeMagnitudeVector(vector,_magnitude);
+    return true;
 }
 
 void Demodulator::run()
@@ -162,6 +176,7 @@ bool Demodulator::demodulate()
 
     _pool->lockPool();
     detectModeS(_magnitude.data(),_magnitude.size());
+    updateImitAirCraft();
     _pool->unlockPool();
     return true;
 }
@@ -1521,4 +1536,33 @@ void Demodulator::addDebugMsg(const QString &str)
 {
     if(_log)
         _log->push(str);
+}
+
+void Demodulator::updateImitAirCraft()
+{
+    Position currentPlace = Position(39.736583, 47.293666);
+    static uint16_t  azim = 0;
+    static uint8_t dist = 10;
+    for(auto &a: _pool->values())
+    {
+        if(a->isImitated())
+        {
+            a->setDateTimeStop(QDateTime::currentDateTime());
+            a->setAzimuth(azim);
+            a->setDistance_KM(dist);
+            a->setGeoCoord(Conversions::getPlace(currentPlace,azim,dist));
+
+            azim +=5;
+            azim %=360;
+            dist +=10;
+            QString lon,lat;
+            Conversions::geoCoordToString(a->getGeoCoord(),lon,lat);
+            qDebug()<<"Imit aircraft id =" << a->getId()
+                    <<" time = "<< a->getDateTimeStop()
+                    <<" azimuth = "<< a->getAzimuth()
+                    <<" distance = "<< a->getDistance_KM()
+                    <<" latitude = "<< lat
+                    <<" longitude = " << lon ;
+        }
+    }
 }

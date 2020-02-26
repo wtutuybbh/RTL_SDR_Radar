@@ -130,7 +130,8 @@ class DEMODULATORSHARED_EXPORT Demodulator : public IDemodulator
     ///< вектор рассчета огибающей
     uint16_t* maglut;
 public:
-    Demodulator(QSharedPointer<IPoolObject> pool);
+    Demodulator(QSharedPointer<IPoolObject> pool,bool withImit = false);
+
     ~Demodulator() override;
     /*!
      *  \brief внедрение зависимости модуля логгирования
@@ -368,6 +369,11 @@ private:
      * \brief addDebugMsg add debug message in log
      */
     void addDebugMsg(const QString &str);
+    /*!
+     * \brief отладочная функция,для имитации постоянного приема данных
+     */
+
+    void updateImitAirCraft();
 };
 
 #endif // DEMODULATOR_H
