@@ -4,8 +4,6 @@
 #include <QImage>
 #include <QObject>
 
-#include "coord/Conversions.h"
-#include "coord/ScreenConversions.h"
 
 enum class FILTER_TYPE
 {
@@ -14,6 +12,9 @@ enum class FILTER_TYPE
     NIGHT_AND_CIRCLE,
     CIRCLE
 };
+
+class Position;
+class PolarCoord;
 
 class IMapController : public QObject
 {

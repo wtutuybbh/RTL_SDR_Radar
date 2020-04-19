@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QUuid>
 
-#include "coord/Position.h"
 
 enum class OBJECT_STATE
 {
@@ -26,6 +25,8 @@ enum class OBJECT_TYPE
  * Интерфейсный класс для описания
  * радиотехнического объекта
  */
+
+class Position;
 
 class IObject : public QObject
 {

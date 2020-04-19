@@ -7,6 +7,7 @@
 #include "IObject.h"
 
 typedef  QSharedPointer< QHash<uint64_t, QSharedPointer<IObject> > > pHash;
+class Position;
 
 class IPoolObject
 {
@@ -23,8 +24,8 @@ public:
      */
     virtual QSharedPointer<IObject> createNewObject(uint64_t id,
                                                     QDateTime reg_time,
-                                                    Position geoPosition = Position(),
-                                                    bool isImit = false) = 0;
+                                                    Position geoPosition,
+                                                    bool isImit) = 0;
     /*!
      * \brief values получение списка указателей на существующие объекты.
      * Объекты которые помечены, как неактулаьные выведены не будут.

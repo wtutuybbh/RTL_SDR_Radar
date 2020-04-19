@@ -1,7 +1,6 @@
 #ifndef INAVIGATIONSYSTEM
 #define INAVIGATIONSYSTEM
 
-#include "coord/Position.h"
 /*!
  * \brief The INavigationSystem class
  * Интерфейс для реализации работы с навигационной системой.
@@ -9,6 +8,9 @@
  * \author Данильченко Артём
  *
  */
+
+class Position;
+
 class INavigationSystem
 {
 public:

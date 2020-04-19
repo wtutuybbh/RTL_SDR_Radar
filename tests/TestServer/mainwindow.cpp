@@ -2,7 +2,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "../../src/MyLib/RTL_SDR_RadarLib/Demodulator/StructAircraft.h"
+#include "../../src/Libs/RTL_SDR_RadarLib/shared_classes/objects/air/StructAircraft.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),

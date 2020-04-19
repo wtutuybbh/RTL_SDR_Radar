@@ -7,7 +7,7 @@
 #include "ILogger.h"
 #include "IReciverDevice.h"
 #include "IDemodulator.h"
-#include "dsp/IDSP.h"
+#include "IDSP.h"
 #include "INetworkWorker.h"
 /*!
  * \brief The IWorker class

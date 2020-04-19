@@ -8,7 +8,7 @@
 #include "ILogger.h"
 #include "IReciverDevice.h"
 #include "IDemodulator.h"
-#include "dsp/IDSP.h"
+#include "interface/IDSP.h"
 #include "INetworkWorker.h"
 
 /*!
