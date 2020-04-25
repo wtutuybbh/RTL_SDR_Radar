@@ -101,7 +101,7 @@ static int e4k_reg_read(struct e4k_state *e4k, uint8_t reg)
 static int e4k_reg_set_mask(struct e4k_state *e4k, uint8_t reg,
 		     uint8_t mask, uint8_t val)
 {
-	uint8_t tmp = e4k_reg_read(e4k, reg);
+    uint8_t tmp = e4k_reg_read(e4k, reg) & 0xff;
 
 	if ((tmp & mask) == val)
 		return 0;

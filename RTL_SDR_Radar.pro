@@ -1,12 +1,10 @@
-#проект будет состоять из набора модулей-подпроектов
 TEMPLATE = subdirs
+CONFIG += ordered
 
 SUBDIRS += \
-    src/MyLib/RTL_SDR_RadarLib \
-    src/MyApp/RadarApp \
-    src/MyApp/RaspberryApp \
-    #tests/TestServer
-    #tests/PoolObjectsTest \
-    #src/MyApp/ImitObjectsTest
+    src/Libs \
+    src/Apps \
+    tests
+#    tests/PoolObjectsTest \
 
-CONFIG += ordered
+

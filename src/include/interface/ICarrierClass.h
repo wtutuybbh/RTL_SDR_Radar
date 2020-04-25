@@ -1,8 +1,8 @@
 #ifndef ICARRIERCLASS_H
 #define ICARRIERCLASS_H
 
-#include "coord/Position.h"
 #include "INavigationSystem.h"
+class Position;
 
 class ICarrierClass
 {

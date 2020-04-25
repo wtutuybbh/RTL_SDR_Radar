@@ -1,7 +1,7 @@
 #include "PoolObjectsTest.h"
 
-#include "../MyLib/RTL_SDR_RadarLib/PoolObject/PoolObject.h"
-
+#include "PoolObject/PoolObject.h"
+#include "MapGraphics/coordUtils/Position.h"
 
 PoolObjectsTestTest::PoolObjectsTestTest()
 {
@@ -23,7 +23,8 @@ void PoolObjectsTestTest::addZeroIdTest()
 {
     QSharedPointer<IObject> _ptrObject = _pool->createNewObject(0,
                                                                 QDateTime::currentDateTime(),
-                                                                Position());
+                                                                Position(),
+                                                                false);
     QVERIFY(_ptrObject.isNull() == true);
     QVERIFY(_pool->getObjectsCount() == 0);
 }
@@ -32,7 +33,8 @@ void PoolObjectsTestTest::addEqualIdTest()
 {
     QSharedPointer<IObject> ptrObject_1 = _pool->createNewObject(1,
                                                                  QDateTime::currentDateTime(),
-                                                                 Position());
+                                                                 Position(),
+                                                                 false);
 
     QVERIFY(ptrObject_1.isNull() != true);
     QVERIFY(_pool->getObjectsCount() == 1);
@@ -41,7 +43,8 @@ void PoolObjectsTestTest::addEqualIdTest()
 
     QSharedPointer<IObject> ptrObject_2 = _pool->createNewObject(1,
                                                                  QDateTime::currentDateTime(),
-                                                                 Position());
+                                                                 Position(),
+                                                                 false);
 
     QVERIFY(ptrObject_2.isNull() != true);
     QCOMPARE(ptrObject_2->getInUse(),true);
@@ -60,7 +63,8 @@ void PoolObjectsTestTest::addObjectsToPoolTest()
     {
         QSharedPointer<IObject> _ptrObject = _pool->createNewObject(vectorId.at(i)+1,
                                                                     QDateTime::currentDateTime().addSecs(i),
-                                                                    Position());
+                                                                    Position(),
+                                                                    false);
         QVERIFY(_ptrObject.isNull() != true);
         QCOMPARE(_ptrObject->getInUse(),true);
         QCOMPARE(_ptrObject->getObjectState(),OBJECT_STATE::NEW_OBJECT);
@@ -94,7 +98,8 @@ void PoolObjectsTestTest::deleteAddDeletObjectTest()
     uint64_t id = 1;
     QSharedPointer<IObject> ptrObject = _pool->createNewObject(id,
                                                                QDateTime::currentDateTime(),
-                                                               Position());
+                                                               Position(),
+                                                               false);
 
     QVERIFY(ptrObject.isNull() != true);
     QVERIFY(_pool->getObjectsCount() == 1);
@@ -112,7 +117,8 @@ void PoolObjectsTestTest::deleteAddDeletObjectTest()
 
     ptrObject = _pool->createNewObject(id,
                                        QDateTime::currentDateTime(),
-                                       Position());
+                                       Position(),
+                                       false);
 
     QVERIFY(ptrObject.isNull() != true);
     QVERIFY(_pool->getObjectsCount() == 1);
@@ -134,7 +140,10 @@ void PoolObjectsTestTest::updateObjectTest()
         }
         else
         {
-            QVERIFY(_pool->createNewObject(i,QDateTime::currentDateTime()).isNull() != true);
+            QVERIFY(_pool->createNewObject(i,
+                                           QDateTime::currentDateTime(),
+                                           Position(),
+                                           false).isNull() != true);
             QCOMPARE(_pool->isExistsObject(i),true);
         }
     }
