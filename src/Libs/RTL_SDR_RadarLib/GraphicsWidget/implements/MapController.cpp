@@ -4,7 +4,7 @@
 #include <QPointF>
 #include <QPainter>
 
-#include "../shared_classes/coord/ScreenConversions.h"
+#include "MapGraphics/coordUtils/ScreenConversions.h"
 
 MapController::MapController()
 {

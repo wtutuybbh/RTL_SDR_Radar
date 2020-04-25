@@ -17,8 +17,8 @@
 #include "MapTileSource.h"
 #include "MapGraphics_global.h"
 
-#include "guts/MapTileGraphicsObject.h"
-#include "guts/PrivateQGraphicsInfoSource.h"
+#include "graphBackend/MapTileGraphicsObject.h"
+#include "graphBackend/PrivateQGraphicsInfoSource.h"
 
 class MAPGRAPHICSSHARED_EXPORT MapGraphicsView : public QWidget, public PrivateQGraphicsInfoSource
 {

@@ -1,6 +1,6 @@
 #include "LineObject.h"
 
-#include "guts/Conversions.h"
+#include "../coordUtils/Conversions.h"
 #include <QtGlobal>
 
 LineObject::LineObject(const Position &endA,

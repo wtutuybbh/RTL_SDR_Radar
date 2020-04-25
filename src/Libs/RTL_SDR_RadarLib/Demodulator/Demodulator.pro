@@ -23,11 +23,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    ../../../../import/MapGraphics/coordUtils/Conversions.cpp \
+    ../../../../import/MapGraphics/coordUtils/Position.cpp \
         Demodulator.cpp \
     ../shared_classes/objects/base/BaseObject.cpp \
     ../shared_classes/objects/air/Aircraft.cpp
 
 HEADERS += \
+    ../../../../import/MapGraphics/coordUtils/Conversions.h \
+    ../../../../import/MapGraphics/coordUtils/Position.h \
         ../../../include/interface/IDemodulator.h \
         ../../../include/Demodulator/Demodulator.h \
         ../../../include/Demodulator/demodulator_global.h \

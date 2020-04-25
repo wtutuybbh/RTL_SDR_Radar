@@ -12,16 +12,12 @@ TEMPLATE = lib
 DEFINES += CARRIER_LIBRARY
 
 SOURCES += Carrier.cpp \
-    ../shared_classes/coord/Conversions.cpp \
-    ../shared_classes/coord/Position.cpp \
     NullCarrier.cpp \
     ServiceLocator.cpp \
     NavigationSystem.cpp \
     NullNavigationSystem.cpp
 
 HEADERS += ../../../include/Carrier/carrier_global.h \
-    ../shared_classes/coord/Conversions.h \
-    ../shared_classes/coord/Position.h \
     ../../../include/Carrier/Carrier.h\
     ../../../include/Carrier/NullCarrier.h \
     ../../../include/Carrier/ServiceLocator.h \

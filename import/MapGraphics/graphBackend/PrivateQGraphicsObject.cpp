@@ -3,7 +3,7 @@
 #include <QtDebug>
 #include <QKeyEvent>
 
-#include "guts/Conversions.h"
+#include "../coordUtils/Conversions.h"
 
 PrivateQGraphicsObject::PrivateQGraphicsObject(MapGraphicsObject *mgObj,
                                                PrivateQGraphicsInfoSource *infoSource,

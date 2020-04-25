@@ -1,9 +1,9 @@
 #ifndef LINEOBJECT_H
 #define LINEOBJECT_H
 
-#include "MapGraphics_global.h"
-#include "Position.h"
-#include "MapGraphicsObject.h"
+#include "../MapGraphics_global.h"
+#include "../coordUtils/Position.h"
+#include "../MapGraphicsObject.h"
 
 class MAPGRAPHICSSHARED_EXPORT LineObject : public MapGraphicsObject
 {

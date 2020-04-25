@@ -7,7 +7,7 @@
 #include <QString>
 
 #include "interface/IObject.h"
-#include "../shared_classes/coord/Position.h"
+#include "MapGraphics/coordUtils/Position.h"
 
 class GraphicsObject : public QGraphicsObject
 {

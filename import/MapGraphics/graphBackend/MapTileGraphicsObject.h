@@ -4,7 +4,7 @@
 #include <QGraphicsObject>
 #include <QPointer>
 
-#include "MapTileSource.h"
+#include "../MapTileSource.h"
 
 class MapTileGraphicsObject : public QGraphicsObject
 {

@@ -5,9 +5,9 @@
 #include <QPointer>
 #include <QHash>
 
-#include "MapGraphicsObject.h"
+#include "../MapGraphicsObject.h"
 
-#include "guts/PrivateQGraphicsInfoSource.h"
+#include "PrivateQGraphicsInfoSource.h"
 
 class PrivateQGraphicsObject : public QGraphicsObject
 {

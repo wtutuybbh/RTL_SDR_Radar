@@ -1,8 +1,8 @@
 #include "GraphicsObject.h"
 
-#include "../shared_classes/coord/Position.h"
-#include "../shared_classes/coord/Conversions.h"
-#include "../shared_classes/coord/ScreenConversions.h"
+#include "MapGraphics/coordUtils/Position.h"
+#include "MapGraphics/coordUtils/Conversions.h"
+#include "MapGraphics/coordUtils/ScreenConversions.h"
 
 GraphicsObject::GraphicsObject(OBJECT_TYPE type, bool imit) :
     _isImit(imit)

@@ -1,6 +1,6 @@
 #include "OSMTileSource.h"
 
-#include "guts/MapGraphicsNetwork.h"
+#include "../graphBackend/MapGraphicsNetwork.h"
 
 #include <cmath>
 #include <QPainter>

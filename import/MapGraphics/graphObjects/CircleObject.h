@@ -1,8 +1,8 @@
 #ifndef CIRCLEOBJECT_H
 #define CIRCLEOBJECT_H
 
-#include "MapGraphics_global.h"
-#include "MapGraphicsObject.h"
+#include "../MapGraphics_global.h"
+#include "../MapGraphicsObject.h"
 
 class MAPGRAPHICSSHARED_EXPORT CircleObject : public MapGraphicsObject
 {

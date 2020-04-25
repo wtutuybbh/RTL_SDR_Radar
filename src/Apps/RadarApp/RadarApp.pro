@@ -26,7 +26,8 @@ include( ../../../common.pri )
 include( ../../../app.pri )
 
 SOURCES += \
-    ../../Libs/RTL_SDR_RadarLib/shared_classes/coord/Conversions.cpp \
+    ../../../import/MapGraphics/coordUtils/Conversions.cpp \
+    ../../../import/MapGraphics/coordUtils/Position.cpp \
         main.cpp \
         gui/MainWindow.cpp \
     AppCore/Core.cpp \
@@ -34,7 +35,8 @@ SOURCES += \
     gui/TableForm.cpp
 
 HEADERS += \
-    ../../Libs/RTL_SDR_RadarLib/shared_classes/coord/Conversions.h \
+    ../../../import/MapGraphics/coordUtils/Position.h \
+    ../../../import/MapGraphics/coordUtils/ScreenConversions.h \
         gui/MainWindow.h \
     AppCore/Core.h \
     AppCore/publisher/Subject.h \

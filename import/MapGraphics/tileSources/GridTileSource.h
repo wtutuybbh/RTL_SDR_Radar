@@ -1,9 +1,9 @@
 #ifndef GRIDTILESOURCE_H
 #define GRIDTILESOURCE_H
 
-#include "MapTileSource.h"
+#include "../MapTileSource.h"
 
-#include "MapGraphics_global.h"
+#include "../MapGraphics_global.h"
 
 class MAPGRAPHICSSHARED_EXPORT GridTileSource : public MapTileSource
 {

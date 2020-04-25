@@ -1,7 +1,7 @@
 #include "PoolObjectsTest.h"
 
 #include "PoolObject/PoolObject.h"
-#include "../src/Libs/RTL_SDR_RadarLib/shared_classes/coord/Position.h"
+#include "MapGraphics/coordUtils/Position.h"
 
 PoolObjectsTestTest::PoolObjectsTestTest()
 {

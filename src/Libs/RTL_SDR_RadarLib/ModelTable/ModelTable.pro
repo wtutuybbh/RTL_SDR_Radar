@@ -12,7 +12,6 @@ TEMPLATE = lib
 DEFINES += MODELTABLERTO_LIBRARY
 
 SOURCES += \
-    ../shared_classes/coord/Conversions.cpp \
     ModelTable.cpp
 
 HEADERS +=\
@@ -20,8 +19,7 @@ HEADERS +=\
     ../../../include/ModelTable/modeltable_global.h \
     ../../../include/interface/IObserver.h \
     ../../../include/interface/IPoolObject.h \
-    ../../../include/interface/IObject.h \
-    ../shared_classes/coord/Conversions.h
+    ../../../include/interface/IObject.h
 
 unix {
     target.path = /usr/lib

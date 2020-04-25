@@ -4,8 +4,8 @@
 #include <QPolygonF>
 #include <QList>
 
-#include "MapGraphicsObject.h"
-#include "MapGraphics_global.h"
+#include "../MapGraphicsObject.h"
+#include "../MapGraphics_global.h"
 class CircleObject;
 
 class MAPGRAPHICSSHARED_EXPORT PolygonObject : public MapGraphicsObject

@@ -1,6 +1,6 @@
 #include "PolygonObject.h"
 
-#include "guts/Conversions.h"
+#include "../coordUtils/Conversions.h"
 #include "CircleObject.h"
 
 #include <QtDebug>

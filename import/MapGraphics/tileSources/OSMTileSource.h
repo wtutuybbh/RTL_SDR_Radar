@@ -1,8 +1,8 @@
 #ifndef OSMTILESOURCE_H
 #define OSMTILESOURCE_H
 
-#include "MapTileSource.h"
-#include "MapGraphics_global.h"
+#include "../MapTileSource.h"
+#include "../MapGraphics_global.h"
 #include <QSet>
 #include <QHash>
 

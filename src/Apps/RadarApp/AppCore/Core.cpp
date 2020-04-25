@@ -11,8 +11,7 @@
 #include "GraphicsWidget/GraphicsWidget.h"
 #include "ModelTable/ModelTable.h"
 #include "Carrier/NullCarrier.h"
-#include "../Libs/RTL_SDR_RadarLib/shared_classes/coord/Conversions.h"
-
+#include "MapGraphics/coordUtils/Conversions.h"
 #include "publisher/Subject.h"
 
 

@@ -11,9 +11,9 @@
 #include <QThread>
 #include <QMenu>
 
-#include "guts/PrivateQGraphicsScene.h"
-#include "guts/PrivateQGraphicsView.h"
-#include "guts/Conversions.h"
+#include "graphBackend/PrivateQGraphicsScene.h"
+#include "graphBackend/PrivateQGraphicsView.h"
+#include "coordUtils/Conversions.h"
 
 MapGraphicsView::MapGraphicsView(MapGraphicsScene *scene, QWidget *parent) :
     QWidget(parent)

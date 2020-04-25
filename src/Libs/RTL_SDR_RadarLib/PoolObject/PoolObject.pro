@@ -12,8 +12,6 @@ TEMPLATE = lib
 DEFINES += POOLOBJECT_LIBRARY
 
 SOURCES += PoolObject.cpp \
-    ../shared_classes/coord/Position.cpp \
-    ../shared_classes/coord/Conversions.cpp \
     factory/FactoryObjects.cpp \
     ../shared_classes/objects/base/BaseObject.cpp \
     ../shared_classes/objects/air/Aircraft.cpp
@@ -23,8 +21,6 @@ HEADERS += ../../../include/PoolObject/PoolObject.h\
     ../../../include/interface/IObject.h \
     ../../../include/interface/ILogger.h \
     ../../../include/interface/IPoolObject.h \
-    ../shared_classes/coord/Position.h \
-    ../shared_classes/coord/Conversions.h \
     ../../../include/PoolObject/factory/FactoryObjects.h \
     ../shared_classes/objects/base/BaseObject.h \
     ../shared_classes/objects/air/Aircraft.h \

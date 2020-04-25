@@ -10,8 +10,8 @@
 #include "interface/IPoolObject.h"
 #include "interface/ISubject.h"
 #include "implements/MapController.h"
-#include "../shared_classes/coord/Position.h"
-#include "../shared_classes/coord/ScreenConversions.h"
+#include "MapGraphics/coordUtils/Position.h"
+#include "MapGraphics/coordUtils/ScreenConversions.h"
 #include "Carrier/ServiceLocator.h"
 #include "objects/GraphicsObject.h"
 

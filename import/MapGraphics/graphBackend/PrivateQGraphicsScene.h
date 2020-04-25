@@ -6,10 +6,10 @@
 #include <QPointer>
 #include <QWeakPointer>
 
-#include "MapGraphicsScene.h"
-#include "MapGraphicsObject.h"
+#include "../MapGraphicsScene.h"
+#include "../MapGraphicsObject.h"
 #include "PrivateQGraphicsObject.h"
-#include "guts/PrivateQGraphicsInfoSource.h"
+#include "PrivateQGraphicsInfoSource.h"
 
 class PrivateQGraphicsScene : public QGraphicsScene
 {

@@ -1,7 +1,7 @@
 #include <QDebug>
 
 #include "PoolObject/PoolObject.h"
-#include "../shared_classes/coord/Position.h"
+#include "MapGraphics/coordUtils/Position.h"
 
 PoolObject::PoolObject(OBJECT_TYPE type):
     _container(pHash(new QHash<uint64_t,

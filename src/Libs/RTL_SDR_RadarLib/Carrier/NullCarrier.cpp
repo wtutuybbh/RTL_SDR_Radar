@@ -2,7 +2,7 @@
 
 #include "Carrier/NullCarrier.h"
 #include "NullNavigationSystem.h"
-#include "../shared_classes/coord/Position.h"
+#include "MapGraphics/coordUtils/Position.h"
 
 NullCarrier::NullCarrier()
 {

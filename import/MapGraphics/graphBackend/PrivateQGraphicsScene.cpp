@@ -3,7 +3,7 @@
 #include <QtDebug>
 #include <QSet>
 
-#include "MapGraphicsScene.h"
+#include "../MapGraphicsScene.h"
 
 PrivateQGraphicsScene::PrivateQGraphicsScene(MapGraphicsScene * mgScene,
                                              PrivateQGraphicsInfoSource *infoSource,

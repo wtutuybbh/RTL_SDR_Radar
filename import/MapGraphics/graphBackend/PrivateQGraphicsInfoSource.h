@@ -3,7 +3,7 @@
 
 #include <QSharedPointer>
 
-#include "MapTileSource.h"
+#include "../MapTileSource.h"
 
 /*!
  \brief This abstract class is inherited by MapGraphicsView as an implementation of

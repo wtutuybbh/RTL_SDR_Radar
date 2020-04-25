@@ -1,4 +1,4 @@
-#include "MapGraphicsWidget.h"
+#include "MapGraphicsWidget/MapGraphicsWidget.h"
 
 MapGraphicsWidget::MapGraphicsWidget()
 {

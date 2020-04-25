@@ -1,8 +1,8 @@
 #ifndef COMPOSITETILESOURCE_H
 #define COMPOSITETILESOURCE_H
 
-#include "MapTileSource.h"
-#include "MapGraphics_global.h"
+#include "../MapTileSource.h"
+#include "../MapGraphics_global.h"
 
 #include <QList>
 #include <QHash>
