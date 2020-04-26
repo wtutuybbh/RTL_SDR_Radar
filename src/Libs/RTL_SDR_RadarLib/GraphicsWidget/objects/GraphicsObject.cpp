@@ -1,8 +1,8 @@
 #include "GraphicsObject.h"
 
-#include "MapGraphics/coordUtils/Position.h"
-#include "MapGraphics/coordUtils/Conversions.h"
-#include "MapGraphics/coordUtils/ScreenConversions.h"
+#include "osm/coordUtils/Position.h"
+#include "osm/coordUtils/Conversions.h"
+#include "osm/coordUtils/ScreenConversions.h"
 
 GraphicsObject::GraphicsObject(OBJECT_TYPE type, bool imit) :
     _isImit(imit)
@@ -57,7 +57,7 @@ void GraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     painter->drawText(rect, Qt::AlignCenter, _text);
 
     painter->drawLine(QPointF(boundingRect().center()),
-                QPointF(rect.topLeft().x(),
+                      QPointF(rect.topLeft().x(),
                               rect.topLeft().y() + rect.height()/2));
 
     painter->drawLine(QPointF(rect.topLeft().x(),
@@ -107,13 +107,10 @@ void GraphicsObject::loadPixmap(OBJECT_TYPE type, bool isImit)
     _pixmapIcon.fill(Qt::transparent);
 
     if(type == OBJECT_TYPE::air && !isImit )
-    {
         _pixmapIcon.load(QString(":/icon/target/air.png"));
-    }
-    if(type == OBJECT_TYPE::base || isImit)
-    {
+    else
         drawObjectIcon(isImit);
-    }
+
     _sizeIcon = _pixmapIcon.size();
 }
 
@@ -140,6 +137,7 @@ QVariant GraphicsObject::itemChange(GraphicsItemChange change, const QVariant &v
 
 void GraphicsObject::drawObjectIcon(bool imit)
 {
+    Q_UNUSED(imit)
     //qDebug()<<"GraphicsObject::drawObjectIcon()";
 
     QPainter p(&_pixmapIcon);

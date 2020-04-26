@@ -10,8 +10,8 @@
 #include "interface/IPoolObject.h"
 #include "interface/ISubject.h"
 #include "implements/MapController.h"
-#include "MapGraphics/coordUtils/Position.h"
-#include "MapGraphics/coordUtils/ScreenConversions.h"
+#include "osm/coordUtils/Position.h"
+#include "osm/coordUtils/ScreenConversions.h"
 #include "Carrier/ServiceLocator.h"
 #include "objects/GraphicsObject.h"
 
@@ -360,6 +360,7 @@ void GraphicsWidget::drawMap(QPainter* painter,bool isDraw)
     if(_ptrMapController.isNull() || (!isDraw) || (painter == nullptr))
         return;
 
+    QSizeF size();
     QImage img = _ptrMapController->getImageMap(_scene->sceneRect().size(),
                                                 ServiceLocator::getCarrier()->getGeoCoord(),
                                                 _distToBorderMap,

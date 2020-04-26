@@ -120,7 +120,7 @@ Demodulator::~Demodulator()
     delete  maglut;
 }
 
-bool Demodulator::setDataForDemodulate(const QVector<uint8_t> &vector)
+void Demodulator::setDataForDemodulate(const QVector<uint8_t> &vector)
 {
     computeMagnitudeVector(vector,_magnitude);
 }
@@ -186,7 +186,7 @@ void Demodulator::computeMagnitudeVector(const QVector<uint8_t> &vector,
 
     uint16_t *m = magnitude.data();
     const unsigned char *p = vector.data();
-    uint32_t j;
+    int32_t j;
 
     /* Compute the magnitudo vector. It's just SQRT(I^2 + Q^2), but
      * we rescale to the 0-255 range to exploit the full resolution. */
@@ -371,7 +371,7 @@ good_preamble:
          * to mark this as real message and not just noise? */
         delta = 0;
 
-        for (uint32_t i = 0; i < msglen*8*2; i += 2)
+        for (int32_t i = 0; i < msglen*8*2; i += 2)
         {
             delta += abs(m[j+i+MODES_PREAMBLE_US*2] - m[j+i+MODES_PREAMBLE_US*2+1]);
         }

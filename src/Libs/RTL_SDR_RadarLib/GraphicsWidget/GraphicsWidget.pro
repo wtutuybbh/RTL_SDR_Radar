@@ -12,7 +12,7 @@ TEMPLATE = lib
 DEFINES += GRAPHICSWIDGET_LIBRARY
 
 SOURCES += GraphicsWidget.cpp \
-    ../../../../import/MapGraphics/coordUtils/ScreenConversions.cpp \
+    ../../../../import/osm/coordUtils/ScreenConversions.cpp \
     implements/MapController.cpp \
     ../../../../import/osm/MapGraphicsNetwork.cpp \
     ../../../../import/osm/MapTileSource.cpp \
@@ -20,7 +20,7 @@ SOURCES += GraphicsWidget.cpp \
     objects/GraphicsObject.cpp
 
 HEADERS += ../../../include/GraphicsWidget/GraphicsWidget.h\
-    ../../../../import/MapGraphics/coordUtils/ScreenConversions.h \
+    ../../../../import/osm/coordUtils/ScreenConversions.h \
     ../../../include/GraphicsWidget/graphicswidget_global.h \
     ../../../include/interface/IMapController.h \
     implements/MapController.h \

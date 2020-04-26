@@ -24,7 +24,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::addGraphicsWidget(GraphicsWidget* widget)
+void MainWindow::addGraphicsWidget(QWidget* widget)
 {
     ui->vrlRadar->addWidget(widget);
 }

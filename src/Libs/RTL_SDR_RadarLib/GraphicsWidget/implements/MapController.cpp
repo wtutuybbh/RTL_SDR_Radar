@@ -4,7 +4,7 @@
 #include <QPointF>
 #include <QPainter>
 
-#include "MapGraphics/coordUtils/ScreenConversions.h"
+#include "osm/coordUtils/ScreenConversions.h"
 
 MapController::MapController()
 {
@@ -93,6 +93,9 @@ PolarCoord MapController::screenToRealPolar(const QSizeF &size,
                                             const Position &centerCoord,
                                             const QPointF &xy)
 {
+    Q_UNUSED(size)
+    Q_UNUSED(centerCoord)
+    Q_UNUSED(xy)
     return PolarCoord(0.0, 0.0);
 }
 
@@ -100,7 +103,9 @@ QPointF MapController::realPolarToScreen(const QSizeF &size,
                                          const Position &centerCoord,
                                          const PolarCoord &plr)
 {
-
+    Q_UNUSED(size)
+    Q_UNUSED(centerCoord)
+    Q_UNUSED(plr)
     return QPointF();
 }
 
@@ -170,11 +175,12 @@ int MapController::incScale()
 
 int MapController::decScale()
 {
-     return  (_zoom > 0) ? --_zoom : _zoom;
+    return  (_zoom > 0) ? --_zoom : _zoom;
 }
 
 bool MapController::isVisibleInCurrentScale(double dist)
 {
+    Q_UNUSED(dist)
     return false;
 }
 
@@ -252,13 +258,13 @@ QImage MapController::addFilterImage(const QPixmap &pxm,
 }
 
 double MapController::getDistanceObject_M(const Position& centerCoord,
-                                        const Position& dot)
+                                          const Position& dot)
 {
     return centerCoord.flatDistanceEstimate(dot);
 }
 
 double MapController::getDistanceObject_KM(const Position& centerCoord,
-                                        const Position& dot)
+                                           const Position& dot)
 {
     return getDistanceObject_M(centerCoord, dot) / 1000.0;
 }

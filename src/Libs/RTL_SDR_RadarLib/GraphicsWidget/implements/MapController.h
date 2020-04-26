@@ -6,8 +6,8 @@
 
 #include "interface/IMapController.h"
 #include "osm/OSMTileSource.h"
-#include "MapGraphics/coordUtils/Position.h"
-#include "MapGraphics/coordUtils/Conversions.h"
+#include "osm/coordUtils/Position.h"
+#include "osm/coordUtils/Conversions.h"
 /*!
  * \brief The MapController class
  * реализация интерфеса контроллера  карты

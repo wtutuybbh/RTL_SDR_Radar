@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsView>
+
 #include <QTimer>
 #include "interface/ILogger.h"
 
@@ -30,7 +32,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void addGraphicsWidget(GraphicsWidget* widget);
+    void addGraphicsWidget(QWidget *widget);
     void addTableWidget(QWidget* widget);
     void setReciverDeviceState(bool state);
     void setDBState(bool state);

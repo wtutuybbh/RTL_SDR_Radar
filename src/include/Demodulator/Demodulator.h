@@ -131,7 +131,7 @@ public:
      */
     void setLogger(QSharedPointer<ILogger> log) override { _log = log;}
 
-    bool setDataForDemodulate(const QVector<uint8_t>& vector) override;
+    void setDataForDemodulate(const QVector<uint8_t>& vector) override;
     void run() override;
     QByteArray getRawDump() override;
     bool demodulate() override;

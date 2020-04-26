@@ -55,8 +55,8 @@ QMAKE_CFLAGS -= -O2
 
 QMAKE_CFLAGS += -O3
 
-QMAKE_CXXFLAGS += -std=c++11
-CONFIG += c++11
+QMAKE_CXXFLAGS += -std=c++14
+CONFIG += c++14
 
 
 

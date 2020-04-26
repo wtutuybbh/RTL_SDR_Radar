@@ -11,9 +11,8 @@
 #include "GraphicsWidget/GraphicsWidget.h"
 #include "ModelTable/ModelTable.h"
 #include "Carrier/NullCarrier.h"
-#include "MapGraphics/coordUtils/Conversions.h"
+#include "osm/coordUtils/Conversions.h"
 #include "publisher/Subject.h"
-
 
 Core::Core(QObject *parent) : QObject(parent)
 {
@@ -85,6 +84,7 @@ void Core::init()
     //подписка на события
     _graphicsWidget->subscribe(_subject);
     _mainWindow->addGraphicsWidget(_graphicsWidget);
+
 
     //модель таблицы
     _modelTable = new ModelTable(_mainWindow);

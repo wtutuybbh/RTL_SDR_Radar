@@ -4,7 +4,7 @@
 #include <QDateTime>
 #include <QObject>
 #include "interface/IObject.h"
-#include "MapGraphics/coordUtils/Position.h"
+#include "osm/coordUtils/Position.h"
 
 /*!
  * \brief The BaseObject class
