@@ -1,7 +1,7 @@
 #include "PoolObjectsTest.h"
 
 #include "PoolObject/PoolObject.h"
-#include "MapGraphics/coordUtils/Position.h"
+#include "osm/coordUtils/Position.h"
 
 PoolObjectsTestTest::PoolObjectsTestTest()
 {

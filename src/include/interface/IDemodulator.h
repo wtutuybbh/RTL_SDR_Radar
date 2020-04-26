@@ -26,7 +26,7 @@ public:
     /*!
      *  \brief копирование массива данных для выполнения демодуляции
      */
-    virtual bool setDataForDemodulate(const QVector<uint8_t>& vector) = 0;
+    virtual void setDataForDemodulate(const QVector<uint8_t>& vector) = 0;
     /*!
      *  \brief Получение сериализованных данных об обнаруженных самолётах
      *         в виде байтового массива для передачи по сети

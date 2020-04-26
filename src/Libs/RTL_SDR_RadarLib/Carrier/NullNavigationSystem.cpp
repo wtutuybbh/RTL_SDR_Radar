@@ -1,5 +1,5 @@
 #include "NullNavigationSystem.h"
-#include "MapGraphics/coordUtils/Position.h"
+#include "osm/coordUtils/Position.h"
 
 NullNavigationSystem::NullNavigationSystem()
 {

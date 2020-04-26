@@ -4,7 +4,7 @@
 #include <QDateTime>
 
 #include "interface/INavigationSystem.h"
-#include "MapGraphics/coordUtils/Position.h"
+#include "osm/coordUtils/Position.h"
 
 /*!
  * \brief The NavigationSystem class

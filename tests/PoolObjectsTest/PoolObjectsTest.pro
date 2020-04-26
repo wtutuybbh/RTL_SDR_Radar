@@ -25,8 +25,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-    ../../import/MapGraphics/coordUtils/Conversions.cpp \
-    ../../import/MapGraphics/coordUtils/Position.cpp \
+    ../../import/osm/coordUtils/Conversions.cpp \
+    ../../import/osm/coordUtils/Position.cpp \
     PoolObjectsTest.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
@@ -37,6 +37,6 @@ include( ../../app.pri )
 LIBS += -lPoolObject
 
 HEADERS += \
-    ../../import/MapGraphics/coordUtils/Conversions.h \
-    ../../import/MapGraphics/coordUtils/Position.h \
+    ../../import/osm/coordUtils/Conversions.h \
+    ../../import/osm/coordUtils/Position.h \
     PoolObjectsTest.h

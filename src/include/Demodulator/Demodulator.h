@@ -140,7 +140,7 @@ public:
      *  \brief установка массива данных для демодуляции
      *  \param  vector - массив 8битных отсчётов
      */
-    bool setDataForDemodulate(const QVector<uint8_t>& vector) override;
+    void setDataForDemodulate(const QVector<uint8_t>& vector) override;
     /*!
      *  \brief основной методд выполнения демудуляции
      */

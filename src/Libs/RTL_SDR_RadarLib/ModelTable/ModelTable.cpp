@@ -8,7 +8,7 @@
 #include "interface/IObject.h"
 #include "interface/ISubject.h"
 #include "interface/IPoolObject.h"
-#include "MapGraphics/coordUtils/Conversions.h"
+#include "osm/coordUtils/Conversions.h"
 
 ModelTable::ModelTable(QObject *parent): QAbstractTableModel( parent )
 {

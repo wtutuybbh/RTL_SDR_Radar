@@ -73,7 +73,7 @@ void Subject::Deatach(IObserver *o)
 {
     //Enter to locked section
     QMutexLocker _lock(&_mutexRawPtr);
-    if(_rawObservers.isEmpty())
+    if(_rawObservers.isEmpty() || o == nullptr)
     {
         qDebug()<<"no subscribers";
         return;

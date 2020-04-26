@@ -10,8 +10,8 @@
 #include "interface/IPoolObject.h"
 #include "interface/ISubject.h"
 #include "implements/MapController.h"
-#include "MapGraphics/coordUtils/Position.h"
-#include "MapGraphics/coordUtils/ScreenConversions.h"
+
+#include "osm/coordUtils/ScreenConversions.h"
 #include "Carrier/ServiceLocator.h"
 #include "objects/GraphicsObject.h"
 
@@ -29,7 +29,7 @@ GraphicsWidget::GraphicsWidget(uint32_t widthRect,
             this, SLOT(updateScene()));
 
     _ptrCarrier = ServiceLocator::getCarrier();
-
+    _centerCoord = ServiceLocator::getCarrier()->getGeoCoord();
     //обновление сектора
     connect(&_timer, &QTimer::timeout, this, &GraphicsWidget::timeout);
 
@@ -117,7 +117,7 @@ void GraphicsWidget::initWidget(const QRect &rect, bool enableOpenGL)
     this->setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
     this->setVerticalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
 
-    _distToBorderMap = _scene->sceneRect().width()/2.0 - _textBorder ;
+    setDisplayMode(DisplayMode::RADAR);
 
 }
 
@@ -155,6 +155,30 @@ void GraphicsWidget::update(QSharedPointer<IPoolObject> pool)
     }
 
     slotUpdateData(pool);
+}
+
+void GraphicsWidget::setDisplayMode(DisplayMode mode)
+{
+    _displayMode = mode;
+
+    if(mode == DisplayMode::RADAR)
+    {
+        _radRadar = _scene->sceneRect().width()/2.0 - _textBorder;
+        setDragMode(QGraphicsView::NoDrag);
+    }
+    else
+        setDragMode(QGraphicsView::ScrollHandDrag);
+
+
+    _distToBorderMap = (mode == DisplayMode::RADAR) ?
+                (_scene->sceneRect().width()/2.0 - _textBorder)  :
+                0;
+
+    _centerCoord = ServiceLocator::getCarrier()->getGeoCoord();
+
+    recalculateCoordObjects();
+    //обновление кешированных данных
+    QGraphicsView::resetCachedContent ();
 }
 
 GraphicsObject* GraphicsWidget::getGraphicsItem(QSharedPointer<IObject> &object)
@@ -292,6 +316,15 @@ QStringList GraphicsWidget::getDataForTable(IObject* object)
 
 void GraphicsWidget::mouseMoveEvent(QMouseEvent *event)
 {
+    if (event->buttons()==Qt::LeftButton &&
+            getDisplayMode() == DisplayMode::CARTESIAN)
+    {
+
+        moveMap(_oldPos.x()-event->pos().x(), _oldPos.y()-event->pos().y());
+        _oldPos=event->pos();
+
+    }
+
     _cursorCoord = mapToScene(event->pos());
     if(_fixCursor)
         return;
@@ -306,10 +339,18 @@ void GraphicsWidget::mouseMoveEvent(QMouseEvent *event)
         scene()->clearSelection();
         litem->setSelected(true);
     }
+
 }
 
 void GraphicsWidget::mousePressEvent(QMouseEvent *event)
 {
+    if ((event->button() == Qt::LeftButton) &&
+                (getDisplayMode() == DisplayMode::CARTESIAN))
+    {
+        _oldPos = event->pos();
+        return;
+    }
+
     if(event->button() != Qt::LeftButton)
         return;
 
@@ -351,8 +392,10 @@ void GraphicsWidget::wheelEvent(QWheelEvent * event)
 
 QPointF GraphicsWidget::getSceneCenterPont()
 {
-    return QPointF(_scene->width()/2.0,
-                   _scene->height()/2.0);
+    QPointF dot = _ptrMapController->geoToScreenCoordinates(_scene->sceneRect().size(),
+                                                            _centerCoord,
+                                                            _ptrCarrier->getGeoCoord());
+    return dot;
 }
 
 void GraphicsWidget::drawMap(QPainter* painter,bool isDraw)
@@ -360,10 +403,14 @@ void GraphicsWidget::drawMap(QPainter* painter,bool isDraw)
     if(_ptrMapController.isNull() || (!isDraw) || (painter == nullptr))
         return;
 
+    FILTER_TYPE type = (getDisplayMode() == DisplayMode::RADAR) ?
+                FILTER_TYPE::NIGHT_AND_CIRCLE :
+                FILTER_TYPE::NIGHT;
+
     QImage img = _ptrMapController->getImageMap(_scene->sceneRect().size(),
-                                                ServiceLocator::getCarrier()->getGeoCoord(),
+                                                _centerCoord,
                                                 _distToBorderMap,
-                                                FILTER_TYPE::NIGHT_AND_CIRCLE);
+                                                type);
 
     painter->drawImage(0, 0, img);
 }
@@ -392,10 +439,10 @@ void GraphicsWidget::drawRadarSector(QPainter *painter)
 {
     QPointF dot = getSceneCenterPont();
 
-    QRectF drawingRect(dot.x() - _distToBorderMap,
-                       dot.y() - _distToBorderMap,
-                       _distToBorderMap * 2,
-                       _distToBorderMap * 2);
+    QRectF drawingRect(dot.x() - _radRadar,
+                       dot.y() - _radRadar,
+                       _radRadar * 2,
+                       _radRadar * 2);
 
 
     gradient.setCenter(drawingRect.center());
@@ -413,7 +460,7 @@ void GraphicsWidget::drawRadarSector(QPainter *painter)
     painter->drawLine(drawingRect.center(),
                       QPointF(ScreenConversions::polarToScreen(getSceneCenterPont(),
                                                                _angleGradientSector + _sectorSize * 2,
-                                                               _distToBorderMap)));
+                                                               _radRadar)));
 
     for(auto &iter : _hashTable.values())
     {
@@ -452,7 +499,7 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
                             _pxmSelect);
     }
 
-    drawCarrier(painter);
+
 
     initDrawText(painter);
     printScreenCoord(painter);
@@ -461,6 +508,7 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
 
     drawHiddenObject(painter);
 
+    drawCarrier(painter);
     if(!_updateInSector)
         return;
 
@@ -488,7 +536,8 @@ void GraphicsWidget::resizeEvent(QResizeEvent *event)
     const uint64_t dimension = static_cast<uint64_t>(sqrt(w * h));
     _scene->setSceneRect(0, 0, dimension, dimension);
 
-    _distToBorderMap = _scene->sceneRect().width()/2.0 - _textBorder ;
+    _radRadar = _scene->sceneRect().width()/2.0 - _textBorder;
+    _distToBorderMap = (getDisplayMode() == DisplayMode::RADAR) ? _radRadar  : 0;
 
     recalculateCoordObjects();
 
@@ -570,25 +619,28 @@ void GraphicsWidget::drawText(QPainter *p,
                               const QStringList &strList)
 {
     QFont font = p->font();
-    int captionWidth = 0;
-    int captionHeight = QFontMetrics(font.family()).height() + 2;
+    int captionWidth = 90;
+    int captionHeight = QFontMetrics(font.family()).height();
 
+    int tW = 0;
     for(auto & iter: strList)
-        captionWidth = std::max(captionWidth,
+    {
+        tW = std::max(captionWidth,
                                 QFontMetrics(font.family()).width(iter));
-
+        captionWidth = (captionWidth < tW) ? tW :captionWidth;
+    }
     p->setBrush(_clrTronAlpha);
     int YY = Y;
     int XX = X;
     for(int i = strList.size(); i > 0 ; --i)
     {
         XX = (X > _scene->width() / 2) ?
-                    (X - captionWidth  - _textBorder / 4) :
-                    (X + _textBorder / 4);
+                    (X - captionWidth  - _textBorder / 5) :
+                    (X + _textBorder / 5);
 
         YY = (Y > _scene->width() / 2) ?
-                    (Y - i * captionHeight -_textBorder/4) :
-                    (Y + i * captionHeight);
+                    (Y - i * captionHeight -_textBorder/5) :
+                    (Y + i * captionHeight - captionHeight / 2);
 
         QRectF rect(XX,
                     YY,
@@ -800,4 +852,21 @@ void GraphicsWidget::RadarScaleMinus()
         return;
 
     recalculateCoordObjects();
+}
+
+void GraphicsWidget::moveMap(int deltaX, int deltaY)
+{
+
+    if(_ptrMapController.isNull())
+        return;
+
+    _centerCoord = _ptrMapController->screenToGeoCoordinates(scene()->sceneRect().size(),
+                                                             _centerCoord,
+                                                             QPointF(rect().width()/2.0 + deltaX,
+                                                                     rect().height()/2.0 + deltaY));
+
+    //coordConv->setCenterPoint(geoToScreen(_ourPosition));
+    recalculateCoordObjects();
+    QGraphicsView::resetCachedContent();
+    _scene->update();
 }
