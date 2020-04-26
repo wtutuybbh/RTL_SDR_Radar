@@ -460,7 +460,7 @@ void GraphicsWidget::drawRadarSector(QPainter *painter)
     painter->drawLine(drawingRect.center(),
                       QPointF(ScreenConversions::polarToScreen(getSceneCenterPont(),
                                                                _angleGradientSector + _sectorSize * 2,
-                                                               _distToBorderMap)));
+                                                               _radRadar)));
 
     for(auto &iter : _hashTable.values())
     {
@@ -536,7 +536,8 @@ void GraphicsWidget::resizeEvent(QResizeEvent *event)
     const uint64_t dimension = static_cast<uint64_t>(sqrt(w * h));
     _scene->setSceneRect(0, 0, dimension, dimension);
 
-    _distToBorderMap = _scene->sceneRect().width()/2.0 - _textBorder ;
+    _radRadar = _scene->sceneRect().width()/2.0 - _textBorder;
+    _distToBorderMap = (getDisplayMode() == DisplayMode::RADAR) ? _radRadar  : 0;
 
     recalculateCoordObjects();
 
@@ -618,8 +619,8 @@ void GraphicsWidget::drawText(QPainter *p,
                               const QStringList &strList)
 {
     QFont font = p->font();
-    int captionWidth = 100;
-    int captionHeight = QFontMetrics(font.family()).height() + 2;
+    int captionWidth = 90;
+    int captionHeight = QFontMetrics(font.family()).height();
 
     int tW = 0;
     for(auto & iter: strList)
@@ -634,12 +635,12 @@ void GraphicsWidget::drawText(QPainter *p,
     for(int i = strList.size(); i > 0 ; --i)
     {
         XX = (X > _scene->width() / 2) ?
-                    (X - captionWidth  - _textBorder / 4) :
-                    (X + _textBorder / 4);
+                    (X - captionWidth  - _textBorder / 5) :
+                    (X + _textBorder / 5);
 
         YY = (Y > _scene->width() / 2) ?
-                    (Y - i * captionHeight -_textBorder/4) :
-                    (Y + i * captionHeight);
+                    (Y - i * captionHeight -_textBorder/5) :
+                    (Y + i * captionHeight - captionHeight / 2);
 
         QRectF rect(XX,
                     YY,
