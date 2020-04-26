@@ -24,8 +24,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::addGraphicsWidget(QWidget* widget)
+void MainWindow::addGraphicsWidget(GraphicsWidget* widget)
 {
+    _graphicsWidget = widget;
     ui->vrlRadar->addWidget(widget);
 }
 
@@ -111,4 +112,15 @@ void MainWindow::logBalancing()
 
     if(interval != _timer.interval())
         _timer.setInterval(interval);
+}
+
+void MainWindow::on_rbRadarMode_clicked()
+{
+    _graphicsWidget->setDisplayMode(DisplayMode::RADAR);
+}
+
+void MainWindow::on_rbCartesianMode_clicked()
+{
+    _graphicsWidget->setDisplayMode(DisplayMode::CARTESIAN);
+
 }

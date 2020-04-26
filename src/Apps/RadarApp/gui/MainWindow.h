@@ -32,7 +32,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void addGraphicsWidget(QWidget *widget);
+    void addGraphicsWidget(GraphicsWidget *widget);
     void addTableWidget(QWidget* widget);
     void setReciverDeviceState(bool state);
     void setDBState(bool state);
@@ -46,6 +46,8 @@ private:
 
 private slots:
     void updateTerminal();
+    void on_rbRadarMode_clicked();
+    void on_rbCartesianMode_clicked();
 };
 
 #endif // MAINWINDOW_H

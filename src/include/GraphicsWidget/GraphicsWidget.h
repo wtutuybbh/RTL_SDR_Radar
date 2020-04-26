@@ -7,12 +7,20 @@
 #include <QUuid>
 
 #include "interface/IObserver.h"
+#include "osm/coordUtils/Position.h"
+
+enum class  DisplayMode
+{
+    RADAR = 0,
+    CARTESIAN
+};
 
 class IPoolObject;
 class IMapController;
 class ICarrierClass;
 class IObject;
 class GraphicsObject;
+class Position;
 
 class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
         public IObserver
@@ -33,6 +41,8 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
 
     QPointF _fixCursorCoord;
     QPointF _cursorCoord;
+    QPoint _oldPos;
+    Position _centerCoord;
     //пиксмапы для курсоров
     QPixmap _pxmCursor;
     QPixmap _pxmSelect;
@@ -40,7 +50,9 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
     bool _fixCursor = false;
     const QSize _cursorSize = QSize(45,45);
 
-    double _distToBorderMap = 0.0;
+    float _distToBorderMap = 0.0;
+    float _radRadar = 0.0;
+
     int  _mapZoom = 8;
 
     const int grad = 360;
@@ -63,6 +75,9 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
     ///< вектор для хранения пеленгов объектов,которые не попадают в масштаб карты
     QVector<double > _vHiddenObject;
     QHash<QUuid,GraphicsObject* > _hashTable;
+
+    DisplayMode _displayMode = DisplayMode::RADAR;
+
     /*!
      * \brief initWidget инициализация виджета для отображения карты и РТО объектов
      * \param size - размер сцены. \warning ширина == высоте
@@ -124,6 +139,8 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
 
     void drawRadarSector(QPainter *painter);
 
+    void moveMap(int deltaX, int deltaY);
+
 public:
     /*!
      * \brief GraphicsWidget конструктор класса для отображения карты и объектов
@@ -159,6 +176,10 @@ public:
      * \brief update - событие обновления пула объектов
      */
     void update(QSharedPointer<IPoolObject> pool) override;
+
+    void setDisplayMode(DisplayMode mode);
+    DisplayMode getDisplayMode() { return  _displayMode; }
+
 
 protected:
     /*!
@@ -248,6 +269,7 @@ protected:
     virtual QStringList getDataForTable(IObject *object);
 
     void drawCursorText(QPainter *p);
+
 
 private slots:
     /*!
