@@ -77,11 +77,12 @@ bool DataWorker::processData()
            ptrData,
            size_t(MODES_DATA_LEN));
 
-    if(_demod.isNull())
-        return false;
+    if(!_demod.isNull())
+    {
 
-    _demod->setDataForDemodulate(_dataVector);
-    QThreadPool::globalInstance()->start(_demod.data());
+        _demod->setDataForDemodulate(_dataVector);
+        QThreadPool::globalInstance()->start(_demod.data());
+    }
 
     if(!_dsp.isNull())
     {

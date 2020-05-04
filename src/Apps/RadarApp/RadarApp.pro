@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets opengl network
+QT       += core gui widgets opengl network printsupport
 
 TARGET = RadarApp
 TEMPLATE = app
@@ -14,6 +14,8 @@ TEMPLATE = app
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
+
+DEFINES += QCUSTOMPLOT_USE_OPENGL
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -26,6 +28,7 @@ include( ../../../app.pri )
 SOURCES += \
     ../../../import/osm/coordUtils/Conversions.cpp \
     ../../../import/osm/coordUtils/Position.cpp \
+    ../../../import/qcustomplot/qcustomplot.cpp \
         main.cpp \
         gui/MainWindow.cpp \
     AppCore/Core.cpp \
@@ -35,6 +38,7 @@ SOURCES += \
 HEADERS += \
     ../../../import/osm/coordUtils/Position.h \
     ../../../import/osm/coordUtils/ScreenConversions.h \
+    ../../../import/qcustomplot/qcustomplot.h \
         gui/MainWindow.h \
     AppCore/Core.h \
     AppCore/publisher/Subject.h \
@@ -62,4 +66,5 @@ LIBS += -lLogger \
         -lDataController \
         -lRTL_SDR_Reciver \
         -lDemodulator \
-        -lModelTable
+        -lModelTable \
+        -lDSPLib

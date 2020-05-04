@@ -19,6 +19,7 @@ class GraphicsWidget;
 class ISubject;
 class ModelTable;
 class ILogger;
+class IDSP;
 
 class Core : public QObject
 {
@@ -50,7 +51,8 @@ class Core : public QObject
     QSharedPointer<ISubject> _subject = nullptr;
     ///< логгер
     QSharedPointer<ILogger> _logger = nullptr;
-
+    ///< библиотека ЦОС
+    QSharedPointer<IDSP> _dsp;
     /*!
      * \brief updateGeoPositionInfo
      * обновление геопозиции радиотехнических объектов в пуле

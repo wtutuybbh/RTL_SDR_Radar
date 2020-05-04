@@ -7,7 +7,7 @@ const uint64_t MODES_DEFAULT_RATE       = 2000000;
 const uint64_t MODES_DEFAULT_FREQ       = 1090000000;
 
 const uint16_t MODES_ASYNC_BUF_NUMBER   = 12;
-constexpr uint64_t MODES_DATA_LEN       = (16*16384);   /* 256k */
+constexpr uint64_t MODES_DATA_LEN       = uint64_t(16*16384);   /* 256k */
 const int32_t  MODES_AUTO_GAIN          = -100;         /* Use automatic gain. */
 const int32_t  MODES_MAX_GAIN           = 999999;       /* Use max available gain. */
 

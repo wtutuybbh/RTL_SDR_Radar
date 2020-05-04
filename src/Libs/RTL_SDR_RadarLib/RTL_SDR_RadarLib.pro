@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS += \
+    DSPLib \
     Logger \
     Demodulator \
     Carrier \
