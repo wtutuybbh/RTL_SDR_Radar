@@ -49,6 +49,7 @@ Core::~Core()
 
     _poolObjects.clear();
 
+    _dsp.clear();
     delete _mainWindow;
 }
 

@@ -44,6 +44,8 @@ Core::~Core()
     _device->closeDevice();
     _device.clear();
 
+    _dsp.clear();
+
     delete _mainWindow;
 }
 
