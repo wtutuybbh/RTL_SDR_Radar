@@ -113,15 +113,21 @@ class DEMODULATORSHARED_EXPORT Demodulator : public IDemodulator
     uint64_t stat_out_of_phase = 0;
 
     /* Configuration */
-    bool fix_errors = true;                 /* Single bit error correction if true. */
-    bool check_crc = true;                  /* Only display messages with good CRC. */
-    bool debug = false;                      /* Debugging mode. */
-
-    int interactive_ttl = MODES_INTERACTIVE_TTL;            /* Interactive mode: TTL before deletion. */
-    bool onlyaddr = false;                   /* Print only ICAO addresses. */
-    bool metric = true;                     /* Use metric units. */
-    bool aggressive = false;          /* Aggressive detection algorithm. */
-
+    /* Single bit error correction if true. */
+    bool fix_errors = true;
+    /* Only display messages with good CRC. */
+    bool check_crc = true;
+    /* Debugging mode. */
+    bool debug = false;
+    /* Interactive mode: TTL before deletion. */
+    int interactive_ttl = MODES_INTERACTIVE_TTL;
+    /* Print only ICAO addresses. */
+    bool onlyaddr = false;
+    /* Use metric units. */
+    bool metric = true;
+    /* Aggressive detection algorithm. */
+    bool aggressive = false;
+    ///< вектор рассчета огибающей
     uint16_t* maglut;
 public:
     Demodulator(QSharedPointer<IPoolObject> pool);
@@ -130,12 +136,28 @@ public:
      *  \brief внедрение зависимости модуля логгирования
      */
     void setLogger(QSharedPointer<ILogger> log) override { _log = log;}
-
+    /*!
+     *  \brief установка массива данных для демодуляции
+     *  \param  vector - массив 8битных отсчётов
+     */
     void setDataForDemodulate(const QVector<uint8_t>& vector) override;
+    /*!
+     *  \brief основной методд выполнения демудуляции
+     */
     void run() override;
-    QByteArray getRawDump() override;
+    /*!
+     *  \brief Получение байтового массива сериализованных объектов
+     * из пула объектов
+     * \return байтовый массви,упаковынный согласно протоколу сериализации
+     */
+    QByteArray getRawDumpOfObjectsInfo() override;
+    /*!
+     *  \brief функция демодуляции
+     */
     bool demodulate() override;
-
+    /*!
+     *  \brief получение количества объектов
+     */
     int32_t getCountObject() override;
 
 private:

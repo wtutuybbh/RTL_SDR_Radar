@@ -31,7 +31,12 @@ Core::Core(QObject *parent) : QObject(parent)
     _device = QSharedPointer<IReciverDevice>(new RTL_SDR_Reciver());
     _device->setLogger(_logger);
 
-    _demodulator = QSharedPointer<IDemodulator>(new Demodulator(QSharedPointer<IPoolObject>()));
+    //пулл объектов для хранения объектов типа самолет
+    _poolObjects = QSharedPointer<IPoolObject>(new PoolObject(OBJECT_TYPE::air));
+
+    //демодулятор входного сигнала
+    _demodulator = QSharedPointer<IDemodulator>(new Demodulator(_poolObjects));
+
     _demodulator->setLogger(_logger);
 
     _mainWindow.setLogger(_logger);
