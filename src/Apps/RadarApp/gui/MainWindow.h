@@ -13,6 +13,8 @@ namespace Ui {
 class MainWindow;
 }
 
+class QCustomPlot;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -28,6 +30,8 @@ class MainWindow : public QMainWindow
     int32_t MIN_INTERVAL = 10;
     int32_t COUNT_TEXT_LINE = 1000;
     void logBalancing();
+
+    QCustomPlot *customPlot;
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);

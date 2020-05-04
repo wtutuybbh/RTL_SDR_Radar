@@ -3,4 +3,6 @@ CONFIG   += ordered
 
 SUBDIRS += \
     RadarApp \
-    RaspberryApp
+    RaspberryApp \
+#    CoolRetroTerm \
+    TechnologicSoft

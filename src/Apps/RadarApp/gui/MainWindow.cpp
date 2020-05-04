@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "GraphicsWidget/GraphicsWidget.h"
+#include "qcustomplot/qcustomplot.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -16,6 +17,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(&_timer, &QTimer::timeout,
                      this, &MainWindow::updateTerminal);
     _timer.start(timeout);
+
+
+//    ui->hrlOscilloscope->addWidget(customPlot);
 }
 
 MainWindow::~MainWindow()

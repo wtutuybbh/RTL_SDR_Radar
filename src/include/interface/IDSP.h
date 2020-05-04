@@ -14,8 +14,8 @@
 struct SrcDataAdc
 {
     QVector<std::complex<int8_t>> rawDataVector;
-    QVector<std::complex<float>> magnitudeVector;
-    QVector<std::complex<float>> fftVector;
+    QVector<double> magnitudeVector;
+    QVector<double> fftVector;
 };
 
 class IDSP
@@ -41,5 +41,12 @@ public:
      * \return блок данных после обработки
      */
     virtual SrcDataAdc makeAll(const QVector<uint8_t>& vector) = 0;
+
+    virtual SrcDataAdc takeDataBlock() = 0;
+    virtual void lockDataBuffer() = 0;
+    virtual bool tryLockDataBuffer() = 0;
+    virtual void unlockDataBuffer() = 0;
+    virtual bool isEmptyDataBuffer() = 0;
+
 };
 #endif // IDSP_H

@@ -2,5 +2,7 @@ TEMPLATE  = subdirs
 CONFIG   += ordered
 
 SUBDIRS += \
-    RTL_SDR_RadarLib
+    RTL_SDR_RadarLib \
+#    qmltermwidget
+
 
