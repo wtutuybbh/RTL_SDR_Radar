@@ -22,37 +22,39 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
     QTimer _timer;
-    int32_t timeout = 25;
-    QCustomPlot *plotSpectrum;
-    QCustomPlot *plotWaterfall;
-    Core* _core = nullptr;
-
-    int accumSpectrDeep;            // Глубина накопления
-    QVector<double> accumSpectrStore;
-    QVector<double> powerPeakA;
-    QVector<double> powerAccumA;
-    QVector<double> xAxis;
-
-    int currAccum = 0;   // Для накопления спектра
-    int countAccum;  // Для накопления спектра
+    const int32_t _timeout = 16;
     const int N = 8192;
     const int WIDTH_WATERWALL = 50;
-    double FS = 2.0e6;
+    const double FS = 2.0e6;
+    QCustomPlot *_plotSpectrum;
+    QCustomPlot *_plotWaterfall;
+    Core* _core = nullptr;
 
-    double peakSpectrCoeff = 0;         // Коэффициент памяти для пикового детектора
-    double peakSpectrCoeffDelta = 1.e-5;;
-    QPixmap wf;
+    QVector<double> _accumSpectrumStore;
+    QVector<double> _powerPeak;
+    QVector<double> _powerAccum;
+    QVector<double> _xAxis;
 
-    QCPColorMap *colorMap;
-    QCPColorScale *colorScale;
+    int _accumSpectrumDeep;            // Глубина накопления
+    double _peakSpectrumCoeff = 0;         // Коэффициент памяти для пикового детектора
+    double peakSpectrumCoeffDelta = 1.e-5;;
+    int _currAccum = 0;   // Для накопления спектра
+    int _countAccum = 0;  // Для накопления спектра
+    QCPColorMap *_colorMap;
+    QCPColorScale *_colorScale;
+
+    Ui::MainWindow *ui;
+    GraphicsWidget* _graphicsWidget = nullptr;
+
+    void initChart();
+    void clearPeaks();
+    void drawWaterfall(const QVector<double> &power);
+
 public:
     explicit MainWindow(Core* core, QWidget *parent = nullptr);
     ~MainWindow();
 
-    QCustomPlot *getCustomPlot()  { return  plotSpectrum; }
-
 private slots:
-    void on_pbFreq_clicked();
 
     void slotUpdateWidgets();
 
@@ -66,12 +68,6 @@ private slots:
 
     void on_dsbFreq_valueChanged(double arg1);
 
-private:
-    Ui::MainWindow *ui;
-    GraphicsWidget* _graphicsWidget = nullptr;
-
-    void clearPeaks();
-    void fillWaterfallDN(const QVector<double> &powerA);
 };
 
 #endif // MAINWINDOW_H

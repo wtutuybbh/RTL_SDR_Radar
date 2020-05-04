@@ -15,15 +15,17 @@ class DSPLIB_EXPORT DSPLib : public IDSP, public QRunnable
     fftw_complex *inbuf, *outbuf;
     fftw_plan plan;
     const int N = 8192;
+    const int DEPTH = 5;
     QMutex  _mutex;
     QQueue <SrcDataAdc> _dataADC;
+    SrcDataAdc data;
 public:
     DSPLib();
     ~DSPLib() override;
 
     SrcDataAdc makeFFT(const QVector<uint8_t>& vector) override;
     SrcDataAdc makeMagnitude(const QVector<uint8_t>& vector) override;
-    SrcDataAdc makeAll(const QVector<uint8_t>& vector) override;
+    void makeAll(const QVector<uint8_t>& vector) override;
     void run() override;
 
     SrcDataAdc takeDataBlock() override;

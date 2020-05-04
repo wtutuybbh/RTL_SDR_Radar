@@ -40,7 +40,7 @@ public:
      * \param vector - отсчёты 8-битного АЦП rtl-sdr
      * \return блок данных после обработки
      */
-    virtual SrcDataAdc makeAll(const QVector<uint8_t>& vector) = 0;
+    virtual void makeAll(const QVector<uint8_t>& vector) = 0;
 
     virtual SrcDataAdc takeDataBlock() = 0;
     virtual void lockDataBuffer() = 0;

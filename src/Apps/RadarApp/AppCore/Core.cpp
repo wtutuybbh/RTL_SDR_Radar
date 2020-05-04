@@ -11,6 +11,7 @@
 #include "GraphicsWidget/GraphicsWidget.h"
 #include "ModelTable/ModelTable.h"
 #include "Carrier/NullCarrier.h"
+#include "DSPLib/DSPLib.h"
 #include "osm/coordUtils/Conversions.h"
 #include "publisher/Subject.h"
 
@@ -61,6 +62,9 @@ void Core::init()
     _device = QSharedPointer<IReciverDevice>(new RTL_SDR_Reciver());
     _device->setLogger(_logger);
     _device->openDevice();
+
+    _dsp = QSharedPointer<IDSP> (new DSPLib());
+
     //пулл объектов для хранения объектов типа самолет
     _poolObjects = QSharedPointer<IPoolObject>(new PoolObject(OBJECT_TYPE::air));
 
@@ -71,6 +75,7 @@ void Core::init()
     //контроллер данных
     _dataController = QSharedPointer<IDataController>(new DataController(_device,
                                                                          _demodulator));
+    _dataController->setDSP(_dsp);
     _dataController->run();
 
     //паттерн наблюдатель наблюдатель
@@ -78,7 +83,7 @@ void Core::init()
     //основная форма
     _mainWindow  = new MainWindow();
     _mainWindow->setLogger(_logger);
-
+    _mainWindow->setDsp(_dsp);
     //виджет радара и вывода значков
     _graphicsWidget = new GraphicsWidget(SIZE_WIDGET, _mainWindow);
     //подписка на события

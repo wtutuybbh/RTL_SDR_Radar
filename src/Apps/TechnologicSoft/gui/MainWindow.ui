@@ -109,72 +109,8 @@
              <number>6</number>
             </property>
             <item>
-             <widget class="QLabel" name="label_24">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="font">
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Plain</enum>
-              </property>
-              <property name="text">
-               <string>&lt;font color=cyan&gt;Режимы анализатора спектра&lt;/font&gt;</string>
-              </property>
-              <property name="textFormat">
-               <enum>Qt::AutoText</enum>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
              <layout class="QGridLayout" name="gridLayout_2">
-              <item row="0" column="0" colspan="2">
-               <widget class="QRadioButton" name="rbRealSpectrum">
-                <property name="text">
-                 <string>Мгновенный спектр</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-                <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
-                </attribute>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="lAccumSpectrumDeep">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="text">
-                 <string>Глубина:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="0" colspan="2">
-               <widget class="QRadioButton" name="rbPeakSpectrum">
-                <property name="text">
-                 <string>Пиковый детектор</string>
-                </property>
-                <attribute name="buttonGroup">
-                 <string notr="true">buttonGroup</string>
-                </attribute>
-               </widget>
-              </item>
-              <item row="4" column="1">
+              <item row="5" column="1">
                <widget class="QLabel" name="lAccumSpectrumDeepValue">
                 <property name="enabled">
                  <bool>false</bool>
@@ -187,39 +123,7 @@
                 </property>
                </widget>
               </item>
-              <item row="7" column="0">
-               <widget class="QLabel" name="lPeakSpectrCoeff">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="text">
-                 <string>Коэфф.:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="0" colspan="2">
-               <widget class="QSlider" name="sliderPeakSpectrCoeff">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="minimum">
-                 <number>90000</number>
-                </property>
-                <property name="maximum">
-                 <number>100000</number>
-                </property>
-                <property name="pageStep">
-                 <number>1</number>
-                </property>
-                <property name="value">
-                 <number>100000</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0" colspan="2">
+              <item row="6" column="0" colspan="2">
                <widget class="QSlider" name="hslAccumSpectrumDeep">
                 <property name="enabled">
                  <bool>true</bool>
@@ -241,7 +145,62 @@
                 </property>
                </widget>
               </item>
-              <item row="7" column="1">
+              <item row="1" column="0" colspan="2">
+               <widget class="QRadioButton" name="rbRealSpectrum">
+                <property name="text">
+                 <string>Мгновенный спектр</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item row="7" column="0" colspan="2">
+               <widget class="QRadioButton" name="rbPeakSpectrum">
+                <property name="text">
+                 <string>Пиковый детектор (по огибающей)</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item row="9" column="0" colspan="2">
+               <widget class="QSlider" name="sliderPeakSpectrCoeff">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="minimum">
+                 <number>90000</number>
+                </property>
+                <property name="maximum">
+                 <number>100000</number>
+                </property>
+                <property name="pageStep">
+                 <number>1</number>
+                </property>
+                <property name="value">
+                 <number>97000</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="lAccumSpectrumDeep">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>Глубина:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="1">
                <widget class="QLabel" name="lPeakSpectrCoeffValue">
                 <property name="enabled">
                  <bool>false</bool>
@@ -254,20 +213,33 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="0" colspan="2">
-               <widget class="QRadioButton" name="rbSignalEnvelope">
+              <item row="8" column="0">
+               <widget class="QLabel" name="lPeakSpectrCoeff">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
-                 <string>Огибающая сигнала</string>
+                 <string>Коэфф.:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0" colspan="2">
+               <widget class="QRadioButton" name="rbAccumSpectrum">
+                <property name="text">
+                 <string>Накопление (по огибающей)</string>
                 </property>
                 <attribute name="buttonGroup">
                  <string notr="true">buttonGroup</string>
                 </attribute>
                </widget>
               </item>
-              <item row="2" column="0" colspan="2">
-               <widget class="QRadioButton" name="rbAccumSpectrum">
+              <item row="0" column="0" colspan="2">
+               <widget class="QRadioButton" name="rbSignalEnvelope">
                 <property name="text">
-                 <string>Накопление</string>
+                 <string>Огибающая сигнала</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                 <attribute name="buttonGroup">
                  <string notr="true">buttonGroup</string>
@@ -280,6 +252,9 @@
              <widget class="QGroupBox" name="groupBox">
               <property name="title">
                <string>Частота настройки</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                <item>

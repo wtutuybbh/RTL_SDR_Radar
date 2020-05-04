@@ -6,8 +6,6 @@
 #include "RTL_SDR_Reciver/RTL_SDR_Reciver.h"
 #include "interface/IDataController.h"
 #include "interface/IDSP.h"
-#include <QPixmap>
-#include <QPainter>
 
 MainWindow::MainWindow(Core* core, QWidget *parent) :
     QMainWindow(parent),
@@ -16,99 +14,115 @@ MainWindow::MainWindow(Core* core, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    plotSpectrum = new QCustomPlot();
-    plotSpectrum->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-    plotSpectrum->setOpenGl(true);
-    QCPGraph *graph = plotSpectrum->addGraph();
-    graph->setPen(QPen(Qt::blue));
-    graph->rescaleKeyAxis();
-
-
-    plotSpectrum->yAxis->setRange(0,200);
-    plotSpectrum->xAxis->setRange(ui->dsbFreq->value() - FS / 2 / 1.e6 ,
-                                  ui->dsbFreq->value() + FS / 2 / 1.e6);
-    plotSpectrum->xAxis->grid()->setZeroLinePen(Qt::NoPen);
-
-    ui->hrlOscilloscope->addWidget(plotSpectrum);
+    initChart();
 
     QObject::connect(&_timer, &QTimer::timeout,
                      this, &MainWindow::slotUpdateWidgets);
-    _timer.start(timeout);
+    _timer.start(_timeout);
 
-    xAxis.resize(N);
+    _accumSpectrumDeep = ui->hslAccumSpectrumDeep->value();
+    ui->lAccumSpectrumDeepValue->setText(QString::number(_accumSpectrumDeep));
+
+    _accumSpectrumStore = QVector<double>(N * ui->hslAccumSpectrumDeep->maximum(),0.0);
+    _powerPeak = QVector<double>(N, 0 );
+    _powerAccum = QVector<double>(N, 0 );
+
+    peakSpectrumCoeffDelta = 1.e-5;
+    _peakSpectrumCoeff = ui->sliderPeakSpectrCoeff->value() * peakSpectrumCoeffDelta;
+    ui->lPeakSpectrCoeffValue->setText(QString("%1").arg(_peakSpectrumCoeff, 0, 'f', 5));
+
+}
+
+MainWindow::~MainWindow()
+{
+    _timer.stop();
+    delete _plotSpectrum;
+    delete _plotWaterfall;
+
+    _core = nullptr;
+
+    _accumSpectrumStore.clear();
+    _powerPeak.clear();
+    _powerAccum.clear();
+    _xAxis.clear();
+
+    delete ui;
+}
+
+void MainWindow::initChart()
+{
+    _xAxis.resize(N);
 
     for(int i = 0; i < N; ++i)
-        xAxis[i] =((double)i/N * FS - FS/2)/1.e6 + ui->dsbFreq->value();
-
-    accumSpectrDeep = ui->hslAccumSpectrumDeep->value();
-    ui->lAccumSpectrumDeepValue->setText(QString::number(accumSpectrDeep));
-    accumSpectrStore = QVector<double>(N * ui->hslAccumSpectrumDeep->maximum(),0.0);
-
-    powerPeakA = QVector<double>(N, 0 );
-    powerAccumA = QVector<double>(N, 0 );
-
-    peakSpectrCoeffDelta = 1.e-5;
-    peakSpectrCoeff = ui->sliderPeakSpectrCoeff->value() * peakSpectrCoeffDelta;
-    ui->lPeakSpectrCoeffValue->setText(QString("%1").arg(peakSpectrCoeff, 0, 'f', 5));
+        _xAxis[i] =((double)i/N * FS - FS/2)/1.e6 + ui->dsbFreq->value();
 
 
-    plotWaterfall = new QCustomPlot();
-    plotWaterfall->setOpenGl(true);
+    _plotSpectrum = new QCustomPlot();
+    _plotSpectrum->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    _plotSpectrum->setOpenGl(true);
+    QCPGraph *graph = _plotSpectrum->addGraph();
+    graph->setPen(QPen(QColor(0xAA,0xCF,0xD1)));
+    graph->rescaleKeyAxis();
+
+    _plotSpectrum->yAxis->setRange(-10,256);
+    _plotSpectrum->xAxis->setRange(ui->dsbFreq->value() - FS / 2 / 1.e6 ,
+                                  ui->dsbFreq->value() + FS / 2 / 1.e6);
+    _plotSpectrum->xAxis->grid()->setZeroLinePen(Qt::NoPen);
+    _plotSpectrum->setBackground(QBrush(Qt::black));
+
+    _plotSpectrum->xAxis->setBasePen(QPen(Qt::white, 1));
+    _plotSpectrum->yAxis->setBasePen(QPen(Qt::white, 1));
+    _plotSpectrum->xAxis->setTickPen(QPen(Qt::white, 1));
+    _plotSpectrum->yAxis->setTickPen(QPen(Qt::white, 1));
+    _plotSpectrum->xAxis->setTickLabelColor(Qt::white);
+    _plotSpectrum->yAxis->setTickLabelColor(Qt::white);
+    _plotSpectrum->xAxis->grid()->setPen(QPen(QColor(140, 140, 140), 1, Qt::DotLine));
+    _plotSpectrum->yAxis->grid()->setPen(QPen(QColor(140, 140, 140), 1, Qt::DotLine));
+    _plotSpectrum->xAxis->grid()->setZeroLinePen(Qt::NoPen);
+    _plotSpectrum->yAxis->grid()->setZeroLinePen(Qt::NoPen);
+    _plotSpectrum->xAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+    _plotSpectrum->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+    ui->hrlOscilloscope->addWidget(_plotSpectrum);
+
+    _plotWaterfall = new QCustomPlot();
+    _plotWaterfall->setOpenGl(true);
     // configure axis rect:
-    plotWaterfall->setInteractions(QCP::iRangeDrag|QCP::iRangeZoom); // this will also allow rescaling the color scale by dragging/zooming
-    plotWaterfall->axisRect()->setupFullAxesBox(true);
-    //    plotWaterWall->xAxis->setLabel("x");
-    // plotWaterWall->yAxis->setLabel("y");
-
+    _plotWaterfall->setInteractions(QCP::iRangeDrag|QCP::iRangeZoom); // this will also allow rescaling the color scale by dragging/zooming
+    _plotWaterfall->axisRect()->setupFullAxesBox(true);
 
 
     // set up the QCPColorMap:
-    colorMap = new QCPColorMap(plotWaterfall->xAxis, plotWaterfall->yAxis);
+    _colorMap = new QCPColorMap(_plotWaterfall->xAxis, _plotWaterfall->yAxis);
 
-    colorMap->data()->setSize(N, WIDTH_WATERWALL); // we want the color map to have nx * ny data points
-    colorMap->data()->setRange(QCPRange(ui->dsbFreq->value() - FS / 2 / 1.e6 ,
+    _colorMap->data()->setSize(N, WIDTH_WATERWALL); // we want the color map to have nx * ny data points
+    _colorMap->data()->setRange(QCPRange(ui->dsbFreq->value() - FS / 2 / 1.e6 ,
                                         ui->dsbFreq->value() + FS / 2 / 1.e6),
                                QCPRange(0, WIDTH_WATERWALL)); // and span the coordinate range -4..4 in both key (x) and value (y) dimensions
     // now we assign some data, by accessing the QCPColorMapData instance of the color map:
 
 
     // add a color scale:
-    colorScale = new QCPColorScale(plotWaterfall);
-   // plotWaterfall->plotLayout()->addElement(0, 1, colorScale); // add it to the right of the main axis rect
-    colorScale->setType(QCPAxis::atRight); // scale shall be vertical bar with tick/axis labels right (actually atRight is already the default)
-    colorScale->setDataRange(QCPRange(0,255));
-    colorMap->setColorScale(colorScale); // associate the color map with the color scale
-
-    // make sure the axis rect and color scale synchronize their bottom and top margins (so they line up):
-    QCPMarginGroup *marginGroup = new QCPMarginGroup(plotWaterfall);
-    plotWaterfall->axisRect()->setMarginGroup(QCP::msBottom|QCP::msTop, marginGroup);
-    colorScale->setMarginGroup(QCP::msBottom|QCP::msTop, marginGroup);
-
-
+    _colorScale = new QCPColorScale(_plotWaterfall);
+    //plotWaterfall->plotLayout()->addElement(0, 1, colorScale); // add it to the right of the main axis rect
+    //colorScale->setType(QCPAxis::atRight); // scale shall be vertical bar with tick/axis labels right (actually atRight is already the default)
+    _colorScale->setDataRange(QCPRange(0,255));
+    _colorMap->setColorScale(_colorScale); // associate the color map with the color scale
 
     // set the color gradient of the color map to one of the presets:
-    colorMap->setGradient(QCPColorGradient::gpJet);
+    _colorMap->setGradient(QCPColorGradient::gpJet);
     // we could have also created a QCPColorGradient instance and added own colors to
     // the gradient, see the documentation of QCPColorGradient for what's possible.
-    colorMap->rescaleDataRange();
-    plotWaterfall->rescaleAxes();
-    ui->vltWaterfall->addWidget(plotWaterfall);
+    _colorMap->rescaleDataRange();
+    _plotWaterfall->rescaleAxes();
+    _plotWaterfall->setBackground(QBrush(Qt::black));
 
-}
+    _plotWaterfall->xAxis->setBasePen(QPen(Qt::white, 1));
+    _plotWaterfall->xAxis->setTickPen(QPen(Qt::white, 1));
+    _plotWaterfall->xAxis->setSubTickPen(QPen(Qt::white, 1));
+    _plotWaterfall->xAxis->setTickLabelColor(Qt::white);
+    _plotSpectrum->xAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);;
 
-MainWindow::~MainWindow()
-{
-    _core = nullptr;
-
-    delete ui;
-}
-
-void MainWindow::on_pbFreq_clicked()
-{
-    if (_core == nullptr)
-        return;
-
-    _core->device()->setFreq(uint32_t(ui->dsbFreq->value() * 1.0e6));
+    ui->vltWaterfall->addWidget(_plotWaterfall);
 }
 
 
@@ -131,96 +145,85 @@ void MainWindow::slotUpdateWidgets()
 
     if(ui->rbRealSpectrum->isChecked())
     {
-
-        plotSpectrum->graph()->setData(xAxis, data.fftVector);
-        fillWaterfallDN(data.fftVector);
+        _plotSpectrum->graph()->setData(_xAxis, data.fftVector);
+        drawWaterfall(data.fftVector);
     }
 
     if(ui->rbSignalEnvelope->isChecked())
     {
-        plotSpectrum->graph()->setData(xAxis, data.magnitudeVector);
-        fillWaterfallDN(data.magnitudeVector);
-
+        _plotSpectrum->graph()->setData(_xAxis, data.magnitudeVector);
+        drawWaterfall(data.magnitudeVector);
     }
 
     if(ui->rbAccumSpectrum->isChecked())
     {
+        _countAccum++;
 
-        countAccum++;
-
-        if (countAccum > accumSpectrDeep)
-            countAccum = accumSpectrDeep;
-
+        if (_countAccum > _accumSpectrumDeep)
+            _countAccum = _accumSpectrumDeep;
 
         for(int i = 0 ; i < N; ++i)
         {
-            powerPeakA[i] -= accumSpectrStore[currAccum*N + i];
+            _powerPeak[i] -= _accumSpectrumStore[_currAccum*N + i];
 
-            accumSpectrStore[currAccum*N + i] = data.magnitudeVector[i];
+            _accumSpectrumStore[_currAccum*N + i] = data.magnitudeVector[i];
 
-            powerPeakA[i] += data.magnitudeVector[i];
+            _powerPeak[i] += data.magnitudeVector[i];
 
-            powerAccumA[i] = powerPeakA[i];
+            _powerAccum[i] = _powerPeak[i];
 
-            powerAccumA[i] /= countAccum;
-
+            _powerAccum[i] /= _countAccum;
         }
 
-        currAccum +=1;
-        currAccum  %= accumSpectrDeep;
+        _currAccum +=1;
+        _currAccum  %= _accumSpectrumDeep;
 
-        plotSpectrum->graph()->setData(xAxis, powerAccumA);
-        fillWaterfallDN(powerAccumA);
-
+        _plotSpectrum->graph()->setData(_xAxis, _powerAccum);
+        drawWaterfall(_powerAccum);
     }
 
     if (ui->rbPeakSpectrum->isChecked())
     {
         for (int i=0; i<N; ++i)
         {
-            if (data.magnitudeVector[i] > powerPeakA[i])
-                powerPeakA[i] = data.magnitudeVector[i];
+            if (data.magnitudeVector[i] > _powerPeak[i])
+                _powerPeak[i] = data.magnitudeVector[i];
             else
-                powerPeakA[i] *= peakSpectrCoeff;
+                _powerPeak[i] *= _peakSpectrumCoeff;
         }
-        plotSpectrum->graph()->setData(xAxis,powerPeakA);
-        fillWaterfallDN(powerPeakA);
+        _plotSpectrum->graph()->setData(_xAxis,_powerPeak);
+        drawWaterfall(_powerPeak);
     }
 
-    plotSpectrum->replot();
-
-
+    _plotSpectrum->replot();
 }
 
 void MainWindow::clearPeaks()
 {
     if (ui->rbAccumSpectrum->isChecked())
-        std::fill_n(powerPeakA.data(), N,0);
+        std::fill_n(_powerPeak.data(), N,0);
     else
-        std::fill_n(powerPeakA.data(), N,-1000);
+        std::fill_n(_powerPeak.data(), N,-1000);
 
-    std::fill_n(accumSpectrStore.data(),N * ui->hslAccumSpectrumDeep->maximum(), 0);
+    std::fill_n(_accumSpectrumStore.data(),N * ui->hslAccumSpectrumDeep->maximum(), 0);
 
-    std::fill_n(powerAccumA.data(),N, 0);
+    std::fill_n(_powerAccum.data(),N, 0);
 
-    currAccum = 0;
-    countAccum = 0;
+    _currAccum = 0;
+    _countAccum = 0;
 }
 
-void MainWindow::fillWaterfallDN(const QVector<double> &powerA)
+void MainWindow::drawWaterfall(const QVector<double> &power)
 {
-    int magn;
-
     for (int xIndex=0; xIndex< N; ++xIndex)
     {
         for (int yIndex=1; yIndex < WIDTH_WATERWALL; ++yIndex)
-            colorMap->data()->setCell(xIndex, yIndex-1, colorMap->data()->cell(xIndex,yIndex));
+            _colorMap->data()->setCell(xIndex, yIndex-1, _colorMap->data()->cell(xIndex,yIndex));
 
-        magn = int(powerA[xIndex]) % 255;
-        colorMap->data()->setCell(xIndex, WIDTH_WATERWALL - 1, magn);
+        _colorMap->data()->setCell(xIndex, WIDTH_WATERWALL - 1, int(power[xIndex]) % 255);
     }
 
-    plotWaterfall->replot();
+    _plotWaterfall->replot();
 }
 
 void MainWindow::on_rbAccumSpectrum_clicked()
@@ -235,30 +238,33 @@ void MainWindow::on_rbPeakSpectrum_clicked()
 
 void MainWindow::on_sliderPeakSpectrCoeff_valueChanged(int value)
 {
-    peakSpectrCoeff = value * peakSpectrCoeffDelta;
-    ui->lPeakSpectrCoeffValue->setText(QString("%1").arg(peakSpectrCoeff, 0, 'f', 5));
+    _peakSpectrumCoeff = value * peakSpectrumCoeffDelta;
+    ui->lPeakSpectrCoeffValue->setText(QString("%1").arg(_peakSpectrumCoeff, 0, 'f', 5));
 }
 
 void MainWindow::on_hslAccumSpectrumDeep_valueChanged(int value)
 {
-    accumSpectrDeep = value;
-    ui->lAccumSpectrumDeepValue->setText(QString::number(accumSpectrDeep));
+    _accumSpectrumDeep = value;
+    ui->lAccumSpectrumDeepValue->setText(QString::number(_accumSpectrumDeep));
     clearPeaks();
 }
 
 
 void MainWindow::on_dsbFreq_valueChanged(double arg1)
 {
+    if (_core == nullptr)
+        return;
+
     _core->device()->setFreq(uint32_t(arg1 * 1.0e6));
+
     for(int i = 0; i < N; ++i)
-        xAxis[i] =((double)i/N * FS - FS/2)/1.e6 +arg1;
+        _xAxis[i] =((double)i/N * FS - FS/2)/1.e6 +arg1;
 
-    plotSpectrum->xAxis->setRange(arg1 - FS / 2 / 1.e6 , arg1 + FS / 2 / 1.e6);
+    _plotSpectrum->xAxis->setRange(arg1 - FS / 2 / 1.e6 , arg1 + FS / 2 / 1.e6);
 
-    colorMap->data()->setRange(QCPRange(arg1 - FS / 2 / 1.e6 ,
+    _colorMap->data()->setRange(QCPRange(arg1 - FS / 2 / 1.e6 ,
                                         arg1 + FS / 2 / 1.e6),
                                QCPRange(0, WIDTH_WATERWALL));
-    //colorMap->rescaleDataRange();
-    plotWaterfall->rescaleAxes();
+    _plotWaterfall->rescaleAxes();
     clearPeaks();
 }

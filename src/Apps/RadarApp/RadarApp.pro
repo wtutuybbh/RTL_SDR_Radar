@@ -66,4 +66,5 @@ LIBS += -lLogger \
         -lDataController \
         -lRTL_SDR_Reciver \
         -lDemodulator \
-        -lModelTable
+        -lModelTable \
+        -lDSPLib
