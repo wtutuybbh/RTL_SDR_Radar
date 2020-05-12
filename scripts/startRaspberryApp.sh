@@ -14,5 +14,5 @@ export LD_LIBRARY_PATH
 echo $LD_LIBRARY_PATH
 
 cd bin/release/RaspberryApp
-nohup ./RaspberryApp $1 $2 > /dev/null 2>&1& 
-
+#nohup ./RaspberryApp $1 $2 > /dev/null 2>&1& 
+./RaspberryApp $1 $2

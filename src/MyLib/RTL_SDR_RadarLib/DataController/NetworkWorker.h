@@ -24,7 +24,7 @@ class NetworkWorker : public INetworkWorker
     ///< добавление сообщения в модуль логгирования
     void addDebugMsg(const QString& str);
 
-    bool _addLogInfo = false;
+    bool _addLogInfo = true;
 
 public:
     NetworkWorker(const QString& ip,

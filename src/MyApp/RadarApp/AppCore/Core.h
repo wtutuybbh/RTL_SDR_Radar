@@ -39,17 +39,17 @@ class Core : public QObject
     ///< модель  таблицы
     ModelTable* _modelTable = nullptr;
     ///< пулл объектов
-    QSharedPointer<IPoolObject> _poolObjects = nullptr;
+    QSharedPointer<IPoolObject> _poolObjects;
     ///<контроллер данных
-    QSharedPointer<IDataController> _dataController = nullptr;
+    QSharedPointer<IDataController> _dataController;
     ///<устройство
-    QSharedPointer<IReciverDevice> _device = nullptr;
+    QSharedPointer<IReciverDevice> _device;
     ///< демодулятор
-    QSharedPointer<IDemodulator> _demodulator = nullptr;
+    QSharedPointer<IDemodulator> _demodulator;
     ///< поставщик из паттерна наблюдатель
-    QSharedPointer<ISubject> _subject = nullptr;
+    QSharedPointer<ISubject> _subject;
     ///< логгер
-    QSharedPointer<ILogger> _logger = nullptr;
+    QSharedPointer<ILogger> _logger;
 
     /*!
      * \brief updateGeoPositionInfo

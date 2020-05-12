@@ -115,14 +115,19 @@ Demodulator::Demodulator(QSharedPointer<IPoolObject> pool, bool withImit)
 
     if(withImit)
     {
-        _pool->createNewObject(0xABADBABE,
-                               QDateTime::currentDateTime(),
-                               Position(),true);
+        QSharedPointer<Aircraft> air = qSharedPointerCast<Aircraft>(_pool->createNewObject(0xABADBABE,
+                                                                                           QDateTime::currentDateTime(),
+                                                                                           Position(),
+                                                                                           true));
+        QString str = "Imit_1";
+        air->setFlightInfo(str.toStdString().c_str(),str.length());
 
-        _pool->createNewObject(0xCAFEBABE,
-                               QDateTime::currentDateTime(),
-                               Position(),true);
-
+        air = qSharedPointerCast<Aircraft>(_pool->createNewObject(0xCAFEBABE,
+                                                                  QDateTime::currentDateTime(),
+                                                                  Position(),
+                                                                  true));
+        str = "Imit_2";
+        air->setFlightInfo(str.toStdString().c_str(),str.length());
     }
 }
 
@@ -1001,7 +1006,7 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
         return;
     /* Loookup our aircraft or create a new one. */
 
-    QSharedPointer<Aircraft> air = nullptr;
+    QSharedPointer<Aircraft> air;
 
     if (!_pool->isExistsObject(addr))
     {
@@ -1043,7 +1048,7 @@ void Demodulator::interactiveReceiveData(struct modesMessage *mm)
     if(mm->msgtype == 17)
     {
         if (mm->metype >= 1 && mm->metype <= 4)
-            air->setFlightInfo(mm->flight);
+            air->setFlightInfo(mm->flight,9);
         else if (mm->metype >= 9 && mm->metype <= 18)
         {
             air->setAltitude( mm->altitude / CONVERT_FT_TO_METERS);
@@ -1543,26 +1548,51 @@ void Demodulator::updateImitAirCraft()
     Position currentPlace = Position(39.736583, 47.293666);
     static uint16_t  azim = 0;
     static uint8_t dist = 10;
+    static qint64 ms_tims = QDateTime::currentMSecsSinceEpoch();
+
     for(auto &a: _pool->values())
     {
-        if(a->isImitated())
-        {
-            a->setDateTimeStop(QDateTime::currentDateTime());
-            a->setAzimuth(azim);
-            a->setDistance_KM(dist);
-            a->setGeoCoord(Conversions::getPlace(currentPlace,azim,dist));
+        if(!a->isImitated())
+            continue;
 
-            azim +=5;
-            azim %=360;
-            dist +=10;
+        a->setAzimuth(azim);
+        a->setDistance_KM(dist);
+        a->setGeoCoord(Conversions::getPlace(currentPlace,azim,dist));
+        a->setObjectState(OBJECT_STATE::UPDATE_OBJECT);
+        a->setDateTimeStop(QDateTime::currentDateTime());
+
+        if((azim % 10) == 0)
+        {
+            if(a->getId() == 0xABADBABE)
+            {
+                azim+=2;
+                dist +=8;
+                a->setAzimuth(azim);
+                a->setDistance_KM(dist);
+                a->setGeoCoord(Conversions::getPlace(currentPlace,azim,dist));
+            }
+
             QString lon,lat;
             Conversions::geoCoordToString(a->getGeoCoord(),lon,lat);
-            qDebug()<<"Imit aircraft id =" << a->getId()
-                    <<" time = "<< a->getDateTimeStop()
-                    <<" azimuth = "<< a->getAzimuth()
-                    <<" distance = "<< a->getDistance_KM()
-                    <<" latitude = "<< lat
-                    <<" longitude = " << lon ;
+            qDebug()<<"Imit aircraft id =" << QString::number(a->getId(),16)
+                   << "flyght" << a->getObjectName()
+                   <<" time = "<< a->getDateTimeStop()
+                  <<" azimuth = "<< a->getAzimuth()
+                 <<" distance = "<< a->getDistance_KM()
+                <<" latitude = "<< lat
+               <<" longitude = " << lon ;
         }
+
+
+    }
+
+    if(QDateTime::currentMSecsSinceEpoch() - ms_tims > 1000)
+    {
+        ms_tims = QDateTime::currentMSecsSinceEpoch();
+        azim +=1;
+        azim %=360;
+        if((azim % 10) == 0)
+            dist +=1;
+
     }
 }

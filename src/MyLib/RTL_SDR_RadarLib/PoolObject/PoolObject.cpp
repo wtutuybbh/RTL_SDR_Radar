@@ -29,7 +29,7 @@ QSharedPointer<IObject> PoolObject::createNewObject(uint64_t id,
         return  QSharedPointer<IObject>();
 
     uint64_t t_id = 0;
-    QSharedPointer<IObject> object = {nullptr};
+    QSharedPointer<IObject> object;
     if(!_container->contains(id))
     {
         for(auto &iter:_container->values())

@@ -22,12 +22,12 @@ Aircraft::Aircraft(uint32_t icao, bool isImit) : BaseObject(icao,
     _messages = 1;
 }
 
-void Aircraft::setFlightInfo(char *val)
+void Aircraft::setFlightInfo(const char *val, int len)
 {
     if(val == nullptr)
         return;
-
-    memcpy(_flight, val, sizeof(_flight));
+    memset(_flight,0,9);
+    memcpy(_flight, val, len);
     setObjectName(QString(_flight));
 }
 

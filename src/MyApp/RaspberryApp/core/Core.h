@@ -23,11 +23,11 @@ class Core : public QObject
     QTimer _timer;
     MainWindow _mainWindow;
 
-    QSharedPointer<IPoolObject> _poolObjects = nullptr;
-    QSharedPointer<IDataController> _dataController = nullptr;
-    QSharedPointer<IReciverDevice> _device = nullptr;
-    QSharedPointer<IDemodulator> _demodulator = nullptr;
-    QSharedPointer<ILogger> _logger = nullptr;
+    QSharedPointer<IPoolObject> _poolObjects;
+    QSharedPointer<IDataController> _dataController;
+    QSharedPointer<IReciverDevice> _device;
+    QSharedPointer<IDemodulator> _demodulator;
+    QSharedPointer<ILogger> _logger;
 
 public:
     explicit Core(QObject *parent = nullptr);

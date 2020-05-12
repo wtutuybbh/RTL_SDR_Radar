@@ -53,7 +53,7 @@ public:
      * \brief setFlightInfo имя рейса
      * \param val указатель на строку
      */
-    void setFlightInfo(char* val);
+    void setFlightInfo(const char *val, int len);
     /*!
      * \brief getFlightInfo получение имени рейса
      * \return  строка

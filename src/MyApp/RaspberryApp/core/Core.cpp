@@ -34,7 +34,7 @@ Core::Core(QObject *parent) : QObject(parent)
     _poolObjects = QSharedPointer<IPoolObject>(new PoolObject(OBJECT_TYPE::air));
 
     //демодулятор входного сигнала
-    _demodulator = QSharedPointer<IDemodulator>(new Demodulator(_poolObjects));
+    _demodulator = QSharedPointer<IDemodulator>(new Demodulator(_poolObjects,true));
 
     _demodulator->setLogger(_logger);
 

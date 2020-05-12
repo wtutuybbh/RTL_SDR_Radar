@@ -20,9 +20,9 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
     Q_OBJECT
 
     ///< контроллер карты
-    QSharedPointer<IMapController> _ptrMapController = nullptr;
+    QSharedPointer<IMapController> _ptrMapController;
     ///< класс носителя приемниак rtl-sdr
-    QSharedPointer<ICarrierClass> _ptrCarrier = nullptr;
+    QSharedPointer<ICarrierClass> _ptrCarrier;
 
     ///< обновление сцены
     QTimer _timer;
