@@ -6,13 +6,12 @@ then
 	exit 0
 fi
 
-cd ../
+cd ../../
 CURRENT_DIR=$(pwd)/lib.linux/
 LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CURRENT_DIR}
 export LD_LIBRARY_PATH
 
 echo $LD_LIBRARY_PATH
 
-cd bin/release/RaspberryApp
-nohup ./RaspberryApp $1 $2 > /dev/null 2>&1& 
+bin/debug/RaspberryApp/RaspberryApp
 

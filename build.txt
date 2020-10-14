@@ -1,0 +1,14 @@
+1.Установка требуемых библиотек 
+sudo apt install libfftw3-dev
+sudo apt install libusb-1.0-0
+sudo apt install libusb-1.0-0-dev
+2. перейти в папку RTL_SDR_Radar/scripts и выполнить скрипт builder.sh
+3.Добавление пути к библиотекам
+sudo ldconfig /home/user_dir/dir_where_place_project/lib.linux
+например : sudo ldconfig /home/user/develop/RTL_SDR_Radar/lib.linux/
+4.необходимо скопировать файл с правами на работу с устроством. Для этого перейдите в папку RTL_SDR_Radar и выполните следующую команду:
+sudo cp ./import/sdr_dev/rtl-sdr.rules /etc/udev/rules.d/
+5. Далее нужно внести в blacklist драйвер по умолчанию, который загружается для TV устройства, т.к. он не работает как SDR и будет конфликтовать с новым драйвером. 
+В директории /etc/modprobe.d создаем новый файл blacklist-rtl.conf или просто дописываем в конец файла blacklist.conf строку : blacklist dvb_usb_rtl28xxu. 
+После чего необходимо перезагрузить компьютер.
+6/ю При запуске через qtCreator важно помнить об необходимости отключения теневой сборки
