@@ -53,12 +53,17 @@ void DataWorkerNetSender::exec()
         {
             if(_net && (timer.elapsed() > _sendInterval))
             {
-                if(!_net->isConnected())
-                    _net->connect(_ip,_port,CONNECT_TIMEOUT);
-
                 if(_net->isConnected())
                     _net->writeDatagramm(_demod->getRawDumpOfObjectsInfo());
+                else
+                {
+                    bool ret = _net->connect(_ip,_port,CONNECT_TIMEOUT);
+                    if (ret)
+                        qDebug()<<"connect to "<<_ip<<_port;
 
+                    emit signalStateConnectToServer(ret);
+
+                }
                 timer.restart();
             }
         }

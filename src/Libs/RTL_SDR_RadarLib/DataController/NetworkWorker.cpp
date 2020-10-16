@@ -9,7 +9,8 @@
 
 NetworkWorker::NetworkWorker(const QString &ip, uint16_t port)
 {
-    connect(ip,port);
+//    if(connect(ip,port))
+//         qDebug()<<"connect to "<<ip<<port;
     qDebug() << "create NetworkWorker";
 }
 

@@ -52,6 +52,11 @@ DataController::DataController(QSharedPointer<IReciverDevice> dev,
                          &IWorker::finished,
                          _dataThread,
                          &QThread::quit);
+
+        QObject::connect(_worker.get(),
+                         &IWorker::signalStateConnectToServer,
+                         this,
+                         &IDataController::signalStateConnectToServer);
     }
 }
 

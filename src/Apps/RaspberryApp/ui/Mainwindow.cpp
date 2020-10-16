@@ -61,6 +61,11 @@ void MainWindow::updateTerminal()
         ui->teTerminal->clear();
 }
 
+void MainWindow::slotConnectToServerState(bool state)
+{
+    qDebug()<<state<<"state connect";
+}
+
 void MainWindow::logBalancing()
 {
     if(_logger.isNull())

@@ -376,3 +376,8 @@ void MainWindow::on_tbWorkPanel_currentChanged(int index)
     else
         _timerChart.stop();
 }
+
+void MainWindow::slotConnectToServerState(bool state)
+{
+    ui->lDBStatus->setStyleSheet(takeColorStrByState(state));
+}

@@ -119,6 +119,11 @@ void Core::init(const QString &ip, uint16_t port, int64_t interval_send_ms)
                                                                          ip,
                                                                          port,
                                                                          interval_send_ms));
+    QObject::connect(_dataController.get(),
+                     &IDataController::signalStateConnectToServer,
+                     _mainWindow,
+                     &MainWindow::slotConnectToServerState);
+
     _dataController->setDSP(_dsp);
     _dataController->run();
 

@@ -60,5 +60,9 @@ signals:
      * \brief finished сигнал выхода из цикла обработки данных
      */
     void finished();
+    /*!
+     * \brief сигнал об установки подключения к серверу
+     */
+    void signalStateConnectToServer(bool state);
 };
 #endif // IWORKER_H

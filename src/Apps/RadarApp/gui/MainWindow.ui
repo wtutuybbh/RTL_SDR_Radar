@@ -149,7 +149,7 @@
                  <enum>QFrame::Box</enum>
                 </property>
                 <property name="text">
-                 <string>DataBase</string>
+                 <string>RTL-SDR Server</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>

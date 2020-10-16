@@ -134,7 +134,7 @@ QByteArray Demodulator::getRawDumpOfObjectsInfo()
 {
     QByteArray array;
 
-    if(_pool.isNull())
+    if(_pool.isNull() || _pool->values().isEmpty())
         return array;
 
 

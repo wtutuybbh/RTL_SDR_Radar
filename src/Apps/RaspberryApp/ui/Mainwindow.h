@@ -39,6 +39,8 @@ private:
 
 private slots:
     void updateTerminal();
+public slots:
+    void slotConnectToServerState(bool state);
 };
 
 #endif // MAINWINDOW_H
