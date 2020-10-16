@@ -36,11 +36,13 @@ public:
      * \param dem - модуль демодуляции
      * \param ip - адрес сервера
      * \param port - порт сервера
+     * \param send_period_ms - период отправки сообщения
      */
     explicit DataController(QSharedPointer<IReciverDevice> dev,
                             QSharedPointer<IDemodulator> dem,
                             const QString & ip,
-                            uint16_t port);
+                            uint16_t port,
+                            uint32_t send_period_ms);
 
     ~DataController() override;
 

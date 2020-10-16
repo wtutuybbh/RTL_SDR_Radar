@@ -23,9 +23,6 @@ protected:
     std::atomic<bool> _abort;
     QMutex _mutex;
 
-    std::chrono::steady_clock::time_point _firstTimeBreakpoint;
-    std::chrono::steady_clock::time_point _secondTimeBreakpoint;
-
     ///< указатель на rtl_sdr устройство
     QSharedPointer<IReciverDevice> _device;
     ///< указатель на демодулятор устройства

@@ -33,14 +33,17 @@ int main(int argc, char *argv[])
 
     QString strIp = QString();
     uint16_t port = 0;
-
+    int64_t interval = 3000;
     Core core;
+
     if(!args.isEmpty() && args.size() >= 2)
     {
         strIp = args.at(0);
         port = args.at(1).toUShort();
-        qDebug()<<strIp<<port;
-        core.init(strIp,port);
+        if(args.size() == 3)
+            interval = args.at(2).toLong();
+        qDebug()<<"run with param:"<<strIp<<":"<<port<<" period = "<<interval;
+        core.init(strIp,port,interval);
     }
     else
         core.init();

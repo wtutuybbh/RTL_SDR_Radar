@@ -4,6 +4,8 @@ NOW=$(date)
 CURRENT_DIR=$(pwd)
 echo "[$NOW] Start builder"
 
+./clean.sh
+
 cd $CURRENT_DIR
 (($? != 0)) && { echo "[$NOW] Error switch directory"; exit 1; }
 

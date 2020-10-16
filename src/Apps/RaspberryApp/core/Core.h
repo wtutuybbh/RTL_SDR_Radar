@@ -34,7 +34,9 @@ public:
     ~Core();
 
     void init();
-    void init(const QString& ip , uint16_t port);
+    void init(const QString& ip ,
+              uint16_t port,
+              int64_t interval_send_ms);
 signals:
 
 public slots:

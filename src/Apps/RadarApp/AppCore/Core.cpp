@@ -27,34 +27,7 @@ Core::Core(QObject *parent) : QObject(parent)
     else
         qDebug()<<"error load QSS file.Need filepath"
                <<QApplication::applicationDirPath()+"/import/style.qss";
-}
 
-Core::~Core()
-{
-    _dataController->stop();
-    _dataController.clear();
-
-    _device->closeDevice();
-    _device.clear();
-
-    _demodulator.clear();
-
-    _subject->Deatach(_graphicsWidget);
-    delete _graphicsWidget;
-
-    _subject->Deatach(_modelTable);
-    delete _modelTable;
-
-    _subject.clear();
-
-    _poolObjects.clear();
-
-    _dsp.clear();
-    delete _mainWindow;
-}
-
-void Core::init()
-{  
     //носитель приемника стационарный объект
     ServiceLocator::provide(QSharedPointer<ICarrierClass>( new NullCarrier()) );
     //модуль логгирования
@@ -72,12 +45,6 @@ void Core::init()
     //демодулятор входного сигнала
     _demodulator = QSharedPointer<IDemodulator>(new Demodulator(_poolObjects));
     _demodulator->setLogger(_logger);
-
-    //контроллер данных
-    _dataController = QSharedPointer<IDataController>(new DataController(_device,
-                                                                         _demodulator));
-    _dataController->setDSP(_dsp);
-    _dataController->run();
 
     //паттерн наблюдатель наблюдатель
     _subject = QSharedPointer<ISubject>(new Subject());
@@ -107,8 +74,57 @@ void Core::init()
 
     QObject::connect(&_timerUpdateWidgets, &QTimer::timeout,
                      this, &Core::slotUpdateWidgets);
+}
+
+Core::~Core()
+{
+    _dataController->stop();
+    _dataController.clear();
+
+    _device->closeDevice();
+    _device.clear();
+
+    _demodulator.clear();
+
+    _subject->Deatach(_graphicsWidget);
+    delete _graphicsWidget;
+
+    _subject->Deatach(_modelTable);
+    delete _modelTable;
+
+    _subject.clear();
+
+    _poolObjects.clear();
+
+    _dsp.clear();
+    delete _mainWindow;
+}
+
+void Core::init()
+{  
+    //контроллер данных
+    _dataController = QSharedPointer<IDataController>(new DataController(_device,
+                                                                         _demodulator));
+    _dataController->setDSP(_dsp);
+    _dataController->run();
+
     _timerUpdateWidgets.start(TIMEOUT_UPDATE);
 }
+
+void Core::init(const QString &ip, uint16_t port, int64_t interval_send_ms)
+{
+
+    _dataController = QSharedPointer<IDataController>(new DataController(_device,
+                                                                         _demodulator,
+                                                                         ip,
+                                                                         port,
+                                                                         interval_send_ms));
+    _dataController->setDSP(_dsp);
+    _dataController->run();
+
+    _timerUpdateWidgets.start(TIMEOUT_UPDATE);
+}
+
 
 void Core::slotUpdateWidgets()
 {

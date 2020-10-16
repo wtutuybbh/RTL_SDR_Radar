@@ -25,7 +25,7 @@ void NetworkWorker::addDebugMsg(const QString &str)
     if(_log)
         _log->push(str);
 
-   // qDebug()<<str;
+    qDebug()<<str;
 }
 
 bool NetworkWorker::connect(const QString &ip, uint16_t port, uint16_t timeout)
@@ -60,7 +60,7 @@ bool NetworkWorker::connect(const QString &ip, uint16_t port, uint16_t timeout)
         return false;
     }
 
-    if(!_addLogInfo)
+    if(_addLogInfo)
     {
         QString logString = QString("[TCP] try connect to: IP = %1, port = %2 ..../").arg(ip).arg(port);
         addDebugMsg(logString);
@@ -72,13 +72,12 @@ bool NetworkWorker::connect(const QString &ip, uint16_t port, uint16_t timeout)
         _socket->connectToHost(ip, port);
         if(!_socket->waitForConnected(timeout))
         {
-            if(!_addLogInfo)
+            if(_addLogInfo)
             {
                 QString logString = QString( "[TCP] get error string from connection: %1 ")
                         .arg(_socket->errorString());
 
                 addDebugMsg(logString);
-                _addLogInfo = true;
             }
 
             return false;

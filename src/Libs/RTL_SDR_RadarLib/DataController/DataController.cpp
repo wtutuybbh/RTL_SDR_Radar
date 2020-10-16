@@ -31,12 +31,13 @@ DataController::DataController(QSharedPointer<IReciverDevice> dev,
 DataController::DataController(QSharedPointer<IReciverDevice> dev,
                                QSharedPointer<IDemodulator> dem,
                                const QString &ip,
-                               uint16_t port)
+                               uint16_t port,
+                               uint32_t send_period_ms)
 {
     qDebug()<<"create DataController";
     _dataThread = new QThread();
 
-    _worker = std::unique_ptr<IWorker>(new DataWorkerNetSender(dev, dem, ip, port));
+    _worker = std::unique_ptr<IWorker>(new DataWorkerNetSender(dev, dem, ip, port,send_period_ms));
 
     if(_worker)
     {

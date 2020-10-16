@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <QSettings>
 #include <QThread>
+#include <QElapsedTimer>
 
 #include "DataWorkerNetSender.h"
 #include "NetworkWorker.h"
@@ -12,6 +13,7 @@ DataWorkerNetSender::DataWorkerNetSender(QSharedPointer<IReciverDevice> dev,
                                          QSharedPointer<IDemodulator> dem,
                                          const QString &ip,
                                          uint16_t port,
+                                         int64_t sendIntervalMs,
                                          size_t dataSize) :
     DataWorker (dev,dem,dataSize)
 {
@@ -19,8 +21,9 @@ DataWorkerNetSender::DataWorkerNetSender(QSharedPointer<IReciverDevice> dev,
     {
         _ip = ip;
         _port = port;
+        _sendInterval = sendIntervalMs;
     }
-    qDebug()<<"create DataWorkerNet";
+    qDebug()<<"create DataWorkerNet"<< _ip<<_port<<_sendInterval;
 }
 
 DataWorkerNetSender::~DataWorkerNetSender()
@@ -37,28 +40,26 @@ void DataWorkerNetSender::exec()
     _net = std::unique_ptr<INetworkWorker>(new NetworkWorker(_ip,_port));
     _abort = false;
 
-    _firstTimeBreakpoint = steady_clock::now();
+    QElapsedTimer timer;
+    timer.start();
 
     forever
     {
         if(_abort)
             break;
 
-        if(_net && !_net->isConnected())
-            _net->connect(_ip,_port,CONNECT_TIMEOUT);
-
         QMutexLocker lock(&_mutex);
         if(processData())
         {
-            _secondTimeBreakpoint = steady_clock::now();
-
-            int64_t value = duration_cast<std::chrono::milliseconds>(_secondTimeBreakpoint - _firstTimeBreakpoint).count();
-            if(value > _sendInterval)
+            if(_net && (timer.elapsed() > _sendInterval))
             {
-                if(_net && _net->isConnected())
+                if(!_net->isConnected())
+                    _net->connect(_ip,_port,CONNECT_TIMEOUT);
+
+                if(_net->isConnected())
                     _net->writeDatagramm(_demod->getRawDumpOfObjectsInfo());
 
-                _firstTimeBreakpoint = steady_clock::now();
+                timer.restart();
             }
         }
     }

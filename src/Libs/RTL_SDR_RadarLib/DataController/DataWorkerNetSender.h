@@ -35,12 +35,14 @@ public:
      * \param dem - модуль демодуляции
      * \param ip - ip сервера
      * \param port  порт сервера
+     * \param sendIntervalMs - период отправки данных
      * \param dataSize размер данных для чтения с приемника
      */
     DataWorkerNetSender(QSharedPointer<IReciverDevice> dev,
                   QSharedPointer<IDemodulator> dem,
                   const QString& ip,
                   uint16_t port,
+                  int64_t sendIntervalMs,
                   size_t dataSize = MODES_DATA_LEN + MODES_FULL_LEN_OFFS);
     ///< деструктор
     ~DataWorkerNetSender() override;
