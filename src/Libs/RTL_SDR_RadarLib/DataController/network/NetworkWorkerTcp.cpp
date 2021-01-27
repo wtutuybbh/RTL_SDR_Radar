@@ -5,23 +5,26 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
-#include "NetworkWorker.h"
+#include "NetworkWorkerTcp.h"
 
-NetworkWorker::NetworkWorker(const QString &ip, uint16_t port)
+
+NetworkWorkerTcp::NetworkWorkerTcp(const QString &ip, uint16_t port)
 {
+    Q_UNUSED(ip)
+    Q_UNUSED(port)
 //    if(connect(ip,port))
 //         qDebug()<<"connect to "<<ip<<port;
     qDebug() << "create NetworkWorker";
 }
 
-NetworkWorker::~NetworkWorker()
+NetworkWorkerTcp::~NetworkWorkerTcp()
 {
     disconnect();
     _socket.reset(nullptr);
     qDebug() << "delete NetworkWorker";
 }
 
-void NetworkWorker::addDebugMsg(const QString &str)
+void NetworkWorkerTcp::addDebugMsg(const QString &str)
 {
     if(_log)
         _log->push(str);
@@ -29,7 +32,7 @@ void NetworkWorker::addDebugMsg(const QString &str)
     qDebug()<<str;
 }
 
-bool NetworkWorker::connect(const QString &ip, uint16_t port, uint16_t timeout)
+bool NetworkWorkerTcp::connect(const QString &ip, uint16_t port, uint16_t timeout)
 {
     if(_socket == nullptr)
         _socket = std::unique_ptr<QTcpSocket>(new QTcpSocket());
@@ -87,12 +90,12 @@ bool NetworkWorker::connect(const QString &ip, uint16_t port, uint16_t timeout)
     return  isConnected();
 }
 
-bool NetworkWorker::isConnected()
+bool NetworkWorkerTcp::isConnected()
 {
     return (_socket != nullptr) && (_socket->state() == QAbstractSocket::ConnectedState);;
 }
 
-void NetworkWorker::disconnect()
+void NetworkWorkerTcp::disconnect()
 {
     if(_socket)
     {
@@ -102,7 +105,7 @@ void NetworkWorker::disconnect()
     }
 }
 
-int64_t NetworkWorker::writeDatagramm(const QByteArray &byteArray)
+int64_t NetworkWorkerTcp::writeDatagramm(const QByteArray &byteArray)
 {
     if(_socket == nullptr)
         return  -1;
@@ -119,7 +122,7 @@ int64_t NetworkWorker::writeDatagramm(const QByteArray &byteArray)
     return ret;
 }
 
-int64_t NetworkWorker::writeDatagramm(QString& ip,
+int64_t NetworkWorkerTcp::writeDatagramm(QString& ip,
                                       uint16_t port,
                                       const QByteArray &byteArray)
 {

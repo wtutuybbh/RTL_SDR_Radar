@@ -1,7 +1,7 @@
 #include <QDebug>
 
 #include "DataController/DataController.h"
-#include "DataWorkerNetSender.h"
+#include "network/DataWorkerNetSender.h"
 
 DataController::DataController(QSharedPointer<IReciverDevice> dev,
                                QSharedPointer<IDemodulator> dem)
@@ -57,6 +57,16 @@ DataController::DataController(QSharedPointer<IReciverDevice> dev,
                          &IWorker::signalStateConnectToServer,
                          this,
                          &IDataController::signalStateConnectToServer);
+
+        QObject::connect(_worker.get(),
+                         &IWorker::signalNetworkExchange,
+                         this,
+                         &IDataController::signalNetworkExchange);
+
+        QObject::connect(this,
+                         &IDataController::signalSetNetworkSettings,
+                         _worker.get(),
+                         &IWorker::slotSetNetworkSettings);
     }
 }
 

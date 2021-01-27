@@ -101,5 +101,6 @@ private slots:
 
 public slots:
     void slotConnectToServerState(bool state);
+    void slotNetworkExchange(uint64_t bytesSend, uint64_t errorrCount);
 };
 #endif // MAINWINDOW_H

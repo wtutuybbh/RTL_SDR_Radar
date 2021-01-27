@@ -70,6 +70,8 @@ public slots:
      *  \return количество прочтённых байт, -1 в случае ошибки
     */
     virtual int64_t readDatagramm() = 0;
+
+
 };
 #endif // INETWORKWORKER
 

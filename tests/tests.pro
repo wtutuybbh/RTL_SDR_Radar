@@ -3,4 +3,5 @@ CONFIG += ordered
 
 SUBDIRS += \
     PoolObjectsTest \
-    TestServer
+    TestServer \
+    TestUdpServer

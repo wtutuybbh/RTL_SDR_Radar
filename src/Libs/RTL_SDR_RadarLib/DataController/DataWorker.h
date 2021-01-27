@@ -85,6 +85,7 @@ public slots:
     * \brief exec запуск цикла получения и обработки данных
     */
     void exec() override;
+    void slotSetNetworkSettings(bool, QString, quint16) override;
 };
 
 #endif // DATAWORKER_H

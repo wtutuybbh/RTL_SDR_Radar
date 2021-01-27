@@ -66,5 +66,9 @@ signals:
      * \brief сигнал об установки подключения к серверу
      */
     void signalStateConnectToServer(bool state);
+
+    void signalNetworkExchange(quint64 byteSend, quint64 errorCount);
+
+    void signalSetNetworkSettings(bool isSend,QString ip, quint16 port);
 };
 #endif // IDATACONTROLLER_H

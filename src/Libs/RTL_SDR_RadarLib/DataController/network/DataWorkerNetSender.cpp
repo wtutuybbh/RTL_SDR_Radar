@@ -3,9 +3,11 @@
 #include <QSettings>
 #include <QThread>
 #include <QElapsedTimer>
+#include <QCoreApplication>
 
 #include "DataWorkerNetSender.h"
-#include "NetworkWorker.h"
+#include "NetworkWorkerTcp.h"
+#include "NetworkWorkerUdp.h"
 
 using namespace std::chrono;
 
@@ -37,11 +39,17 @@ DataWorkerNetSender::~DataWorkerNetSender()
 
 void DataWorkerNetSender::exec()
 {
-    _net = std::unique_ptr<INetworkWorker>(new NetworkWorker(_ip,_port));
+    _net = std::unique_ptr<INetworkWorker>(new NetworkWorkerUdp());
+    _pkgProcessor = std::unique_ptr<ProtocolPkgProcessor>(new ProtocolPkgProcessor(VERSION::VER_1));
+
     _abort = false;
 
-    QElapsedTimer timer;
+    QElapsedTimer timer, timerNetInfo;
     timer.start();
+    timerNetInfo.start();
+
+    uint64_t bytesSend = 0;
+    uint64_t countError = 0;
 
     forever
     {
@@ -49,26 +57,42 @@ void DataWorkerNetSender::exec()
             break;
 
         QMutexLocker lock(&_mutex);
-        if(processData())
+        if(processData() && _isSendData)
         {
             if(_net && (timer.elapsed() > _sendInterval))
             {
-                if(_net->isConnected())
-                    _net->writeDatagramm(_demod->getRawDumpOfObjectsInfo());
-                else
+                QVector<QByteArray> dataFrame = _pkgProcessor->serialize(_demod->getListOfObjects());
+                if(!dataFrame.isEmpty())
                 {
-                    bool ret = _net->connect(_ip,_port,CONNECT_TIMEOUT);
-                    if (ret)
-                        qDebug()<<"connect to "<<_ip<<_port;
-
-                    emit signalStateConnectToServer(ret);
-
+                    int N = dataFrame.size();
+                    for(int i = 0 ; i < N ; i++)
+                    {
+                        int64_t ret = _net->writeDatagramm(_ip,_port,dataFrame[i]);
+                        if(ret > 0)
+                            bytesSend += uint64_t(ret);
+                        else
+                            countError++;
+                    }
                 }
                 timer.restart();
             }
         }
+
+        if(timerNetInfo.elapsed() > 2000)
+        {
+            emit signalNetworkExchange(bytesSend,countError);
+            timerNetInfo.restart();
+        }
+        QCoreApplication::instance()->processEvents();
     }
 
     qDebug()<<"terminate thread id" << QThread::currentThreadId();
     emit finished();
+}
+
+void DataWorkerNetSender::slotSetNetworkSettings(bool isSend, QString ip, quint16 port)
+{
+    _isSendData = isSend;
+    _ip = ip;
+    _port = port;
 }

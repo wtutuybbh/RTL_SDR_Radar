@@ -1,12 +1,8 @@
-QT       += core gui
+QT       += core gui network
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
-
-include( ../../../common.pri )
-include( ../../../app.pri )
-
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -14,37 +10,22 @@ include( ../../../app.pri )
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
-DEFINES += QCUSTOMPLOT_USE_OPENGL
-
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    ../../../import/qcustomplot/qcustomplot.cpp \
-    AppCore/Core.cpp \
-    gui/MainWindow.cpp \
     main.cpp \
+    MainWindow.cpp
 
 HEADERS += \
-    ../../../import/qcustomplot/qcustomplot.h \
-    AppCore/Core.h \
-    gui/MainWindow.h
+    MainWindow.h
+
+FORMS += \
+    MainWindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-
-FORMS += \
-    gui/MainWindow.ui
-
-DISTFILES += \
-    ../../../import/style.qss
-
-LIBS += -lCarrier \
-        -lDataController \
-        -lRTL_SDR_Reciver \
-        -lDSPLib
-

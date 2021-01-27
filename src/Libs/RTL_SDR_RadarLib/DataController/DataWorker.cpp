@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 #include "DataWorker.h"
-#include "NetworkWorker.h"
+#include "network/NetworkWorkerTcp.h"
 
 
 
@@ -44,6 +44,8 @@ void DataWorker::exec()
     qDebug()<<"terminate thread id" << QThread::currentThreadId();
     emit finished();
 }
+
+void DataWorker::slotSetNetworkSettings(bool, QString, quint16) {}
 
 bool DataWorker::processData()
 {

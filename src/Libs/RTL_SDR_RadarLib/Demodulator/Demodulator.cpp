@@ -130,7 +130,21 @@ void Demodulator::run()
     demodulate();
 }
 
-QByteArray Demodulator::getRawDumpOfObjectsInfo()
+/**
+    структура для хранения и передачи блока данных на сервер
+    .------------.-----------.--------------.
+    |  4  byte   |  4 byte   | 0 ... N byte |
+    |------------|-----------|--------------|
+    | countFrame | sizeFrame | data         |
+    '------------'-----------'--------------'
+    структура блока data
+    .--------.--------.----------.--------.--------.----------.-----------.--------.---------.
+    | 4 byte | 9 byte |  4 byte  | 4 byte | 4 byte |  4 byte  |  4 byte   | 8 byte | 4 byte  |
+    |--------|--------|----------|--------|--------|----------|-----------|--------|---------|
+    | icao   | flight | altitude | speed  | course | latitude | longitude | seen   | message |
+    '--------'--------'----------'--------'--------'----------'-----------'--------'---------'
+*/
+QByteArray Demodulator::serializeObjects()
 {
     QByteArray array;
 
@@ -138,10 +152,8 @@ QByteArray Demodulator::getRawDumpOfObjectsInfo()
         return array;
 
 
-    uint32_t frameSize = Aircraft::serializedFrameSize();
-    int32_t countFrame = getCountObject();
-    array.append((char*)(&frameSize),sizeof(int32_t));
-    array.append((char*)(&countFrame),sizeof(int32_t));
+    uint32_t frameSize = 0;
+    int32_t countFrame = 0;
 
     for(auto &a: _pool->values())
     {
@@ -149,8 +161,13 @@ QByteArray Demodulator::getRawDumpOfObjectsInfo()
         if(!air.isNull())
         {
             array.append(air->serialize());
+            countFrame++;
+            if(frameSize == 0)
+                frameSize = air->serializedFrameSize();
         }
     }
+    array.prepend((char*)(&countFrame),sizeof(int32_t));
+    array.prepend((char*)(&frameSize),sizeof(int32_t));
 
     return array;
 }
@@ -172,6 +189,11 @@ int32_t Demodulator::getCountObject()
         return -1;
 
     return _pool->values().count();
+}
+
+QList<QSharedPointer<IObject> > Demodulator::getListOfObjects()
+{
+    return _pool->values();
 }
 
 

@@ -381,3 +381,7 @@ void MainWindow::slotConnectToServerState(bool state)
 {
     ui->lDBStatus->setStyleSheet(takeColorStrByState(state));
 }
+
+void MainWindow::slotNetworkExchange(uint64_t bytesSend, uint64_t errorrCount)
+{
+}

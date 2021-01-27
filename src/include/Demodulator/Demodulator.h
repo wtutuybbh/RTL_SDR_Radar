@@ -148,9 +148,9 @@ public:
     /*!
      *  \brief Получение байтового массива сериализованных объектов
      * из пула объектов
-     * \return байтовый массви,упаковынный согласно протоколу сериализации
+     * \return байтовый массив,упаковынный согласно протоколу сериализации
      */
-    QByteArray getRawDumpOfObjectsInfo() override;
+    QByteArray serializeObjects() override;
     /*!
      *  \brief функция демодуляции
      */
@@ -160,6 +160,7 @@ public:
      */
     int32_t getCountObject() override;
 
+    virtual QList<QSharedPointer<IObject> > getListOfObjects() override;
 private:
     /*!
      * \brief computeMagnitudeVector

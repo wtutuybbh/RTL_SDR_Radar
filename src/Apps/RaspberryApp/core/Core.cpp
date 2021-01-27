@@ -69,9 +69,15 @@ void Core::init(const QString &ip, uint16_t port, int64_t interval_send_ms)
                                                                          port,
                                                                          interval_send_ms));
     QObject::connect(_dataController.get(),
-                     &IDataController::signalStateConnectToServer,
+                     &IDataController::signalNetworkExchange,
                      &_mainWindow,
-                     &MainWindow::slotConnectToServerState);
+                     &MainWindow::slotNetworkExchange);
+
+    QObject::connect(&_mainWindow,
+                     &MainWindow::signalSetNetworkSettings,
+                     _dataController.get(),
+                     &IDataController::signalSetNetworkSettings);
+
     _timer.start(TIMEOUT);
 }
 
