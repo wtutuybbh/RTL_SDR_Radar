@@ -72,6 +72,9 @@ Core::Core(QObject *parent) : QObject(parent)
     _mainWindow->adjustSize();
     _mainWindow->show();
 
+    QObject::connect(_tableSrc,&TableForm::signalSetObjectCurrent,
+                     _graphicsWidget,&GraphicsWidget::slotSetObjectCurrent);
+
     QObject::connect(&_timerUpdateWidgets, &QTimer::timeout,
                      this, &Core::slotUpdateWidgets);
 }

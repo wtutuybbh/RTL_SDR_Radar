@@ -345,7 +345,7 @@ void GraphicsWidget::mouseMoveEvent(QMouseEvent *event)
 void GraphicsWidget::mousePressEvent(QMouseEvent *event)
 {
     if ((event->button() == Qt::LeftButton) &&
-                (getDisplayMode() == DisplayMode::CARTESIAN))
+            (getDisplayMode() == DisplayMode::CARTESIAN))
     {
         _oldPos = event->pos();
         return;
@@ -626,7 +626,7 @@ void GraphicsWidget::drawText(QPainter *p,
     for(auto & iter: strList)
     {
         tW = std::max(captionWidth,
-                                QFontMetrics(font.family()).width(iter));
+                      QFontMetrics(font.family()).width(iter));
         captionWidth = (captionWidth < tW) ? tW :captionWidth;
     }
     p->setBrush(_clrTronAlpha);
@@ -868,5 +868,18 @@ void GraphicsWidget::moveMap(int deltaX, int deltaY)
     //coordConv->setCenterPoint(geoToScreen(_ourPosition));
     recalculateCoordObjects();
     QGraphicsView::resetCachedContent();
+    _scene->update();
+}
+
+void GraphicsWidget::slotSetObjectCurrent(QUuid id)
+{
+    scene()->clearSelection();
+
+    if(_hashTable.contains(id))
+        _hashTable.value(id)->setSelected(true);
+
+    //если графический объект выбран текущим
+    if(_hashTable.value(id)->isSelected() && _fixCursor)
+        _fixCursorCoord = _hashTable.value(id)->pos();
     _scene->update();
 }

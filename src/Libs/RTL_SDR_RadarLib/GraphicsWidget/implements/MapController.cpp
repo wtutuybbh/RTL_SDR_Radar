@@ -170,7 +170,7 @@ void MapController::setScale(uint8_t scale)
 
 int MapController::incScale()
 {
-    return  (_zoom < 15) ? ++_zoom : _zoom;
+    return  (_zoom < 16) ? ++_zoom : _zoom;
 }
 
 int MapController::decScale()

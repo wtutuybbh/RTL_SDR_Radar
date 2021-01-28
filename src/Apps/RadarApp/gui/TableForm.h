@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QTableView>
+#include <QUuid>
 
 namespace Ui {
 class TableForm;
@@ -19,7 +20,10 @@ public:
 private:
     Ui::TableForm *ui;
     QTableView* _view;
-
+private slots:
+    void clicked(const QModelIndex &index);
+signals:
+    void signalSetObjectCurrent(QUuid id);
 };
 
 #endif // TABLEFORM_H

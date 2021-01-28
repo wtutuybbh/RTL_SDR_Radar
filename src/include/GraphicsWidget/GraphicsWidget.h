@@ -292,6 +292,8 @@ public slots:
      * с захватом блокировки на пуле объектов
      */
     void slotUpdateData(QSharedPointer<IPoolObject> pool);
+
+    void slotSetObjectCurrent(QUuid id);
 signals:
     /*!
      * \brief signalDataToTable - сигнал передачи параметров текущего,
