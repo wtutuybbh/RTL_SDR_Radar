@@ -34,5 +34,38 @@
 1. Приемник RTL-SDR v3 на базе Realtek RTL2832 
 2. Антенна Харченко 
 
+Инструкция по сборке:
+
+  0. Окружение:
+  
+    ubuntu 20.04
+    Qt  5.12.8. Для сборки требуется эта версия или же более позняя. 
+
+  1. Установка требуемых библиотек :
+  
+    sudo apt install qt5-default  // или устновить нужную версию с сайта https://www.qt.io/download-qt-installer
+    sudo apt install qtcreator 
+    sudo apt install libfftw3-bin
+    sudo apt install libfftw3-dev 
+    sudo apt install libfftw3-double3
+    sudo apt install libfftw3-long3
+    sudo apt install libfftw3-quad3
+    sudo apt install libfftw3-single3
+    sudo apt install libusb-1.0-0
+    sudo apt install libusb-1.0-0-dev
+
+  2. Необходимо скопировать файл с правами на работу с устройством. Для этого перейдите в папку RTL_SDR_Radar и выполните следующую команду:
+  
+    sudo cp ./import/sdr_dev/rtl-sdr.rules /etc/udev/rules.d/
+    
+  3. Далее нужно внести в blacklist драйвер по умолчанию, который загружается для TV устройства, т.к. он не работает как SDR и будет конфликтовать с новым драйвером. 
+    В директории /etc/modprobe.d создаем новый файл blacklist-rtl.conf или просто дописываем в конец файла blacklist.conf строку : blacklist dvb_usb_rtl28xxu. 
+    После чего необходимо перезагрузить компьютер.
+  4. Перейти в папку RTL_SDR_Radar/scripts/debug или RTL_SDR_Radar/scripts/release и выполнить скрипт builder.sh
+
+  5. Для запуска приложений необходимо использовать скрипты startRadarApp.sh, startRaspberryApp.sh, startTechSoft.sh
+
+  6. При запуске через qtCreator ОБЯЗАТЕЛЬНО необходимо отключить теневую сборку.
+
 Информация для изучения:
 http://sdr.osmocom.org/trac/wiki/rtl-sdr
