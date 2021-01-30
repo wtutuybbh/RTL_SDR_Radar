@@ -14,6 +14,7 @@ class IObject;
 class ISubject;
 
 enum Column {
+    UUID,
     ID,
     NAME,
     TIME,

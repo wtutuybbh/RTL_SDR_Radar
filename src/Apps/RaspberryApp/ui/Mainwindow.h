@@ -27,7 +27,9 @@ class MainWindow : public QMainWindow
     int32_t MAX_INTERVAL = 1000;
     int32_t MIN_INTERVAL = 10;
     int32_t COUNT_TEXT_LINE = 1000;
+
     void logBalancing();
+
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -39,6 +41,16 @@ private:
 
 private slots:
     void updateTerminal();
+    void on_pbNetSettings_clicked();
+
+    void on_grbNetwork_toggled(bool arg1);
+
+public slots:
+    void slotConnectToServerState(bool state);
+    void slotNetworkExchange(quint64 bytesSend, quint64 errorrCount);
+
+signals:
+    void signalSetNetworkSettings(bool isSend,QString ip, quint16);
 };
 
 #endif // MAINWINDOW_H

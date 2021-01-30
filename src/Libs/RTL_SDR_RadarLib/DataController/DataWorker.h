@@ -23,9 +23,6 @@ protected:
     std::atomic<bool> _abort;
     QMutex _mutex;
 
-    std::chrono::steady_clock::time_point _firstTimeBreakpoint;
-    std::chrono::steady_clock::time_point _secondTimeBreakpoint;
-
     ///< указатель на rtl_sdr устройство
     QSharedPointer<IReciverDevice> _device;
     ///< указатель на демодулятор устройства
@@ -88,6 +85,7 @@ public slots:
     * \brief exec запуск цикла получения и обработки данных
     */
     void exec() override;
+    void slotSetNetworkSettings(bool, QString, quint16) override;
 };
 
 #endif // DATAWORKER_H

@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include <QSharedPointer>
+#include <QObject>
 
 #include "ILogger.h"
 #include "IReciverDevice.h"
@@ -23,8 +24,9 @@ enum class  TYPE_WORKER
     DATA_TO_NETWORK
 };
 
-class IDataController
+class IDataController: public QObject
 {
+    Q_OBJECT
 public:
     virtual ~IDataController(){}
     /*!
@@ -58,5 +60,15 @@ public:
      * \return
      */
     virtual bool isRunning() = 0;
+
+signals:
+    /*!
+     * \brief сигнал об установки подключения к серверу
+     */
+    void signalStateConnectToServer(bool state);
+
+    void signalNetworkExchange(quint64 byteSend, quint64 errorCount);
+
+    void signalSetNetworkSettings(bool isSend,QString ip, quint16 port);
 };
 #endif // IDATACONTROLLER_H

@@ -8,11 +8,11 @@
 
 /*!
  * \brief The NetworkWorker class
- * Реализация интерфейса сетевого взаимодействия
+ * Реализация интерфейса сетевого взаимодействия для передачи по tcp\ip
  * \author Данильченко Артём
  */
 
-class NetworkWorker : public INetworkWorker
+class NetworkWorkerTcp : public INetworkWorker
 {
     Q_OBJECT
     ///< модуль логгирования
@@ -24,13 +24,13 @@ class NetworkWorker : public INetworkWorker
     ///< добавление сообщения в модуль логгирования
     void addDebugMsg(const QString& str);
 
-    bool _addLogInfo = false;
+    bool _addLogInfo = true;
 
 public:
-    NetworkWorker(const QString& ip,
+    NetworkWorkerTcp(const QString& ip,
                   uint16_t port);
 
-    ~NetworkWorker() override;
+    ~NetworkWorkerTcp() override;
     /*!
      * \brief setLogger - внедрение зависимости модуля логгирования
      */
@@ -84,6 +84,7 @@ public:
      *  \return количество прочтённых байт, -1 в случае ошибки
     */
     int64_t readDatagramm() override { return 0; }
+
 };
 
 #endif // NETWORKWORKER_H

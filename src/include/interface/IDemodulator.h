@@ -9,6 +9,8 @@
 
 class IPoolObject;
 class ILogger;
+class IObject;
+
 /*!
     \brief Интерфейсный класс для работы с демодулятором
     Наследуется от QRunnable, может быть запущен в отдельном потоке
@@ -32,7 +34,9 @@ public:
      *         в виде байтового массива для передачи по сети
      *  \return байтовый массив сериализованных объектов
      */
-    virtual QByteArray getRawDumpOfObjectsInfo() = 0;
+    virtual QByteArray serializeObjects() = 0;
+
+    virtual QList<QSharedPointer<IObject> > getListOfObjects() = 0;
     /*!
      *  \brief Функция демодуляции, на случай использования класса без QThreadPool
      *  \return результат выполнения

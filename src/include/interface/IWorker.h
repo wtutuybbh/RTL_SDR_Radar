@@ -55,10 +55,18 @@ public slots:
     */
    virtual void exec() = 0;
 
+   virtual void slotSetNetworkSettings(bool isSend,QString ip, quint16 port) = 0;
 signals:
     /*!
      * \brief finished сигнал выхода из цикла обработки данных
      */
     void finished();
+    /*!
+     * \brief сигнал об установки подключения к серверу
+     */
+    void signalStateConnectToServer(bool state);
+
+    void signalNetworkExchange(quint64 byteSend, quint64 errorCount);
+
 };
 #endif // IWORKER_H

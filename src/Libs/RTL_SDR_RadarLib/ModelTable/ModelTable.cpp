@@ -147,6 +147,8 @@ QVariant ModelTable::headerData(int section, Qt::Orientation orientation, int ro
 
     switch(section )
     {
+        case UUID:
+            return trUtf8("UUID");
         case ID:
             return trUtf8("Идент.");
         case NAME:
@@ -187,6 +189,8 @@ void ModelTable::appendData(QSharedPointer<IObject> &object)
         return;
 
     SrcData data;
+
+    data.insert(UUID,object->getUuid());
 
     data.insert(ID,QString("%1")
                 .arg(QString::number(object->getId(),16)));
@@ -253,6 +257,9 @@ void ModelTable::updateData(QSharedPointer<IObject> &object)
 
     if(!_listSrc.contains(object->getId()))
         return;
+
+    _listSrc[object->getId()][UUID] = QString("%1")
+            .arg(object->getUuid().toString());
 
     _listSrc[object->getId()][ID] = QString("%1")
             .arg(QString::number(object->getId(),16));

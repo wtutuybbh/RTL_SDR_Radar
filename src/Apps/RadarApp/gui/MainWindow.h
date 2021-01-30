@@ -82,7 +82,9 @@ public:
 
 private slots:
     void updateTerminal();
+
     void on_rbRadarMode_clicked();
+
     void on_rbCartesianMode_clicked();
 
     void slotUpdateWidgets();
@@ -94,6 +96,11 @@ private slots:
     void on_sliderPeakSpectrCoeff_valueChanged(int value);
 
     void on_hslAccumSpectrumDeep_valueChanged(int value);
+
     void on_tbWorkPanel_currentChanged(int index);
+
+public slots:
+    void slotConnectToServerState(bool state);
+    void slotNetworkExchange(uint64_t bytesSend, uint64_t errorrCount);
 };
 #endif // MAINWINDOW_H

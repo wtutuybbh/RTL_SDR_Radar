@@ -238,6 +238,28 @@ public:
      * \return
      */
     virtual OBJECT_TYPE getTypeObject() = 0;
+
+
+    /*!
+     * \brief serialize сериализация объекта в байтовый массив
+     * для передачи по сети
+     * \return байтовый массив
+     */
+    virtual QByteArray serialize() = 0;
+
+    /*!
+     * \brief unserialize ансериализация данных
+     * \param array байтовый массив
+     * \return результат работы
+     */
+    virtual bool unserialize(QByteArray array) = 0;
+
+    /*!
+     * \brief serializedFrameSize размер блока данных
+     * после сериализации
+     * \return размер данных
+     */
+    virtual uint32_t  serializedFrameSize() = 0 ;
 };
 #endif // IOBJECT
 

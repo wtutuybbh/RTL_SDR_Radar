@@ -1,0 +1,55 @@
+0. Окружение 
+    ubuntu 20.04
+    Qt  5.12.8. Для сборки требуется эта версия или же более позняя. 
+
+1. Установка требуемых библиотек 
+    sudo apt install qt5-default  // или устновить нужную версию с сайта https://www.qt.io/download-qt-installer
+    sudo apt install qtcreator 
+    sudo apt install libfftw3-bin
+    sudo apt install libfftw3-dev 
+    sudo apt install libfftw3-double3
+    sudo apt install libfftw3-long3
+    sudo apt install libfftw3-quad3
+    sudo apt install libfftw3-single3
+    sudo apt install libusb-1.0-0
+    sudo apt install libusb-1.0-0-dev
+
+2. Необходимо скопировать файл с правами на работу с устройством. Для этого перейдите в папку RTL_SDR_Radar и выполните следующую команду:
+    sudo cp ./import/sdr_dev/rtl-sdr.rules /etc/udev/rules.d/
+3. Далее нужно внести в blacklist драйвер по умолчанию, который загружается для TV устройства, т.к. он не работает как SDR и будет конфликтовать с новым драйвером. 
+    В директории /etc/modprobe.d создаем новый файл blacklist-rtl.conf или просто дописываем в конец файла blacklist.conf строку : blacklist dvb_usb_rtl28xxu. 
+    После чего необходимо перезагрузить компьютер.
+4. Перейти в папку RTL_SDR_Radar/scripts/debug или RTL_SDR_Radar/scripts/release и выполнить скрипт builder.sh
+
+5. Для запуска приложений необходимо использовать скрипты startRadarApp.sh, startRaspberryApp.sh, startTechSoft.sh
+
+6. При запуске через qtCreator ОБЯЗАТЕЛЬНО необходимо отключить теневую сборку.
+
+0. Environment
+    ubuntu 20.04
+    Qt 5.12.8. This version or later is required for assembly.
+
+1. Installing the required libraries
+    sudo apt install qt5-default // or install the required version from the site https://www.qt.io/download-qt-installer
+    sudo apt install qtcreator
+    sudo apt install libfftw3-bin
+    sudo apt install libfftw3-dev
+    sudo apt install libfftw3-double3
+    sudo apt install libfftw3-long3
+    sudo apt install libfftw3-quad3
+    sudo apt install libfftw3-single3
+    sudo apt install libusb-1.0-0
+    sudo apt install libusb-1.0-0-dev
+
+2. Copy the file with the rights to work with the device. To do this, go to the RTL_SDR_Radar folder and run the following command:
+
+    sudo cp ./import/sdr_dev/rtl-sdr.rules /etc/udev/rules.d/
+
+3. Next, you need to add the default driver to the blacklist, which is loaded for the TV device. it does not work as SDR and will conflict with the new driver.
+    In the /etc/modprobe.d directory, create a new blacklist-rtl.conf file or simply add the line to the end of the blacklist.conf file: blacklist dvb_usb_rtl28xxu.
+    Then you need to restart your computer.
+4. Go to the RTL_SDR_Radar / scripts / debug or RTL_SDR_Radar / scripts / release folder and execute the builder.sh script
+
+5. To start applications, you must use the startRadarApp.sh, startRaspberryApp.sh, startTechSoft.sh scripts
+
+6. When running through qtCreator, you MUST disable the shadow assembly.

@@ -108,21 +108,21 @@ public:
      * для передачи по сети
      * \return байтовый массив
      */
-    QByteArray serialize();
+    QByteArray serialize() override;
 
     /*!
      * \brief unserialize ансериализация данных
      * \param array байтовый массив
      * \return результат работы
      */
-    bool unserialize(QByteArray array);
+    bool unserialize(QByteArray array) override;
 
     /*!
      * \brief serializedFrameSize размер блока данных
      * после сериализации
      * \return размер данных
      */
-    static uint32_t  serializedFrameSize();
+    uint32_t  serializedFrameSize() override;
     /*!
      * \brief resetObjectData сброс значений на дефолт
      */

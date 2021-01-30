@@ -22,7 +22,7 @@ Core::Core(QObject *parent) : QObject(parent)
     }
     else
         qDebug()<<"error load QSS file.Need filepath"
-                 <<QApplication::applicationDirPath()+"/import/style.qss";
+               <<QApplication::applicationDirPath()+"/import/style.qss";
 
     _logger = QSharedPointer<ILogger>(new Logger(sizeLog));
 
@@ -43,8 +43,6 @@ Core::Core(QObject *parent) : QObject(parent)
     _mainWindow.show();
 
     QObject::connect(&_timer,SIGNAL(timeout()),this,SLOT(slotTimeout()));
-    _timer.start(TIMEOUT);
-
 }
 
 Core::~Core()
@@ -60,13 +58,25 @@ Core::~Core()
     _logger.clear();
 }
 
-void Core::init(const QString &ip, uint16_t port)
+void Core::init(const QString &ip, uint16_t port, int64_t interval_send_ms)
 {
 
     _dataController = QSharedPointer<IDataController>(new DataController(_device,
                                                                          _demodulator,
                                                                          ip,
-                                                                         port));
+                                                                         port,
+                                                                         interval_send_ms));
+    QObject::connect(_dataController.get(),
+                     &IDataController::signalNetworkExchange,
+                     &_mainWindow,
+                     &MainWindow::slotNetworkExchange);
+
+    QObject::connect(&_mainWindow,
+                     &MainWindow::signalSetNetworkSettings,
+                     _dataController.get(),
+                     &IDataController::signalSetNetworkSettings);
+
+    _timer.start(TIMEOUT);
 }
 
 
@@ -74,6 +84,7 @@ void Core::init()
 {
     _dataController = QSharedPointer<IDataController>(new DataController(_device,
                                                                          _demodulator));
+    _timer.start(TIMEOUT);
 }
 
 void Core::slotTimeout()

@@ -61,6 +61,11 @@ void MainWindow::updateTerminal()
         ui->teTerminal->clear();
 }
 
+void MainWindow::slotConnectToServerState(bool state)
+{
+    qDebug()<<state<<"state connect";
+}
+
 void MainWindow::logBalancing()
 {
     if(_logger.isNull())
@@ -98,4 +103,25 @@ void MainWindow::logBalancing()
 
     if(interval != _timer.interval())
         _timer.setInterval(interval);
+}
+
+
+void MainWindow::on_pbNetSettings_clicked()
+{
+    emit signalSetNetworkSettings(ui->grbNetwork->isChecked(),
+                                  ui->leIP->text(),
+                                  ui->spbPort->value());
+}
+
+void  MainWindow::slotNetworkExchange(quint64 bytesSend, quint64 errorrCount)
+{
+    ui->lBytesSend->setText(QString::number(bytesSend));
+    ui->lErrorSend->setText(QString::number(errorrCount));
+}
+
+void MainWindow::on_grbNetwork_toggled(bool isSend)
+{
+    emit signalSetNetworkSettings(isSend,
+                                  ui->leIP->text(),
+                                  ui->spbPort->value());
 }

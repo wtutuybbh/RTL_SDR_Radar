@@ -3,6 +3,8 @@
 # Project created by QtCreator 2018-11-22T11:00:31
 #
 #-------------------------------------------------
+include( ../../../../common.pri )
+include( ../../../../lib.pri )
 
 QT       += gui network widgets
 
@@ -23,27 +25,30 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        DataController.cpp \
+    DataController.cpp \
     DataWorker.cpp \
-    DataWorkerNetSender.cpp \
-    NetworkWorker.cpp
+    network/DataWorkerNetSender.cpp \
+    network/NetworkWorkerTcp.cpp \
+    network/NetworkWorkerUdp.cpp \
+    protocol/ProtocolPkgProcessor.cpp
 
 HEADERS += \
         ../../../include/interface/INetworkWorker.h \
         ../../../include/DataController/DataController.h \
-        DataWorkerNetSender.h \
-        NetworkWorker.h \
+    network/DataWorkerNetSender.h \
         ../../../include/DataController/datacontroller_global.h \
     ../../../include/interface/IDataController.h \
     ../../../include/interface/IWorker.h \
     ../../../include/interface/IDemodulator.h \
     DataWorker.h \
-    ../../../include/interface/IDSP.h
+    ../../../include/interface/IDSP.h \
+    network/NetworkWorkerTcp.h \
+    network/NetworkWorkerUdp.h \
+    protocol/ProtocolPkgProcessor.h
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
 
-include( ../../../../common.pri )
-include( ../../../../lib.pri )
+LIBS += -lCarrier

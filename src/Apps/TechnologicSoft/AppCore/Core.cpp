@@ -6,6 +6,8 @@
 #include "Demodulator/Demodulator.h"
 #include "DSPLib/DSPLib.h"
 #include "qcustomplot/qcustomplot.h"
+#include "Carrier/ServiceLocator.h"
+#include "osm/coordUtils/Position.h"
 
 QSharedPointer<IReciverDevice> Core::device() const
 {
