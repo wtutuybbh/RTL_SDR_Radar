@@ -25,9 +25,13 @@
 
 6. При запуске через qtCreator ОБЯЗАТЕЛЬНО необходимо отключить теневую сборку.
 
+//*********************************************************************************************/
+
 0. Environment
     ubuntu 20.04
     Qt 5.12.8. This version or later is required for assembly.
+
+    Clone from git master branch : git clone https://github.com/art-injener/RTL_SDR_Radar.git
 
 1. Installing the required libraries
     sudo apt install qt5-default // or install the required version from the site https://www.qt.io/download-qt-installer
