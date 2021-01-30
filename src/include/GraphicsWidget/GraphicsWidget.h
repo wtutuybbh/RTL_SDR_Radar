@@ -57,7 +57,7 @@ class GRAPHICSWIDGETSHARED_EXPORT GraphicsWidget: public QGraphicsView,
 
     const int grad = 360;
     int32_t _angleGradientSector = 0;
-    uint16_t _sectorSize = 45;
+    uint32_t _sectorSize = 45;
     bool _updateInSector = true;
 
     const int _textBorder = 28;

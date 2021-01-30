@@ -3,8 +3,8 @@ CONFIG += ordered
 
 SUBDIRS += \
     src/Libs \
-    src/Apps \
-    tests
+    src/Apps
+#    tests
 #    tests/PoolObjectsTest \
 
 

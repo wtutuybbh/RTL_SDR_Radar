@@ -446,7 +446,7 @@ void GraphicsWidget::drawRadarSector(QPainter *painter)
 
 
     gradient.setCenter(drawingRect.center());
-    gradient.setAngle(-_angleGradientSector);
+    gradient.setAngle(-qreal(_angleGradientSector));
     gradient.setColorAt(0, _clrTronAlpha);
     gradient.setColorAt(0.2, QColor(0,0,0,0));
 
@@ -456,11 +456,6 @@ void GraphicsWidget::drawRadarSector(QPainter *painter)
 
     painter->drawEllipse(drawingRect);
     painter->setPen(_clrTron);
-
-    painter->drawLine(drawingRect.center(),
-                      QPointF(ScreenConversions::polarToScreen(getSceneCenterPont(),
-                                                               _angleGradientSector + _sectorSize * 2,
-                                                               _radRadar)));
 
     for(auto &iter : _hashTable.values())
     {

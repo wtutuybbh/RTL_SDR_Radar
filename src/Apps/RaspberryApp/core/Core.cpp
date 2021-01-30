@@ -43,8 +43,6 @@ Core::Core(QObject *parent) : QObject(parent)
     _mainWindow.show();
 
     QObject::connect(&_timer,SIGNAL(timeout()),this,SLOT(slotTimeout()));
-
-
 }
 
 Core::~Core()
