@@ -26,7 +26,7 @@
   - Вывод огибающей в режиме пикового детектора
   - Перестройка частоты
   
-![Screenshot_20200504_154425](https://user-images.githubusercontent.com/34423525/80967744-884b7b80-8e1f-11ea-9095-62c6d4711c50.png)
+![Screenshot_20200504_154425](https://user-images.githubusercontent.com/34423525/106398953-f365c500-6426-11eb-8b0d-2f0889293256.mp4)
 
 ![Screenshot_20200504_154458](https://user-images.githubusercontent.com/34423525/80968388-8a620a00-8e20-11ea-9695-a97a37872a93.png)
 
