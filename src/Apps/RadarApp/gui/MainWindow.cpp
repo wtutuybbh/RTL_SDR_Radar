@@ -7,6 +7,8 @@
 #include "interface/IDataController.h"
 #include "interface/IDSP.h"
 
+#include <Carrier/ServiceLocator.h>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -157,8 +159,15 @@ void MainWindow::on_rbRadarMode_clicked()
 
 void MainWindow::on_rbCartesianMode_clicked()
 {
-    _graphicsWidget->setDisplayMode(DisplayMode::CARTESIAN);
+    //_graphicsWidget->setDisplayMode(DisplayMode::CARTESIAN);
+    QMessageBox msgBox;
+    msgBox.setText("Извините, данный функционал находится в разработке \n Sorry, this feature is under development.");
+    msgBox.exec();
+}
 
+void MainWindow::on_rbCirlceMode_clicked()
+{
+    _graphicsWidget->setDisplayMode(DisplayMode::CIRCLE);
 }
 
 void MainWindow::initChart()
@@ -385,3 +394,10 @@ void MainWindow::slotConnectToServerState(bool state)
 void MainWindow::slotNetworkExchange(uint64_t bytesSend, uint64_t errorrCount)
 {
 }
+
+void MainWindow::on_pdSetCoordinate_clicked()
+{
+    const Position pos = Position(ui->dspLongitude->value(), ui->dspLatitude->value());
+     _graphicsWidget->setCentralCoordinate(pos);
+}
+

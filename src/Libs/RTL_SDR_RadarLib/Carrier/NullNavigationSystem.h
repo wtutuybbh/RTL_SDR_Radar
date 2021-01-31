@@ -2,14 +2,15 @@
 #define NULLNAVIGATIONSYSYTEM_H
 
 #include "interface/INavigationSystem.h"
+#include "osm/coordUtils/Position.h"
 /*!
  * \brief The NullNavigationSystem class
  * Реализация паттерна null-object. Класс заглушка
  */
-class Position;
 
 class NullNavigationSystem final : public INavigationSystem
 {
+    Position _position;
 public:
     NullNavigationSystem();
 
@@ -18,7 +19,7 @@ public:
     double getCourse()  { return 0.0; }
 
     //set/get координат
-    void setGeoCoord(const Position &)  {}
+    void setGeoCoord(const Position & pos);
     Position getGeoCoord();
 
     //set/get скорости

@@ -12,6 +12,7 @@
 enum class  DisplayMode
 {
     RADAR = 0,
+    CIRCLE,
     CARTESIAN
 };
 
@@ -180,6 +181,10 @@ public:
     void setDisplayMode(DisplayMode mode);
     DisplayMode getDisplayMode() { return  _displayMode; }
 
+    void setCentralCoordinate(const Position &position);
+
+    void updateObjectInRadarSector();
+    void updateObjectInAllSectors();
 
 protected:
     /*!
@@ -286,12 +291,6 @@ private slots:
      */
     void updateScene();
 public slots:
-
-    /*!
-     * \brief slotUpdateData - слот обновления данных
-     * с захватом блокировки на пуле объектов
-     */
-    void slotUpdateData(QSharedPointer<IPoolObject> pool);
 
     void slotSetObjectCurrent(QUuid id);
 signals:

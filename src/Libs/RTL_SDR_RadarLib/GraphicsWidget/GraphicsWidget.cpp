@@ -33,8 +33,7 @@ GraphicsWidget::GraphicsWidget(uint32_t widthRect,
     //обновление сектора
     connect(&_timer, &QTimer::timeout, this, &GraphicsWidget::timeout);
 
-    if(_updateInSector)
-        _timer.start(TIMEOUT);
+    _timer.start(TIMEOUT);
 
     setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
 }
@@ -76,6 +75,11 @@ void GraphicsWidget::unsubscribe(QSharedPointer<ISubject> subject)
     subject.clear();
 }
 
+
+//void GraphicsWidget::setCenterCoord(const Position &centerCoord)
+//{
+//    _centerCoord = centerCoord;
+//}
 
 void GraphicsWidget::initWidget(const QRect &rect, bool enableOpenGL)
 {
@@ -154,14 +158,20 @@ void GraphicsWidget::update(QSharedPointer<IPoolObject> pool)
         return;
     }
 
-    slotUpdateData(pool);
+    _vHiddenObject.clear();
+    for (auto &iter: pool->allValues())
+    {
+        if(!iter.isNull())
+            updateObjectOnScene(iter);
+    }
+
 }
 
 void GraphicsWidget::setDisplayMode(DisplayMode mode)
 {
     _displayMode = mode;
 
-    if(mode == DisplayMode::RADAR)
+    if(mode == DisplayMode::RADAR || mode == DisplayMode::CIRCLE)
     {
         _radRadar = _scene->sceneRect().width()/2.0 - _textBorder;
         setDragMode(QGraphicsView::NoDrag);
@@ -169,11 +179,22 @@ void GraphicsWidget::setDisplayMode(DisplayMode mode)
     else
         setDragMode(QGraphicsView::ScrollHandDrag);
 
+    _updateInSector = (mode == DisplayMode::RADAR);
 
-    _distToBorderMap = (mode == DisplayMode::RADAR) ?
+    _distToBorderMap = ((mode == DisplayMode::RADAR) || (mode == DisplayMode::CIRCLE)) ?
                 (_scene->sceneRect().width()/2.0 - _textBorder)  :
                 0;
 
+    _centerCoord = ServiceLocator::getCarrier()->getGeoCoord();
+
+    recalculateCoordObjects();
+    //обновление кешированных данных
+    QGraphicsView::resetCachedContent ();
+}
+
+void GraphicsWidget::setCentralCoordinate(const Position &position)
+{
+    ServiceLocator::getCarrier()->setGeoCoord(position);
     _centerCoord = ServiceLocator::getCarrier()->getGeoCoord();
 
     recalculateCoordObjects();
@@ -435,6 +456,50 @@ void GraphicsWidget::drawBackground(QPainter *painter, const QRectF &rect)
     printMapScale(painter);
 }
 
+void GraphicsWidget::updateObjectInRadarSector()
+{
+    for(auto &iter : _hashTable.values())
+    {
+        if(iter == nullptr)
+            continue;
+
+        if(iter->getAzimuth() > ((_angleGradientSector + _sectorSize) % 360) &&
+                iter->getAzimuth() < ((_angleGradientSector + _sectorSize * 2) % 360))
+        {
+            if(iter->getNeedDelete())
+            {
+                _scene->removeItem(iter);
+                auto key = _hashTable.key(iter);
+                delete  iter;
+
+                _hashTable.remove(key);
+            }
+            else
+                updatePositionOnScene(iter);
+        }
+    }
+}
+
+void GraphicsWidget::updateObjectInAllSectors()
+{
+    for(auto &iter : _hashTable.values())
+    {
+        if(iter == nullptr)
+            continue;
+
+        if(iter->getNeedDelete())
+        {
+            _scene->removeItem(iter);
+            auto key = _hashTable.key(iter);
+            delete  iter;
+
+            _hashTable.remove(key);
+        }
+        else
+            updatePositionOnScene(iter);
+    }
+}
+
 void GraphicsWidget::drawRadarSector(QPainter *painter)
 {
     QPointF dot = getSceneCenterPont();
@@ -457,26 +522,7 @@ void GraphicsWidget::drawRadarSector(QPainter *painter)
     painter->drawEllipse(drawingRect);
     painter->setPen(_clrTron);
 
-    for(auto &iter : _hashTable.values())
-    {
-        if(iter == nullptr)
-            continue;
-
-        if(iter->getAzimuth() > ((_angleGradientSector + _sectorSize) % 360) &&
-                iter->getAzimuth() < ((_angleGradientSector + _sectorSize * 2) % 360))
-        {
-            if(iter->getNeedDelete())
-            {
-                _scene->removeItem(iter);
-                auto key = _hashTable.key(iter);
-                delete  iter;
-
-                _hashTable.remove(key);
-            }
-            else
-                updatePositionOnScene(iter);
-        }
-    }
+    updateObjectInRadarSector();
 }
 
 void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
@@ -504,10 +550,11 @@ void GraphicsWidget::drawForeground(QPainter *painter, const QRectF &rect)
     drawHiddenObject(painter);
 
     drawCarrier(painter);
-    if(!_updateInSector)
-        return;
 
-    drawRadarSector(painter);
+    if(_updateInSector)
+       drawRadarSector(painter);
+    else
+        updateObjectInAllSectors();
 }
 
 void GraphicsWidget::resizeEvent(QResizeEvent *event)
@@ -532,7 +579,7 @@ void GraphicsWidget::resizeEvent(QResizeEvent *event)
     _scene->setSceneRect(0, 0, dimension, dimension);
 
     _radRadar = _scene->sceneRect().width()/2.0 - _textBorder;
-    _distToBorderMap = (getDisplayMode() == DisplayMode::RADAR) ? _radRadar  : 0;
+    _distToBorderMap = (getDisplayMode() == DisplayMode::CARTESIAN) ? 0 : _radRadar;
 
     recalculateCoordObjects();
 
@@ -765,19 +812,6 @@ void GraphicsWidget::timeout()
     _angleGradientSector += 2;
 
     _scene->update();
-}
-
-void GraphicsWidget::slotUpdateData(QSharedPointer<IPoolObject> pool)
-{
-    _vHiddenObject.clear();
-    for (auto &iter: pool->allValues())
-    {
-        if(!iter.isNull())
-            updateObjectOnScene(iter);
-    }
-
-    if(!_updateInSector)
-        _scene->update();
 }
 
 void GraphicsWidget::updateScene()

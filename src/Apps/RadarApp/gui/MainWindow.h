@@ -99,6 +99,10 @@ private slots:
 
     void on_tbWorkPanel_currentChanged(int index);
 
+    void on_pdSetCoordinate_clicked();
+
+    void on_rbCirlceMode_clicked();
+
 public slots:
     void slotConnectToServerState(bool state);
     void slotNetworkExchange(uint64_t bytesSend, uint64_t errorrCount);

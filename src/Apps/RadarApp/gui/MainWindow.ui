@@ -543,10 +543,20 @@
            <item>
             <widget class="QRadioButton" name="rbRadarMode">
              <property name="text">
-              <string>Лимб</string>
+              <string>Лимб радар</string>
              </property>
              <property name="checked">
               <bool>true</bool>
+             </property>
+             <attribute name="buttonGroup">
+              <string notr="true">buttonGroup</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="rbCirlceMode">
+             <property name="text">
+              <string>Либм</string>
              </property>
              <attribute name="buttonGroup">
               <string notr="true">buttonGroup</string>
@@ -561,6 +571,82 @@
              <attribute name="buttonGroup">
               <string notr="true">buttonGroup</string>
              </attribute>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="title">
+           <string>Координаты места наблюдения </string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <property name="topMargin">
+              <number>20</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>Широта</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="dspLatitude">
+               <property name="decimals">
+                <number>7</number>
+               </property>
+               <property name="minimum">
+                <double>-90.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>90.000000000000000</double>
+               </property>
+               <property name="value">
+                <double>47.293666000000002</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <property name="topMargin">
+              <number>23</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Долгота</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="dspLongitude">
+               <property name="decimals">
+                <number>7</number>
+               </property>
+               <property name="minimum">
+                <double>-180.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>180.000000000000000</double>
+               </property>
+               <property name="value">
+                <double>39.736583000000003</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pdSetCoordinate">
+             <property name="text">
+              <string>Установить</string>
+             </property>
             </widget>
            </item>
           </layout>
