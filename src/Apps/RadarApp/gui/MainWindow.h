@@ -66,6 +66,7 @@ class MainWindow : public QMainWindow
     void drawWaterfall(const QVector<double> &power);
     QString takeColorStrByState(bool state);
     void logBalancing();
+    void writeSettings();
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
