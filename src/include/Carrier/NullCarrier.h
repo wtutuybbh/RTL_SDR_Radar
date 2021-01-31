@@ -23,7 +23,7 @@ public:
      * \brief setGeoCoord установка геокординат
      * \param pst - текущие координаты
      */
-     void setGeoCoord(const Position&){}
+     void setGeoCoord(const Position& pos){_ptrNavigation->setGeoCoord(pos);}
      /*!
       * \brief getGeoCoord - получение текущих координат
       * \return  значение широты / долготы Ростова-на-Дону

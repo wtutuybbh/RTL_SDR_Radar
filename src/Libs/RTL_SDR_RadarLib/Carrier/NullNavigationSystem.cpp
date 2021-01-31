@@ -3,11 +3,16 @@
 
 NullNavigationSystem::NullNavigationSystem()
 {
+    _position = Position(39.736583, 47.293666);
+}
 
+void NullNavigationSystem::setGeoCoord(const Position &pos)
+{
+    _position = pos;
 }
 
 Position NullNavigationSystem::getGeoCoord()
 {
-    return Position(39.736583, 47.293666);
+    return _position;
 }
 
