@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "GraphicsWidget/GraphicsWidget.h"
 #include "qcustomplot/qcustomplot.h"
@@ -41,10 +42,14 @@ MainWindow::MainWindow(QWidget *parent) :
     _peakSpectrumCoeff = ui->hslPeakSpectrumCoeff->value() * peakSpectrumCoeffDelta;
     ui->lPeakSpectrCoeffValue->setText(QString("%1").arg(_peakSpectrumCoeff, 0, 'f', 5));
 
+    Position pos = ServiceLocator::getCarrier()->getGeoCoord();
+    ui->dspLatitude->setValue(pos.latitude());
+    ui->dspLongitude->setValue(pos.longitude());
 }
 
 MainWindow::~MainWindow()
 {
+    writeSettings();
     _timer.stop();
     delete _plotSpectrum;
     delete _plotWaterfall;
@@ -399,5 +404,15 @@ void MainWindow::on_pdSetCoordinate_clicked()
 {
     const Position pos = Position(ui->dspLongitude->value(), ui->dspLatitude->value());
      _graphicsWidget->setCentralCoordinate(pos);
+     writeSettings();
 }
 
+void MainWindow::writeSettings()
+ {
+     QSettings settings("RTL_SDR Soft", "RTL_SDR_Radar");
+
+     settings.beginGroup("GeoCoordinate");
+     settings.setValue("latitude",  ui->dspLatitude->value());
+     settings.setValue("longitude", ui->dspLongitude->value());
+     settings.endGroup();
+ }

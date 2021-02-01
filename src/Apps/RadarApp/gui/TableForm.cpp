@@ -12,6 +12,7 @@ TableForm::TableForm(QWidget *parent) :
 {
     ui->setupUi(this);
     _view = new QTableView(this);
+
     //заголовки
     _view->horizontalHeader()->setDefaultSectionSize(70);
     _view->horizontalHeader()->setMinimumSectionSize(70);

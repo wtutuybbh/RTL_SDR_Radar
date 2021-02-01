@@ -1,5 +1,6 @@
 #include "Core.h"
 #include <QApplication>
+#include <QSettings>
 
 #include "PoolObject/PoolObject.h"
 #include "Logger/Logger.h"
@@ -30,6 +31,8 @@ Core::Core(QObject *parent) : QObject(parent)
 
     //носитель приемника стационарный объект
     ServiceLocator::provide(QSharedPointer<ICarrierClass>( new NullCarrier()) );
+    readSettings();
+
     //модуль логгирования
     _logger = QSharedPointer<ILogger>(new Logger(sizeLog));
     //модуль взаимодействия с приемником
@@ -57,7 +60,6 @@ Core::Core(QObject *parent) : QObject(parent)
     //подписка на события
     _graphicsWidget->subscribe(_subject);
     _mainWindow->addGraphicsWidget(_graphicsWidget);
-
 
     //модель таблицы
     _modelTable = new ModelTable(_mainWindow);
@@ -166,5 +168,13 @@ void Core::updateGeoPositionInfo()
     }
 }
 
+void Core::readSettings()
+{
+    QSettings settings("RTL_SDR Soft", "RTL_SDR_Radar");
 
-
+    settings.beginGroup("GeoCoordinate");
+    Position pos(settings.value("longitude").toDouble(),
+                 settings.value("latitude").toDouble());
+    ServiceLocator::getCarrier()->setGeoCoord(pos);
+    settings.endGroup();
+}

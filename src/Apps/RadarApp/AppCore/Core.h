@@ -60,6 +60,7 @@ class Core : public QObject
      */
     void updateGeoPositionInfo();
 
+    void readSettings();
 public:
     explicit Core(QObject *parent = nullptr);
     ~Core();
