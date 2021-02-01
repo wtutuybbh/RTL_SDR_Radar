@@ -556,7 +556,7 @@
            <item>
             <widget class="QRadioButton" name="rbCirlceMode">
              <property name="text">
-              <string>Либм</string>
+              <string>Лимб</string>
              </property>
              <attribute name="buttonGroup">
               <string notr="true">buttonGroup</string>

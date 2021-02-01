@@ -27,7 +27,8 @@ class Core : public QObject
     ///< период обновления ифнормации
     int32_t TIMEOUT_UPDATE = 1000;
 
-    uint32_t SIZE_WIDGET = 600;
+    const uint32_t SIZE_WIDGET = 600;
+    QSize _sizeMainWindows;
     int sizeLog = 1000;
     ///< таймер обновления
     QTimer _timerUpdateWidgets;

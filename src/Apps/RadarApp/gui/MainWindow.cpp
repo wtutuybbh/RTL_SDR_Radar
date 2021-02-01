@@ -415,4 +415,8 @@ void MainWindow::writeSettings()
      settings.setValue("latitude",  ui->dspLatitude->value());
      settings.setValue("longitude", ui->dspLongitude->value());
      settings.endGroup();
+
+     settings.beginGroup("mainwindow");
+     settings.setValue("size", this->size());
+     settings.endGroup();
  }
