@@ -71,7 +71,7 @@ Core::Core(QObject *parent) : QObject(parent)
     _tableSrc->setTableModel(_modelTable);
     _mainWindow->addTableWidget(_tableSrc);
 
-    _mainWindow->adjustSize();
+    _mainWindow->resize(_sizeMainWindows);
     _mainWindow->show();
 
     QObject::connect(_tableSrc,&TableForm::signalSetObjectCurrent,
@@ -176,5 +176,9 @@ void Core::readSettings()
     Position pos(settings.value("longitude").toDouble(),
                  settings.value("latitude").toDouble());
     ServiceLocator::getCarrier()->setGeoCoord(pos);
+    settings.endGroup();
+
+    settings.beginGroup("mainwindow");
+    _sizeMainWindows = QSize(settings.value("size", QSize(800, 600)).toSize());
     settings.endGroup();
 }
