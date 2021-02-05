@@ -40,6 +40,7 @@ class MODELTABLERTOSHARED_EXPORT ModelTable : public QAbstractTableModel,
     typedef QHash< Column, QVariant > SrcData;
     QVector<info> idIndex;
     QHash< uint64_t,SrcData > _listSrc;
+    bool _isSetEnglish = false;
 
     void appendData(QSharedPointer<IObject> &object);
     void removeData(QSharedPointer<IPoolObject> &pool);
@@ -60,9 +61,14 @@ public:
     QVariant headerData( int section, Qt::Orientation orientation, int role ) const override;
     Qt::ItemFlags flags( const QModelIndex& index ) const override;
 
+
+
 signals:
     void sigUpdateSelection(const QItemSelection &index,
                             QItemSelectionModel::SelectionFlags flags);
+
+public slots:
+    void setEnglish(bool value);
 };
 
 #endif // MODELTABLE_H

@@ -653,6 +653,36 @@
          </widget>
         </item>
         <item>
+         <widget class="QGroupBox" name="groupBox_4">
+          <property name="title">
+           <string>Язык / language</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <item>
+            <widget class="QComboBox" name="cmbLanguage">
+             <item>
+              <property name="text">
+               <string>English</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string/>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pbSetLanguage">
+             <property name="text">
+              <string>Установить / Apply</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>

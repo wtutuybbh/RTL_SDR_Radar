@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QGraphicsView>
+#include <QTranslator>
 
 #include <QTimer>
 #include "interface/ILogger.h"
@@ -60,6 +61,7 @@ class MainWindow : public QMainWindow
 
     Ui::MainWindow *ui;
     GraphicsWidget* _graphicsWidget = nullptr;
+    QTranslator qtLanguageTranslator;
 
     void initChart();
     void clearPeaks();
@@ -104,8 +106,14 @@ private slots:
 
     void on_rbCirlceMode_clicked();
 
+
+
 public slots:
     void slotConnectToServerState(bool state);
     void slotNetworkExchange(uint64_t bytesSend, uint64_t errorrCount);
+    void on_pbSetLanguage_clicked();
+
+signals:
+    void setEnglishLanguage(bool state);
 };
 #endif // MAINWINDOW_H

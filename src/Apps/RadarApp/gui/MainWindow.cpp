@@ -418,5 +418,26 @@ void MainWindow::writeSettings()
 
      settings.beginGroup("mainwindow");
      settings.setValue("size", this->size());
+
+     settings.beginGroup("language");
+     settings.setValue("index", ui->cmbLanguage->currentIndex());
      settings.endGroup();
  }
+
+void MainWindow::on_pbSetLanguage_clicked()
+{
+    QString strDir = QApplication::applicationFilePath();
+    QDir appDir(strDir);
+    appDir.cdUp();
+    appDir.cdUp();
+    appDir.cdUp();
+    appDir.cdUp();
+    appDir.cd("./export");
+
+    qtLanguageTranslator.load( appDir.path() + "/" + QString("QtLanguage_en"));
+    qApp->installTranslator(&qtLanguageTranslator);
+    ui->retranslateUi(this);
+
+
+    emit setEnglishLanguage(true);
+}

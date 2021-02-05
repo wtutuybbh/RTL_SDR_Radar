@@ -68,3 +68,5 @@ LIBS += -lLogger \
         -lDemodulator \
         -lModelTable \
         -lDSPLib
+
+TRANSLATIONS += QtLanguage_en.ts

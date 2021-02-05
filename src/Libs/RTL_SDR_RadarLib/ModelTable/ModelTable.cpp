@@ -150,25 +150,24 @@ QVariant ModelTable::headerData(int section, Qt::Orientation orientation, int ro
         case UUID:
             return trUtf8("UUID");
         case ID:
-            return trUtf8("Идент.");
+            return  trUtf8("ICAO");
         case NAME:
-            return trUtf8("Наимен.");
+            return (_isSetEnglish) ? trUtf8("Flyght") : trUtf8("Рейс") ;
         case TIME:
-            return trUtf8("t обнар. /\nt обнов.");
+            return (_isSetEnglish) ? trUtf8("t reg. /\nt update") : trUtf8("t обнар. /\nt обнов.");
         case AZIM:
-            return trUtf8("П,°");
+            return (_isSetEnglish) ? trUtf8("A,°") : trUtf8("П,°") ;
         case DIST:
-            return trUtf8("D,км");
+            return trUtf8("D,km");
         case COURSE:
-            return trUtf8("Курс");
+            return (_isSetEnglish) ? trUtf8("Course,°") : trUtf8("Курс,°") ;
         case ALTITUDE:
-            return trUtf8("Высота");
+            return (_isSetEnglish) ? trUtf8("Altitude,m") : trUtf8("Высота,м") ;
         case SPEED:
-            return trUtf8("Скорость");
+            return (_isSetEnglish) ? trUtf8("Velocity,km/h") : trUtf8("Скорость, км/ч") ;
         case GEOCOORD:
-            return trUtf8("Ш,°/\nД,°");
+            return (_isSetEnglish) ? trUtf8("Lat,°/\nLon,°") : trUtf8("Ш,°/\nД,°");
     }
-
     return QVariant();
 }
 
@@ -182,6 +181,11 @@ Qt::ItemFlags ModelTable::flags(const QModelIndex &index) const
     return flags;
 }
 
+
+void ModelTable::setEnglish(bool value)
+{
+    _isSetEnglish = value;
+}
 
 void ModelTable::appendData(QSharedPointer<IObject> &object)
 {

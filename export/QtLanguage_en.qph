@@ -1,0 +1,119 @@
+<!DOCTYPE QPH>
+<QPH language="en_US">
+<phrase>
+    <source>ПОСТ КОНТРОЛЯ ВОЗДУШНОГО ДВИЖЕНИЯ</source>
+    <target>AIR TRAFFIC CONTROL POST</target>
+</phrase>
+<phrase>
+    <source>Подключение</source>
+    <target>Connections</target>
+</phrase>
+<phrase>
+    <source>RTL-SDR</source>
+    <target></target>
+</phrase>
+<phrase>
+    <source>RTL-SDR Server</source>
+    <target></target>
+</phrase>
+<phrase>
+    <source>GPS / Глонасс</source>
+    <target></target>
+</phrase>
+<phrase>
+    <source>Таблица</source>
+    <target>Table</target>
+</phrase>
+<phrase>
+    <source>Эфир</source>
+    <target>Radio broadcast</target>
+</phrase>
+<phrase>
+    <source>---</source>
+    <target></target>
+</phrase>
+<phrase>
+    <source>Мгновенный спектр</source>
+    <target>instantaneous spectrum</target>
+</phrase>
+<phrase>
+    <source>Пиковый детектор</source>
+    <target>peak search</target>
+</phrase>
+<phrase>
+    <source>Глубина:</source>
+    <target>Deapth:</target>
+</phrase>
+<phrase>
+    <source>Коэфф.:</source>
+    <target>Ratio:</target>
+</phrase>
+<phrase>
+    <source>Накопление</source>
+    <target>accumulation</target>
+</phrase>
+<phrase>
+    <source>Огибающая сигнала</source>
+    <target>magnitude signal</target>
+</phrase>
+<phrase>
+    <source>Терминал</source>
+    <target>Logs Terminal</target>
+</phrase>
+<phrase>
+    <source>Очередь сообщений</source>
+    <target>Message queue</target>
+</phrase>
+<phrase>
+    <source>Настройки</source>
+    <target>Settings</target>
+</phrase>
+<phrase>
+    <source>Настройка отображения</source>
+    <target>Grapics settings</target>
+</phrase>
+<phrase>
+    <source>Лимб радар</source>
+    <target>Radar with sector</target>
+</phrase>
+<phrase>
+    <source>Лимб</source>
+    <target>Radar</target>
+</phrase>
+<phrase>
+    <source>Декарт</source>
+    <target>Cartesian</target>
+</phrase>
+<phrase>
+    <source>Координаты места наблюдения </source>
+    <target>Geo coordinate </target>
+</phrase>
+<phrase>
+    <source>Широта</source>
+    <target>latitude</target>
+</phrase>
+<phrase>
+    <source>Долгота</source>
+    <target>longitude</target>
+</phrase>
+<phrase>
+    <source>Установить</source>
+    <target>Apply</target>
+</phrase>
+<phrase>
+    <source>Form</source>
+    <target></target>
+</phrase>
+<phrase>
+    <source>RadarApp</source>
+    <target></target>
+</phrase>
+<phrase>
+    <source>IP-address to connect to the server</source>
+    <target></target>
+</phrase>
+<phrase>
+    <source>port to connect to the server</source>
+    <target></target>
+</phrase>
+</QPH>

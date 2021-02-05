@@ -48,3 +48,4 @@ LIBS += -lCarrier \
         -lRTL_SDR_Reciver \
         -lDSPLib
 
+TRANSLATIONS += QtLanguage_ru.ts

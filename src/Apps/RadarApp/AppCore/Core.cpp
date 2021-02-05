@@ -76,6 +76,8 @@ Core::Core(QObject *parent) : QObject(parent)
 
     QObject::connect(_tableSrc,&TableForm::signalSetObjectCurrent,
                      _graphicsWidget,&GraphicsWidget::slotSetObjectCurrent);
+    QObject::connect(_mainWindow, &MainWindow::setEnglishLanguage,
+                     _modelTable,&ModelTable::setEnglish);
 
     QObject::connect(&_timerUpdateWidgets, &QTimer::timeout,
                      this, &Core::slotUpdateWidgets);

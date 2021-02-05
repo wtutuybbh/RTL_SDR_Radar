@@ -3,15 +3,18 @@
 #include <QProcessEnvironment>
 #include <QCommandLineParser>
 #include <signal.h>
+#include <QTranslator>
 #include "AppCore/Core.h"
 
 int main(int argc, char *argv[])
 {
+    QTranslator qtLanguageTranslator;
     QApplication a(argc, argv);
 
     // парсер аргументов командной строки
-    QApplication::setApplicationName("RaspberryApp");
+    QApplication::setApplicationName("RadarApp");
     QApplication::setApplicationVersion("1.0");
+
 
     signal(SIGPIPE, SIG_IGN);
 
